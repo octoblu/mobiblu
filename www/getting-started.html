@@ -27,32 +27,54 @@
     <link href="/stylesheets/ratchet.css" rel="stylesheet">
 
     <!-- Include the compiled Ratchet JS -->
-    <script src="/javascripts/ratchet.js"></script>
+    <script src="/javascripts/ratchet.min.js"></script>
   </head>
   <body>
 
     <!-- Make sure all your bars are the first things in your <body> -->
     <header class="bar bar-nav">
-        <button class="btn pull-right">
+      <button class="btn pull-left">
           <a href="/" title="Back">
-              Login
+              Back
           </a>
-        </button>
-        <h1 class="title">Octoblu Mobile</h1>
+      </button>
+      <button class="btn pull-right">
+        <a href="/" title="Back">
+            Login
+        </a>
+      </button>
+      <h1 class="title">Octoblu Mobile</h1>
     </header>
 
     <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
     <div class="content">
-      <p class="content-padded">Welcome to the #IoT world.</p>
-      <div class="card">
-        <ul class="table-view">
-          <li class="table-view-cell">
-            <a class="push-right" href="/getting-started.html">
-              <strong>Getting Started</strong>
+      <p class="content-padded">Getting Started</p>
+      <ul class="table-view">
+          <li class="table-view-cell media">
+            <a class="navigate-right">
+              <div class="media-body">
+                Login to Octoblu
+                <p>...</p>
+              </div>
+            </a>
+          </li>
+          <li class="table-view-cell media">
+            <a class="navigate-right">
+              <div class="media-body">
+                Do something
+                <p>...</p>
+              </div>
+            </a>
+          </li>
+          <li class="table-view-cell media">
+            <a class="navigate-right">
+              <div class="media-body">
+                Do something else
+                <p>...</p>
+              </div>
             </a>
           </li>
         </ul>
-      </div>
     </div>
 
   </body>
