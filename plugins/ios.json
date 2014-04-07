@@ -1,0 +1,27 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "config.xml": {
+            "/*": {
+                "<feature name=\"BackgroundMode\"><param name=\"ios-package\" onload=\"true\" value=\"APPBackgroundMode\" /><param name=\"onload\" value=\"true\" /></feature>": 1
+            }
+        },
+        "*-Info.plist": {
+            "UIBackgroundModes": {
+                "<array><string>location</string></array>": 1
+            },
+            "NSLocationUsageDescription": {
+                "<string>Is required -for iOS 6 and above- to run the app in background!</string>": 1
+            }
+        }
+    },
+    "installed_plugins": {
+        "de.appplant.cordova.plugin.background-mode": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        }
+    },
+    "dependent_plugins": {}
+}

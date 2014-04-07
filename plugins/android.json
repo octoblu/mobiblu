@@ -1,0 +1,19 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "config.xml": {
+            "/*": {
+                "<preference name=\"KeepRunning\" value=\"true\" />": 1
+            }
+        }
+    },
+    "installed_plugins": {
+        "de.appplant.cordova.plugin.background-mode": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        }
+    },
+    "dependent_plugins": {}
+}
