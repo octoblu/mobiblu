@@ -4,7 +4,7 @@
 steroids.config.name = "octoblu-mobile"
 
 # -- Initial Location --
-steroids.config.location = "http://localhost/index.html"
+steroids.config.location = "http://localhost/views/home/index.html"
 
 # -- Tab Bar --
 # steroids.config.tabBar.enabled = true
@@ -40,7 +40,7 @@ steroids.config.navigationBar.buttonTintColor = "#ffffff"
 steroids.config.loadingScreen.tintColor = "#262626"
 
 # -- iOS Status Bar --
-steroids.config.statusBar.enabled = true
+steroids.config.statusBar.enabled = false
 steroids.config.statusBar.style = "default"
 
 # -- File Watcher --

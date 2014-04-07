@@ -1,0 +1,16 @@
+<div ng-app="homeApp">
+
+  <div ng-controller="IndexCtrl">
+
+    <p class="content-padded">Welcome to the #IoT world.</p>
+    <div class="card">
+      <ul class="table-view">
+        <li class="table-view-cell" ng-repeat="home in homes" hm-tap="open(home.home_id)">
+            <strong>{{home.name}}</strong>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>

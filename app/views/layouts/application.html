@@ -11,47 +11,49 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <link rel="stylesheet" href="/vendor/topcoat/css/topcoat-mobile-light.css" />
-    <link rel="stylesheet" href="/stylesheets/application.css" />
-
-    <script src="/javascripts/onerror.js"></script>
-    <script src="/javascripts/console.log.js"></script>
-
     <!-- cordova.js is served from localhost to ensure the correct version -->
     <script src="http://localhost/cordova.js"></script>
     <script src="/components/steroids-js/steroids.js"></script>
-
-    <script src="/javascripts/geolocation.js"></script>
 
     <!-- Include the compiled Ratchet CSS -->
     <link href="/stylesheets/ratchet.css" rel="stylesheet">
 
     <!-- Include the compiled Ratchet JS -->
     <script src="/javascripts/ratchet.js"></script>
+
+    <link rel="stylesheet" href="/stylesheets/application.css" />
+
+    <!-- Skynet.js -->
+    <script src="http://skynet.im/js/skynet.js"></script>
+
+    <script src="/components/angular/angular.min.js"></script>
+
+    <script src="/components/underscore/underscore-min.js"></script>
+    <script src="/components/restangular/dist/restangular.min.js"></script>
+
+    <script src="/vendor/persistencejs/persistence.js"></script>
+    <script src="/vendor/persistencejs/persistence.store.sql.js"></script>
+    <script src="/vendor/persistencejs/persistence.store.websql.js"></script>
+
+    <script src="/vendor/hammerjs/hammer.min.js"></script>
+    <script src="/vendor/angular-hammer/angular-hammer.js"></script>
+
+    <script src="/models/models.js"></script>
+
+    <script src="/controllers/<%= yield.controller %>.js"></script>
+
+    <script src="/javascripts/octoblu.js"></script>
+
+    <script src="/javascripts/application.js"></script>
+
+    <script src="/javascripts/sensors.js"></script>
+
   </head>
   <body>
 
-    <!-- Make sure all your bars are the first things in your <body> -->
-    <header class="bar bar-nav">
-      <button class="btn btn-link btn-nav pull-left">
-        <a href="/" title="Back">
-          <span class="icon icon-left-nav"></span>
-          Back
-        </a>
-      </button>
-      <button class="btn pull-right">
-        <a href="/" title="Back">
-            Login
-        </a>
-      </button>
-      <h1 class="title">Octoblu Mobile</h1>
-    </header>
-
     <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
     <div class="content">
-      <p class="content-padded">Geolocation</p>
-      <button class="btn btn-block" onclick="Geolocation.start()">Track Location</button>
-      <p class="content-padded" id="geolocation">Watching geolocation...</p>
+      <%= yield.view %>
     </div>
   </body>
 </html>

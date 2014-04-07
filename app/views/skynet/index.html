@@ -1,0 +1,14 @@
+<div ng-controller="IndexCtrl">
+  <div class="spinner" ng-show="loading"></div>
+  <div class="topcoat-list__container">
+
+    <ul class="topcoat-list">
+      <!-- order is reversed created timestamp -->
+      <li class="topcoat-list__item" hm-tap="open(skynet.id)" ng-repeat="skynet in skynets | orderBy: '-createddate'">
+        skynet: {{ skynet.name }}
+      </li>
+    </ul>
+
+  </div>
+
+</div>

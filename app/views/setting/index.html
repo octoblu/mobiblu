@@ -1,0 +1,22 @@
+<div ng-app="settingApp">
+
+  <div ng-controller="IndexCtrl">
+    <div class="spinner" ng-show="loading"></div>
+    <div class="info">
+        <strong>Skynet UUID:</strong><span>{{skynetuuid}}</span><br>
+        <strong>Skynet Token:</strong><span>{{skynettoken}}</span>
+    </div>
+    <div>
+
+      <ul>
+        <!-- order is reversed created timestamp -->
+        <li hm-tap="open(setting.setting_id)" ng-repeat="setting in settings | orderBy: '-createddate'">
+          Setting: {{ setting.name }}
+        </li>
+      </ul>
+
+    </div>
+
+  </div>
+
+</div>
