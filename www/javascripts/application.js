@@ -2,10 +2,11 @@ var rightButton = new steroids.buttons.NavigationBarButton();
 
 var skynetuuid = window.localStorage.getItem("skynetuuid"),
     skynettoken = window.localStorage.getItem("skynettoken");
+
 if(skynetuuid && skynettoken){
     rightButton.title = "Settings";
     rightButton.onTap = function() {
-        window.location.href="http://localhost/views/setting/index.html";
+        open('/views/setting/index.html');
     };
 }else{
     var newskynetuuid = getParam('uuid'),
@@ -23,7 +24,8 @@ if(skynetuuid && skynettoken){
 }
 
 steroids.view.navigationBar.setButtons({
-  right: [rightButton]
+  right: [rightButton],
+  overrideBackButton: false
 });
 
 function getParam(variable){
