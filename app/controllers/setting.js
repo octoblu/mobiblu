@@ -25,8 +25,8 @@ settingApp.controller('IndexCtrl', function ($scope, SettingRestangular) {
 
   };
 
-  $scope.skynetuuid = Octoblu.getCookie('skynetuuid');
-  $scope.skynettoken = Octoblu.getCookie('skynettoken');
+  $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
+  $scope.skynettoken = window.localStorage.getItem("skynettoken");
 
   // Fetch all objects from the backend (see app/models/setting.js)
   var settings = SettingRestangular.all('setting');
@@ -45,7 +45,7 @@ settingApp.controller('IndexCtrl', function ($scope, SettingRestangular) {
   // -- Native navigation
 
   // Set navigation bar..
-  steroids.view.navigationBar.show("Setting index");
+  steroids.view.navigationBar.show("Setting");
 
   // ..and add a button to it
   var addButton = new steroids.buttons.NavigationBarButton();
