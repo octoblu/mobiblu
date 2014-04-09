@@ -7,7 +7,6 @@ function skynetDeviceReady() {
         var obj = this;
 
         obj.devicename = "Octoblu Mobile (" + device.model + ")";
-        alert(device.name + ' :: ' + device.model);
         // Octoblu User Data
         obj.skynetuuid = window.localStorage.getItem("skynetuuid");
         obj.skynettoken = window.localStorage.getItem("skynettoken");

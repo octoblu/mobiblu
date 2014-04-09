@@ -8,5 +8,5 @@
         AppGyver Steroids Team
     </author>
     <access origin="*" />
-
+    <plugin name="Device" value="org.apache.cordova.Device"/>
 </widget>
