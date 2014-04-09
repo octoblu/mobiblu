@@ -39,6 +39,7 @@
 		7E7966E71810823500FA85AD /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DD1810823500FA85AD /* icon-small@2x.png */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 		5CDB3AAA44214E7CAC9BCBBD /* APPBackgroundMode.m in Sources */ = {isa = PBXBuildFile; fileRef = E46A2376188A4E36A418C946 /* APPBackgroundMode.m */; };
+		0B1C882C291B450A8A024FAF /* CDVDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 557F30A7DA174B729575F7D7 /* CDVDevice.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +106,8 @@
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "Hello Steroids/config.xml"; sourceTree = "<group>"; };
 		E46A2376188A4E36A418C946 /* APPBackgroundMode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "APPBackgroundMode.m"; path = "de.appplant.cordova.plugin.background-mode/APPBackgroundMode.m"; sourceTree = "<group>"; fileEncoding = 4; };
 		E636E063719A4636942061B2 /* APPBackgroundMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "APPBackgroundMode.h"; path = "de.appplant.cordova.plugin.background-mode/APPBackgroundMode.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		557F30A7DA174B729575F7D7 /* CDVDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVDevice.m"; path = "org.apache.cordova.device/CDVDevice.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		CDDB091390F64248B56778A0 /* CDVDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVDevice.h"; path = "org.apache.cordova.device/CDVDevice.h"; sourceTree = "<group>"; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -227,6 +230,8 @@
 			children = (
 				E46A2376188A4E36A418C946 /* APPBackgroundMode.m */,
 				E636E063719A4636942061B2 /* APPBackgroundMode.h */,
+				557F30A7DA174B729575F7D7 /* CDVDevice.m */,
+				CDDB091390F64248B56778A0 /* CDVDevice.h */,
 			);
 			name = Plugins;
 			path = "Hello Steroids/Plugins";
@@ -422,6 +427,7 @@
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				5CDB3AAA44214E7CAC9BCBBD /* APPBackgroundMode.m in Sources */,
+				0B1C882C291B450A8A024FAF /* CDVDevice.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

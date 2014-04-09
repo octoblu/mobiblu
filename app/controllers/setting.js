@@ -1,5 +1,8 @@
-var settingApp = angular.module('settingApp', ['hmTouchevents']);
+document.addEventListener("skynetready", function () {
+    angular.bootstrap(document, ['settingApp']);
+});
 
+var settingApp = angular.module('settingApp', ['hmTouchevents']);
 
 // Index: http://localhost/views/setting/index.html
 
@@ -19,8 +22,33 @@ settingApp.controller('IndexCtrl', function ($scope) {
         $scope.loading = false;
     };
 
+    var tokenmask = '*************************';
+
+    $scope.devicename = Skynet.devicename;
+
     $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
     $scope.skynettoken = window.localStorage.getItem("skynettoken");
+    $scope.skynettoken_dummy = tokenmask;
+
+    $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
+    $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
+    $scope.mobiletoken_dummy = tokenmask;
+
+    $scope.revealMobileToken = function(){
+        if($scope.mobiletoken_dummy.match(/^\**$/)){
+            $scope.mobiletoken_dummy = $scope.mobiletoken;
+        }else{
+            $scope.mobiletoken_dummy = tokenmask;
+        }
+    };
+
+    $scope.revealUserToken = function(){
+        if($scope.skynettoken_dummy.match(/^\**$/)){
+            $scope.skynettoken_dummy = $scope.skynettoken;
+        }else{
+            $scope.skynettoken_dummy = tokenmask;
+        }
+    };
 
     // Get notified when an another webview modifies the data and reload
     window.addEventListener("message", function (event) {
@@ -32,7 +60,7 @@ settingApp.controller('IndexCtrl', function ($scope) {
     // -- Native navigation
 
     // Set navigation bar..
-    steroids.view.navigationBar.show("Setting");
+    steroids.view.navigationBar.show("Device Settings");
 
     // ..and add a button to it
     var addButton = new steroids.buttons.NavigationBarButton();
@@ -48,8 +76,6 @@ settingApp.controller('IndexCtrl', function ($scope) {
     steroids.view.navigationBar.setButtons({
         right: [addButton]
     });
-
-
 });
 
 

@@ -1,0 +1,39 @@
+[
+  {
+    "home_id": 1,
+    "name": "Getting Started",
+    "description": "...",
+    "steps" : [
+        {
+            "name" : "Login",
+            "description" : "First login with octoblu to manage your skynet system."
+        },
+        {
+            "name" : "Test",
+            "description" : "Watch SkyNet update your sensor data."
+        },
+        {
+            "name" : "Setup flows",
+            "description" : "Create flows through Octoblu's designer to trigger events when something happens."
+        }
+    ]
+  },
+  {
+    "home_id": 2,
+    "name": "GPS",
+    "description": "Track geo location data",
+    "sensorType": "Geolocation"
+  },
+  {
+    "home_id": 3,
+    "name": "Accelerometer",
+    "description": "Track acceleration data",
+    "sensorType": "Accelerometer"
+  },
+  {
+    "home_id": 4,
+    "name": "Compass",
+    "description": "Track compass sensor data",
+    "sensorType": "Compass"
+  }
+]

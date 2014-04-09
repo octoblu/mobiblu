@@ -5,44 +5,26 @@ A bunch of background mode plugins for Cordova 3.x.x
 
 by Sebastián Katzer ([github.com/katzer](https://github.com/katzer))
 
-
 ## Supported Platforms
 - **iOS** (>=5)
 - **Android**
 - **WP8**
-
 
 ## Adding the Plugin to your project
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
 ```bash
 # from master:
 cordova plugin add https://github.com/katzer/cordova-plugin-background-mode.git
-cordova build
 
 # last version:
 cordova plugin add de.appplant.cordova.plugin.background-mode
-cordova build
 ```
-
 
 ## Removing the Plugin from your project
 Through the [Command-line Interface](http://cordova.apache.org/docs/en/3.0.0/guide_cli_index.md.html#The%20Command-line%20Interface):
 ```
 cordova plugin rm de.appplant.cordova.plugin.background-mode
 ```
-
-
-## PhoneGap Build
-Add the following xml to your config.xml to always use the latest version of this plugin:
-```
-<gap:plugin name="de.appplant.cordova.plugin.background-mode" />
-```
-or to use this exact version:
-```
-<gap:plugin name="de.appplant.cordova.plugin.background-mode" version="0.5.0" />
-```
-More informations can be found [here](https://build.phonegap.com/plugins/490).
-
 
 ## Release Notes
 #### Version 0.5.0 (13.02.2014)
@@ -97,9 +79,6 @@ The app still runs in background, even if the location service is not actived.
 
 **iOS 7**<br>
 The location service needs to be enabled.
-
-**AppStore**<br>
-Warning: if you use this plugin but your app does not require any persistent geolocation (eg you do nothing with the geolocation values), your app will be rejected by the AppStore review team (there is at least one predecedent).
 
 ### Optimization on WP8
 By default the plugin will track for geo updates while the application is in background and foreground. To stop tracking in foreground, the `MainPage.xaml.cs` file needs the following 2 methods:

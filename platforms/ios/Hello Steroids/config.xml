@@ -19,6 +19,13 @@
     <feature name="LocalStorage">
         <param name="ios-package" value="CDVLocalStorage" />
     </feature>
+    <feature name="BackgroundMode">
+        <param name="ios-package" onload="true" value="APPBackgroundMode" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="Device">
+        <param name="ios-package" value="CDVDevice" />
+    </feature>
     <name>Hello Steroids</name>
     <description>
         A fresh new Steroids application.
@@ -27,8 +34,4 @@
         AppGyver Steroids Team
     </author>
     <access origin="*" />
-    <feature name="BackgroundMode">
-        <param name="ios-package" onload="true" value="APPBackgroundMode" />
-        <param name="onload" value="true" />
-    </feature>
 </widget>

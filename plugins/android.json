@@ -8,10 +8,18 @@
             "/*": {
                 "<preference name=\"KeepRunning\" value=\"true\" />": 1
             }
+        },
+        "res/xml/config.xml": {
+            "/*": {
+                "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>": 1
+            }
         }
     },
     "installed_plugins": {
         "de.appplant.cordova.plugin.background-mode": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        },
+        "org.apache.cordova.device": {
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
         }
     },

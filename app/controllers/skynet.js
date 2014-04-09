@@ -1,4 +1,3 @@
-// Since we are using the Cordova SQLite plugin, initialize AngularJS only after deviceready
 document.addEventListener("deviceready", function () {
     angular.bootstrap(document, ['skynetApp']);
 });
