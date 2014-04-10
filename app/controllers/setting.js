@@ -22,9 +22,9 @@ settingApp.controller('IndexCtrl', function ($scope) {
         $scope.loading = false;
     };
 
-    var tokenmask = '*************************';
+    $scope.devicename = 'Loading...';
 
-    $scope.devicename = Skynet.devicename;
+    var tokenmask = '*************************';
 
     $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
     $scope.skynettoken = window.localStorage.getItem("skynettoken");
@@ -33,6 +33,25 @@ settingApp.controller('IndexCtrl', function ($scope) {
     $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
     $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
     $scope.mobiletoken_dummy = tokenmask;
+
+    Skynet.getDeviceSetting(function(data){
+        $scope.devicename = data.name;
+        $scope.settings = data.setting || {};
+    });
+
+    $scope.update = function(){
+        $scope.loading = true;
+        var data = {
+            name : $scope.devicename,
+            setting : {
+                bg_updates : !! $scope.settings.bg_updates,
+                bg_update_interval : !! $scope.settings.bg_update_interval
+            }
+        };
+        Skynet.updateDeviceSetting(data, function(rData){
+            $scope.loading = false;
+        });
+    };
 
     $scope.revealMobileToken = function(){
         if($scope.mobiletoken_dummy.match(/^\**$/)){
@@ -58,100 +77,4 @@ settingApp.controller('IndexCtrl', function ($scope) {
 
 
     // -- Native navigation
-
-    // Set navigation bar..
-    steroids.view.navigationBar.show("Device Settings");
-
-    // ..and add a button to it
-    var addButton = new steroids.buttons.NavigationBarButton();
-    addButton.title = "Add";
-
-    // ..set callback for tap action
-    addButton.onTap = function () {
-        var addView = new steroids.views.WebView("/views/setting/new.html");
-        steroids.modal.show(addView);
-    };
-
-    // and finally put it to navigation bar
-    steroids.view.navigationBar.setButtons({
-        right: [addButton]
-    });
-});
-
-
-// Show: http://localhost/views/setting/show.html?id=<id>
-
-settingApp.controller('ShowCtrl', function ($scope) {
-
-    // Helper function for loading setting data with spinner
-    $scope.loadSetting = function () {
-        $scope.loading = false;
-    };
-
-    // Save current setting id to localStorage (edit.html gets it from there)
-    localStorage.setItem("currentSettingId", steroids.view.params.id);
-
-    // When the data is modified in the edit.html, get notified and update (edit is on top of this view)
-    window.addEventListener("message", function (event) {
-        if (event.data.status === "reload") {
-        }
-    });
-
-    // -- Native navigation
-    steroids.view.navigationBar.show("Setting: " + steroids.view.params.id);
-
-    var editButton = new steroids.buttons.NavigationBarButton();
-    editButton.title = "Edit";
-
-    editButton.onTap = function () {
-        webView = new steroids.views.WebView("/views/setting/edit.html");
-        steroids.modal.show(webView);
-    };
-
-    steroids.view.navigationBar.setButtons({
-        right: [editButton]
-    });
-
-
-});
-
-
-// New: http://localhost/views/setting/new.html
-
-settingApp.controller('NewCtrl', function ($scope) {
-
-    $scope.close = function () {
-        steroids.modal.hide();
-    };
-
-    $scope.create = function (setting) {
-        $scope.loading = false;
-    };
-
-    $scope.setting = {};
-
-});
-
-
-// Edit: http://localhost/views/setting/edit.html
-
-settingApp.controller('EditCtrl', function ($scope) {
-
-    var id = localStorage.getItem("currentSettingId");
-
-    $scope.close = function () {
-        steroids.modal.hide();
-    };
-
-    $scope.update = function (setting) {
-        $scope.loading = false;
-    };
-
-    // Helper function for loading setting data with spinner
-    $scope.loadSetting = function () {
-        $scope.loading = false;
-    };
-
-    $scope.loadSetting();
-
 });

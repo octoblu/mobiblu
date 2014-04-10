@@ -6,7 +6,7 @@ function skynetDeviceReady() {
     Skynet = (function () {
         var obj = this;
 
-        obj.devicename = "Octoblu Mobile (" + device.model + ")";
+        obj.devicename = window.localStorage.getItem("devicename") || "Octoblu Mobile (" + device.model + ")";
         // Octoblu User Data
         obj.skynetuuid = window.localStorage.getItem("skynetuuid");
         obj.skynettoken = window.localStorage.getItem("skynettoken");
@@ -25,12 +25,7 @@ function skynetDeviceReady() {
         obj.register = function () {
             if (obj.isRegistered()) {
                 // Already Registered & Update the device
-                obj.skynetSocket.emit('update', {
-                    "uuid": obj.mobileuuid,
-                    "token": obj.mobiletoken,
-                    "name": obj.devicename,
-                    "online": true
-                }, function (data) {
+                obj.updateDeviceSetting({}, function (data) {
                     var event = new CustomEvent("skynetready", data);
                     document.dispatchEvent(event);
                     obj.logSensorData();
@@ -41,10 +36,14 @@ function skynetDeviceReady() {
                     "owner": obj.skynetuuid,
                     "online": true
                 }, function (data) {
+
                     data.mobileuuid = data.uuid;
                     data.mobiletoken = data.token;
+
                     window.localStorage.setItem("mobileuuid", data.uuid);
                     window.localStorage.setItem("mobiletoken", data.token);
+
+                    window.localStorage.setItem("devicename", data.name);
 
                     var event = new CustomEvent("skynetready", data);
                     document.dispatchEvent(event);
@@ -70,7 +69,7 @@ function skynetDeviceReady() {
 
         obj.logSensorData = function () {
             var sensAct = document.getElementById('sensor-activity'),
-                sensActBadge = document.getElementById('sensor-activity'),
+                sensActBadge = document.getElementById('sensor-activity-badge'),
                 x = 0;
             ['Geolocation', 'Compass', 'Accelerometer'].forEach(function(sensorType){
                 if(sensorType && typeof Sensors[sensorType] === 'function'){
@@ -95,6 +94,22 @@ function skynetDeviceReady() {
                     });
                 }
             });
+        };
+
+        obj.updateDeviceSetting = function (data, callback) {
+            // Extend the data option
+            data.mobileuuid = obj.mobileuuid;
+            data.mobiletoken = obj.mobiletoken;
+            data.online = true;
+            data.name = data.name || obj.devicename;
+
+            obj.skynetSocket.emit('update', data, callback);
+        };
+
+        obj.getDeviceSetting = function (callback) {
+            obj.skynetSocket.emit('whoami', {
+                uuid : obj.mobileuuid
+            }, callback);
         };
 
         if (obj.isAuthenticated()) {

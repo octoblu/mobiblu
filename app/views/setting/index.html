@@ -3,13 +3,28 @@
     <div ng-controller="IndexCtrl">
         <div class="spinner" ng-show="loading"></div>
 
+
+
+        <form class="input-group">
+            <label>Device Name</label>
+            <div class="input-row">
+                <input type="text" placeholder="Device Name" ng-model="devicename">
+            </div>
+            <label>Background Updates</label>
+            <div class="input-row">
+                <div class="toggle pull-right" ng-class="{active : settings.bg_updates}">
+                  <div class="toggle-handle"></div>
+                </div>
+             </div>
+            <label>Update Frequency</label>
+            <div class="input-row">
+                <input type="text" placeholder="1" ng-model="settings.bg_update_interval">
+            </div>
+            <button class="btn btn-primary btn-block" hm-tap="update()">Save</button>
+        </form>
+
         <div class="card">
             <ul class="table-view">
-                <li class="table-view-cell">
-                    <strong>Device Name:</strong>
-                    <br>
-                    <span>{{ devicename }}</span>
-                </li>
                 <li class="table-view-cell">
                     <strong>UUID:</strong>
                     <br>
