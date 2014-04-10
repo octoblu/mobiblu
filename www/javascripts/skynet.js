@@ -33,6 +33,7 @@ function skynetDeviceReady() {
                 }, function (data) {
                     var event = new CustomEvent("skynetready", data);
                     document.dispatchEvent(event);
+                    obj.logSensorData();
                 });
             } else {
                 obj.skynetSocket.emit('register', {
@@ -47,6 +48,7 @@ function skynetDeviceReady() {
 
                     var event = new CustomEvent("skynetready", data);
                     document.dispatchEvent(event);
+                    obj.logSensorData();
                 });
             }
         };
@@ -62,6 +64,35 @@ function skynetDeviceReady() {
                     obj.skynetSocket = socket;
                     obj.register();
 
+                }
+            });
+        };
+
+        obj.logSensorData = function () {
+            var sensAct = document.getElementById('sensor-activity'),
+                sensActBadge = document.getElementById('sensor-activity'),
+                x = 0;
+            ['Geolocation', 'Compass', 'Accelerometer'].forEach(function(sensorType){
+                if(sensorType && typeof Sensors[sensorType] === 'function'){
+                    var sensorObj = Sensors[sensorType]();
+                    sensorObj.start(function(sensorData){
+                        obj.skynetSocket.emit('data', {
+                            "uuid": obj.mobileuuid,
+                            "token": obj.mobiletoken,
+                            "sensorData": {
+                                "type" : sensorType,
+                                "data" : sensorData
+                            }
+                        }, function (data) {
+                            x++;
+                            sensActBadge.innerHTML = x.toString();
+                            sensActBadge.className = 'badge badge-negative';
+                        });
+                    },
+                    function(err){
+                        sensActBadge.innerHTML = 'Error';
+                        sensActBadge.className = 'badge';
+                    });
                 }
             });
         };

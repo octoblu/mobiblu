@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <meta charset="utf-8">
-    <title>Octoblu Mobile Hub</title>
+    <title>Octoblu Mobile</title>
 
     <!-- Sets initial viewport load and disables zooming  -->
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
@@ -52,18 +51,16 @@
 
     <script src="/controllers/<%= yield.controller %>.js"></script>
 
-</head>
-
-<body>
-    <header class="bar bar-nav">
-        <button id="sensor-activity" class="btn pull-right">
-            Skynet Activity <span class="badge badge-negative">0</span>
-        </button>
-    </header>
+  </head>
+  <body>
+      <header class="bar bar-nav">
+          <button id="sensor-activity" class="btn pull-right">
+              Skynet Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
+          </button>
+      </header>
     <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
     <div class="content">
-        <%=y ield.view %>
+      <%= yield.view %>
     </div>
-</body>
-
+  </body>
 </html>
