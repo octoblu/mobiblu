@@ -1,6 +1,5 @@
-var rightButton = new steroids.buttons.NavigationBarButton();
-
-var skynetuuid = window.localStorage.getItem("skynetuuid"),
+var rightButton = new steroids.buttons.NavigationBarButton(),
+    skynetuuid = window.localStorage.getItem("skynetuuid"),
     skynettoken = window.localStorage.getItem("skynettoken");
 
 if(skynetuuid && skynettoken){
@@ -20,7 +19,7 @@ if(skynetuuid && skynettoken){
 
     rightButton.title = "Login";
     rightButton.onTap = function() {
-        steroids.openURL("http://octoblu.com/login?referrer=" + encodeURIComponent("http://localhost/views/setting/index.html"));
+        window.location.href="http://octoblu.com/login?referrer=" + encodeURIComponent("http://localhost/views/setting/index.html");
     };
 }
 

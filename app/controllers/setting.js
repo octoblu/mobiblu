@@ -11,12 +11,6 @@ settingApp.controller('IndexCtrl', function ($scope) {
     // This will be populated with Restangular
     $scope.settings = [];
 
-    // Helper function for opening new webviews
-    $scope.open = function (id) {
-        webView = new steroids.views.WebView("/views/setting/show.html?id=" + id);
-        steroids.layers.push(webView);
-    };
-
     // Helper function for loading setting data with spinner
     $scope.loadSettings = function () {
         $scope.loading = false;
@@ -76,5 +70,24 @@ settingApp.controller('IndexCtrl', function ($scope) {
     });
 
 
+    $scope.logout = function(){
+        window.localStorage.removeItem("skynetuuid");
+        window.localStorage.removeItem("skynettoken");
+    };
+
     // -- Native navigation
+
+    var rightButton = new steroids.buttons.NavigationBarButton();
+
+    rightButton.title = "Logout";
+    rightButton.onTap = function() {
+        $scope.logout();
+        webView = new steroids.views.WebView('/views/home/index.html');
+        steroids.layers.push(webView);
+    };
+
+    steroids.view.navigationBar.setButtons({
+      right: [rightButton],
+      overrideBackButton: false
+    });
 });
