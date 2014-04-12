@@ -45,7 +45,7 @@ settingApp.controller('IndexCtrl', function ($scope) {
             name : $scope.devicename,
             setting : {
                 bg_updates : !! $scope.settings.bg_updates,
-                bg_update_interval : !! $scope.settings.bg_update_interval
+                bg_update_interval : $scope.settings.bg_update_interval
             }
         };
         Skynet.updateDeviceSetting(data, function(rData){
