@@ -29,6 +29,15 @@ steroids.view.navigationBar.setButtons({
     overrideBackButton: false
 });
 
+
+window.onload = function(){
+    var element = document.getElementById('sensor-activity');
+    var hammertime = Hammer(element).on("tap", function(event) {
+        webView = new steroids.views.WebView("/views/setting/errors.html");
+        steroids.layers.push(webView);
+    });
+};
+
 function getParam(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
@@ -39,9 +48,4 @@ function getParam(variable) {
         }
     }
     return (false);
-}
-
-function go_to_errors(){
-    webView = new steroids.views.WebView("/views/setting/errors.html");
-    steroids.layers.push(webView);
 }
