@@ -102,7 +102,7 @@ function skynetDeviceReady() {
                             if(!err.message && !err.code){
                                 html = html + '<strong>Error:</strong> ' + err + '<br>';
                             }
-                            sensorErrors.innerHTML = sensorErrors.innerHTML + html;
+                            sensorErrors.innerHTML = sensorErrors.innerHTML + html + '<hr>';
                         }
 
                         sensActBadge.innerHTML = 'Error';
