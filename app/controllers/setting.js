@@ -16,9 +16,9 @@ settingApp.controller('IndexCtrl', function ($scope) {
         $scope.loading = false;
     };
 
-    $scope.devicename = 'Loading...';
-
     var tokenmask = '*************************';
+
+    $scope.devicename = window.localStorage.getItem("devicename");
 
     $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
     $scope.skynettoken = window.localStorage.getItem("skynettoken");
@@ -42,6 +42,7 @@ settingApp.controller('IndexCtrl', function ($scope) {
                 bg_update_interval : $scope.settings.bg_update_interval
             }
         };
+        window.localStorage.setItem("devicename", data.name);
         Skynet.updateDeviceSetting(data, function(rData){
             $scope.loading = false;
         });
@@ -90,4 +91,10 @@ settingApp.controller('IndexCtrl', function ($scope) {
       right: [rightButton],
       overrideBackButton: false
     });
+});
+
+settingApp.controller('ErrorsCtrl', function ($scope) {
+
+    $scope.errors = [];
+    
 });

@@ -4,9 +4,10 @@ var Skynet = null;
 
 function skynetDeviceReady() {
     Skynet = (function () {
-        var obj = this;
+        var obj = this,
+            devicename = window.localStorage.getItem("devicename");
 
-        obj.devicename = window.localStorage.getItem("devicename") || "Octoblu Mobile (" + device.model + ")";
+        obj.devicename =  devicename && devicename.length ?  devicename : "Octoblu Mobile (" + device.model + ")";
         // Octoblu User Data
         obj.skynetuuid = window.localStorage.getItem("skynetuuid");
         obj.skynettoken = window.localStorage.getItem("skynettoken");
@@ -70,6 +71,7 @@ function skynetDeviceReady() {
         obj.logSensorData = function () {
             var sensAct = document.getElementById('sensor-activity'),
                 sensActBadge = document.getElementById('sensor-activity-badge'),
+                sensorErrors = document.getElementById('sensor-errors'),
                 x = 0;
             ['Geolocation', 'Compass', 'Accelerometer'].forEach(function(sensorType){
                 if(sensorType && typeof Sensors[sensorType] === 'function'){
@@ -89,6 +91,20 @@ function skynetDeviceReady() {
                         });
                     },
                     function(err){
+                        if(sensorErrors){
+                            var html = '<strong>Sensor:</strong> ' + sensorType + '<br>';
+                            if(err.code){
+                                html = html + '<strong>Error Code:</strong> ' + err.code + '<br>';
+                            }
+                            if(err.message){
+                                html = html + '<strong>Error Message:</strong> ' + err.message + '<br>';
+                            }
+                            if(!err.message && !err.code){
+                                html = html + '<strong>Error:</strong> ' + err + '<br>';
+                            }
+                            sensorErrors.innerHTML = html;
+                        }
+
                         sensActBadge.innerHTML = 'Error';
                         sensActBadge.className = 'badge';
                     });
