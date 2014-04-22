@@ -1,13 +1,13 @@
-var homeApp = angular.module('homeApp', ['HomeModel', 'hmTouchevents']);
+var homeApp = angular.module('homeApp', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel']);
 
 
 // Index: http://localhost/views/home/index.html
 
-homeApp.controller('IndexCtrl', function ($scope, HomeRestangular) {
+homeApp.controller('IndexCtrl', function ($scope, HomeRestangular, Skynet, Sensors) {
 
   // Helper function for opening new webviews
   $scope.open = function(id) {
-    webView = new steroids.views.WebView("/views/home/show.html?id="+id);
+    webView = new steroids.views.WebView("views/home/show.html?id="+id);
     steroids.layers.push(webView);
   };
 
@@ -21,7 +21,7 @@ homeApp.controller('IndexCtrl', function ($scope, HomeRestangular) {
 
 // Show: http://localhost/views/home/show.html?id=<id>
 
-homeApp.controller('ShowCtrl', function ($scope, $filter, HomeRestangular) {
+homeApp.controller('ShowCtrl', function ($scope, $filter, HomeRestangular, Skynet, Sensors) {
 
   // Fetch all objects from the local JSON (see app/models/home.js)
   HomeRestangular.all('home').getList().then( function(homes) {

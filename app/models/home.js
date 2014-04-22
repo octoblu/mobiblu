@@ -5,8 +5,7 @@
 // Protects views where angular is not loaded from errors
 if ( typeof angular == 'undefined' ) {
 	return;
-};
-
+}
 
 var module = angular.module('HomeModel', ['restangular']);
 

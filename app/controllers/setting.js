@@ -2,11 +2,11 @@ document.addEventListener("skynetready", function () {
     angular.bootstrap(document, ['settingApp']);
 });
 
-var settingApp = angular.module('settingApp', ['hmTouchevents']);
+var settingApp = angular.module('settingApp', ['hmTouchevents', 'SkynetModel']);
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('IndexCtrl', function ($scope) {
+settingApp.controller('IndexCtrl', '', function ($scope, Skynet) {
 
     // This will be populated with Restangular
     $scope.settings = [];
@@ -93,8 +93,8 @@ settingApp.controller('IndexCtrl', function ($scope) {
     });
 });
 
-settingApp.controller('ErrorsCtrl', function ($scope) {
+settingApp.controller('ErrorsCtrl', function ($scope, Skynet) {
 
     $scope.errors = [];
-    
+
 });
