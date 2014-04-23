@@ -1,5 +1,5 @@
-var module = angular.module('SkynetModel', []);
-module.factory('Skynet', function ($rootScope) {
+var module = angular.module('SkynetModel', ['SensorModel']);
+module.factory('Skynet', function ($rootScope, Sensors) {
     var obj = this,
         devicename = window.localStorage.getItem("devicename");
 
