@@ -6,9 +6,9 @@ var settingApp = angular.module('settingApp', ['hmTouchevents', 'SkynetModel']);
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRestangular) {
+settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
 
-    // This will be populated with Restangular
+    // This will be populated with Restangula
     $scope.settings = {};
 
     var tokenmask = '*************************';
@@ -29,10 +29,12 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRestangular) 
             $scope.devicename = data.name;
             $scope.settings = data.setting || {};
         });
-        //SkynetRestangular.one('devices/' + $scope.mobileuuid).get().then( function(data) {
-        //    alert(JSON.stringify(data));
-        //    $scope.loading = false;
-        //});
+        SkynetRest.getDevice($scope.mobileuuid, function(data){
+        });
+        // SkynetRestangular.one('devices/' + $scope.mobileuuid).get().then( function(data) {
+        //     alert(JSON.stringify(data));
+        //     $scope.loading = false;
+        // });
     };
 
     $scope.update = function(){
@@ -41,7 +43,7 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRestangular) 
             name : $scope.devicename,
             setting : $scope.settings
         };
-        alert(JSON.stringify(data));
+        console.log(data);
         window.localStorage.setItem("devicename", data.name);
         Skynet.updateDeviceSetting(data, function(rData){
             alert('Saved');

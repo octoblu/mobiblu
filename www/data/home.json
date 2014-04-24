@@ -20,18 +20,24 @@
   },
   {
     "home_id": 2,
+    "name": "Message",
+    "description": "Message Devices",
+    "url": "views/messages/index.html"
+  },
+  {
+    "home_id": 3,
     "name": "GPS",
     "description": "Track geo location data",
     "sensorType": "Geolocation"
   },
   {
-    "home_id": 3,
+    "home_id": 4,
     "name": "Accelerometer",
     "description": "Track acceleration data",
     "sensorType": "Accelerometer"
   },
   {
-    "home_id": 4,
+    "home_id": 5,
     "name": "Compass",
     "description": "Track compass sensor data",
     "sensorType": "Compass"

@@ -118,6 +118,10 @@ module.factory('Skynet', function ($rootScope, Sensors) {
         obj.skynetSocket.emit('update', data, callback);
     };
 
+    obj.message = function (data, callback) {
+        obj.skynetSocket.emit('message', data, callback);
+    };
+
     obj.getDeviceSetting = function (callback) {
         obj.skynetSocket.emit('whoami', {
             uuid: obj.mobileuuid
@@ -135,15 +139,58 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     return obj;
 });
 
-module.factory('SkynetRestangular', function (Restangular) {
+module.service('SkynetRest', function ($http) {
 
-    return Restangular.withConfig(function (RestangularConfigurer) {
+    var obj = this,
+        baseURL = 'http://skynet.im';
 
-        RestangularConfigurer.setBaseUrl('http://skynet.im/');
-        RestangularConfigurer.setDefaultHeaders({
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+    obj.getDevice = function(uuid, callback){
+        $http.get(baseURL + '/devices/' + uuid)
+        .success(function(data, status, headers, config) {
+            callback(data);
+        })
+        .error(function(data, status, headers, config) {
+            callback({});
         });
-    });
+    };
+
+    return obj;
+
+});
+
+module.service('OctobluRest', function ($http) {
+
+    var obj = this,
+        baseURL = 'http://octoblu.com';
+
+    obj.getDevices = function(uuid, token, callback){
+        $http.get(baseURL + '/api/owner/devices/' + uuid + '/' + token)
+        .success(function(data, status, headers, config) {
+            callback(data);
+        })
+        .error(function(data, status, headers, config) {
+            callback({});
+        });
+    };
+
+    obj.getGateways = function(uuid, token, includeDevices, callback) {
+        // $http.get('/api/owner/gateways/' + uuid + '/' + token)
+        $http({
+            url: baseURL + '/api/owner/gateways/' + uuid + '/' + token,
+            method: 'get',
+            params: {
+                devices: includeDevices
+            }
+        }).success(function(data) {
+            callback(null, data);
+        })
+            .error(function(error) {
+                console.log('Error: ' + error);
+                callback(error, null);
+            });
+
+    };
+
+    return obj;
 
 });

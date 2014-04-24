@@ -1,0 +1,48 @@
+<div ng-app="messagesApp">
+
+    <div ng-controller="IndexCtrl" ng-init="init()">
+
+        <h2><i class='icon-magic'></i> Message Devices</h2>
+        <br />
+
+        <div class="input-group">
+            Select Device or Enter UUID:
+            <br />
+            <br />
+            <div class="input-row">
+                <!-- <select ng-model="device" ng-options="device.name for device in devices" class="form-control"></select> -->
+                <select ng-model="device" ng-options="device.name for device in devices" class="form-control" id="device" ng-change="getSubdevices(device)"></select>
+
+            </div>
+            <div class="input-row">OR</div>
+            <div class="input-row">
+                <input size="40" ng-model="sendUuid" class="form-control" placeholder="UUID">
+            </div>
+            <br />
+            <br />
+
+            <div ng-show="subdevices">
+                Select a Gateway Subdevice:
+                <br />
+                <br />
+                <select ng-model="subdevice" ng-options="subdevice.name for subdevice in subdevices" class="form-control" id="subdevice" ng-change="getSchema(device, subdevice)"></select>
+                <br />
+                <br />
+            </div>
+
+            <div ng-show="schema">
+                <div id="device-msg-editor"></div>
+            </div>
+
+            <div class="input-row">
+                <input type="text" placeholder="Message" ng-model="sendText">
+            </div>
+            <button ng-click="sendMessage()" class="btn btn-primary btn-block">Send</button>
+            <span style="color:green;">{{messageOutput}}</span>
+
+        </div>
+
+
+    </div>
+
+</div>

@@ -3,11 +3,19 @@ var homeApp = angular.module('homeApp', ['HomeModel', 'hmTouchevents', 'SkynetMo
 
 // Index: http://localhost/views/home/index.html
 
-homeApp.controller('IndexCtrl', function ($scope, HomeRestangular, Skynet, Sensors) {
+homeApp.controller('IndexCtrl', function ($scope, $filter, HomeRestangular, Skynet, Sensors) {
 
     // Helper function for opening new webviews
     $scope.open = function (id) {
-        webView = new steroids.views.WebView("views/home/show.html?id=" + id);
+        var home = $filter('filter')($scope.homes.$$v, {
+            home_id: id
+        })[0];
+        if(home && home.url){
+            url = home.url;
+        }else{
+            url = "views/home/show.html?id=" + id;
+        }
+        webView = new steroids.views.WebView(url);
         steroids.layers.push(webView);
     };
 
