@@ -9,6 +9,8 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
 
     $scope.loading = true;
 
+    $scope.devices = [];
+
     $scope.init = function () {
         Skynet.init(function (data) {
             $scope.loading = false;
@@ -24,21 +26,30 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
             $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
 
             OctobluRest.getDevices($scope.skynetuuid, $scope.skynettoken, function(data) {
-                $scope.devices = data.devices;
-                for (var i in $scope.devices) {
-                    if($scope.devices[i].type == 'gateway'){
+                var devices = data.devices;
+                for (var i in devices) {
+                    if(devices[i].type == 'gateway'){
                         $scope.devices.splice(i,1);
                     }
                 }
+                OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, false, function(error, data) {
+                    if(error) {
+                        console.log('Error' + error);
+                    }
+                    console.log('Devices and Gateways', data.gateways);
+                    devices = devices.concat(data.gateways);
+                    for (var i in devices) {
+                        console.log(devices[i].name);
+                        if(!devices[i].name){
+                            devices[i].name = '(Unkown)';
+                        }
+                    }
+                    $scope.devices = devices;
+                });
+
             });
 
-            OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, false, function(error, data) {
-                if(error) {
-                    console.log('Error' + error);
-                }
-                console.log('Devices and Gateways', data);
-                $scope.devices = data.gateways;
-            });
+
 
             $scope.getSchema = function (device, subdevice) {
                 console.log('device', device);
