@@ -1,9 +1,10 @@
-var module = angular.module('SkynetModel', ['SensorModel']);
+var module = angular.module('SkynetModel', ['SensorModel', 'restangular']);
+
 module.factory('Skynet', function ($rootScope, Sensors) {
     var obj = this,
         devicename = window.localStorage.getItem("devicename");
 
-    obj.devicename =  devicename && devicename.length ?  devicename : "Octoblu Mobile (" + device.model + ")";
+    obj.devicename = devicename && devicename.length ? devicename : "Octoblu Mobile (" + device.model + ")";
     // Octoblu User Data
     obj.skynetuuid = window.localStorage.getItem("skynetuuid");
     obj.skynettoken = window.localStorage.getItem("skynettoken");
@@ -19,12 +20,11 @@ module.factory('Skynet', function ($rootScope, Sensors) {
         return obj.mobileuuid && obj.mobiletoken;
     };
 
-    obj.register = function () {
+    obj.register = function (callback) {
         if (obj.isRegistered()) {
             // Already Registered & Update the device
             obj.updateDeviceSetting({}, function (data) {
-                var event = new CustomEvent("skynetready", data);
-                document.dispatchEvent(event);
+                callback(data);
                 obj.logSensorData();
             });
         } else {
@@ -42,15 +42,13 @@ module.factory('Skynet', function ($rootScope, Sensors) {
 
                 window.localStorage.setItem("devicename", data.name);
 
-                var event = new CustomEvent("skynetready", data);
-                document.dispatchEvent(event);
+                callback(data);
                 obj.logSensorData();
-                alert('here');
             });
         }
     };
 
-    obj.auth = function () {
+    obj.auth = function (callback) {
         // GETS HERE
         obj.skynetClient = skynet({
             'uuid': obj.skynetuuid,
@@ -61,7 +59,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 console.log(e.toString());
             } else {
                 obj.skynetSocket = socket;
-                obj.register();
+                obj.register(callback);
             }
         });
     };
@@ -71,43 +69,43 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             sensActBadge = document.getElementById('sensor-activity-badge'),
             sensorErrors = document.getElementById('sensor-errors'),
             x = 0;
-        ['Geolocation', 'Compass', 'Accelerometer'].forEach(function(sensorType){
-            if(sensorType && typeof Sensors[sensorType] === 'function'){
-                var sensorObj = Sensors[sensorType]();
-                sensorObj.start(function(sensorData){
-                    obj.skynetSocket.emit('data', {
-                        "uuid": obj.mobileuuid,
-                        "token": obj.mobiletoken,
-                        "sensorData": {
-                            "type" : sensorType,
-                            "data" : sensorData
-                        }
-                    }, function (data) {
-                        x++;
-                        sensActBadge.innerHTML = x.toString();
-                        sensActBadge.className = 'badge badge-negative';
-                    });
-                },
-                function(err){
-                    if(sensorErrors){
-                        var html = '<strong>Sensor:</strong> ' + sensorType + '<br>';
-                        if(err.code){
-                            html = html + '<strong>Error Code:</strong> ' + err.code + '<br>';
-                        }
-                        if(err.message){
-                            html = html + '<strong>Error Message:</strong> ' + err.message + '<br>';
-                        }
-                        if(!err.message && !err.code){
-                            html = html + '<strong>Error:</strong> ' + err + '<br>';
-                        }
-                        sensorErrors.innerHTML = sensorErrors.innerHTML + html + '<hr>';
-                    }
+        ['Geolocation', 'Compass', 'Accelerometer'].forEach(function (sensorType) {
+                if (sensorType && typeof Sensors[sensorType] === 'function') {
+                    var sensorObj = Sensors[sensorType]();
+                    sensorObj.start(function (sensorData) {
+                            obj.skynetSocket.emit('data', {
+                                "uuid": obj.mobileuuid,
+                                "token": obj.mobiletoken,
+                                "sensorData": {
+                                    "type": sensorType,
+                                    "data": sensorData
+                                }
+                            }, function (data) {
+                                x++;
+                                sensActBadge.innerHTML = x.toString();
+                                sensActBadge.className = 'badge badge-negative';
+                            });
+                        },
+                        function (err) {
+                            if (sensorErrors) {
+                                var html = '<strong>Sensor:</strong> ' + sensorType + '<br>';
+                                if (err.code) {
+                                    html = html + '<strong>Error Code:</strong> ' + err.code + '<br>';
+                                }
+                                if (err.message) {
+                                    html = html + '<strong>Error Message:</strong> ' + err.message + '<br>';
+                                }
+                                if (!err.message && !err.code) {
+                                    html = html + '<strong>Error:</strong> ' + err + '<br>';
+                                }
+                                sensorErrors.innerHTML = sensorErrors.innerHTML + html + '<hr>';
+                            }
 
-                    sensActBadge.innerHTML = 'Error';
-                    sensActBadge.className = 'badge';
-                });
-            }
-        });
+                            sensActBadge.innerHTML = 'Error';
+                            sensActBadge.className = 'badge';
+                        });
+                }
+            });
     };
 
     obj.updateDeviceSetting = function (data, callback) {
@@ -122,19 +120,30 @@ module.factory('Skynet', function ($rootScope, Sensors) {
 
     obj.getDeviceSetting = function (callback) {
         obj.skynetSocket.emit('whoami', {
-            uuid : obj.mobileuuid
+            uuid: obj.mobileuuid
         }, callback);
     };
 
-    document.addEventListener("deviceready", skynetDeviceReady, false);
-
-    function skynetDeviceReady(){
+    obj.init = function (callback) {
 
         if (obj.isAuthenticated()) {
-            obj.auth();
+            obj.auth(callback);
         }
 
-    }
+    };
 
     return obj;
+});
+
+module.factory('SkynetRestangular', function (Restangular) {
+
+    return Restangular.withConfig(function (RestangularConfigurer) {
+
+        RestangularConfigurer.setBaseUrl('http://skynet.im/');
+        RestangularConfigurer.setDefaultHeaders({
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        });
+    });
+
 });

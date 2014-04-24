@@ -6,44 +6,45 @@ var settingApp = angular.module('settingApp', ['hmTouchevents', 'SkynetModel']);
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('IndexCtrl', '', function ($scope, Skynet) {
+settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRestangular) {
 
     // This will be populated with Restangular
-    $scope.settings = [];
-
-    // Helper function for loading setting data with spinner
-    $scope.loadSettings = function () {
-        $scope.loading = false;
-    };
+    $scope.settings = {};
 
     var tokenmask = '*************************';
+    $scope.loading = true;
 
-    $scope.devicename = window.localStorage.getItem("devicename");
+    $scope.init = function(){
+        $scope.devicename = window.localStorage.getItem("devicename");
 
-    $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
-    $scope.skynettoken = window.localStorage.getItem("skynettoken");
-    $scope.skynettoken_dummy = tokenmask;
+        $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
+        $scope.skynettoken = window.localStorage.getItem("skynettoken");
+        $scope.skynettoken_dummy = tokenmask;
 
-    $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
-    $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
-    $scope.mobiletoken_dummy = tokenmask;
-
-    Skynet.getDeviceSetting(function(data){
-        $scope.devicename = data.name;
-        $scope.settings = data.setting || {};
-    });
+        $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
+        $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
+        $scope.mobiletoken_dummy = tokenmask;
+        Skynet.init(function(data){
+            $scope.loading = false;
+            $scope.devicename = data.name;
+            $scope.settings = data.setting || {};
+        });
+        //SkynetRestangular.one('devices/' + $scope.mobileuuid).get().then( function(data) {
+        //    alert(JSON.stringify(data));
+        //    $scope.loading = false;
+        //});
+    };
 
     $scope.update = function(){
         $scope.loading = true;
         var data = {
             name : $scope.devicename,
-            setting : {
-                bg_updates : !! $scope.settings.bg_updates,
-                bg_update_interval : $scope.settings.bg_update_interval
-            }
+            setting : $scope.settings
         };
+        alert(JSON.stringify(data));
         window.localStorage.setItem("devicename", data.name);
         Skynet.updateDeviceSetting(data, function(rData){
+            alert('Saved');
             $scope.loading = false;
         });
     };
@@ -93,8 +94,61 @@ settingApp.controller('IndexCtrl', '', function ($scope, Skynet) {
     });
 });
 
-settingApp.controller('ErrorsCtrl', function ($scope, Skynet) {
+settingApp.controller('ErrorsCtrl', function ($scope, Skynet, Sensors) {
 
     $scope.errors = [];
 
+});
+
+settingApp.directive('switchButton', function() {
+    return {
+        require: 'ngModel',
+        restrict: 'E',
+        template: '<div class="toggle pull-right" ng-click="toggle()">' +
+            '<div class="toggle-handle"></div>' +
+        '</div>',
+        link: function($scope, element, attrs, controller) {
+            var toggleClass = function(elem, className) {
+                var newClass = ' ' + elem.className.replace( /[\t\r\n]/g, ' ' ) + ' ';
+                if (hasClass(elem, className)) {
+                    while (newClass.indexOf(' ' + className + ' ') >= 0 ) {
+                        newClass = newClass.replace( ' ' + className + ' ' , ' ' );
+                    }
+                    elem.className = newClass.replace(/^\s+|\s+$/g, '');
+                } else {
+                    elem.className += ' ' + className;
+                }
+            };
+            var removeClass = function (elem, className) {
+                var newClass = ' ' + elem.className.replace( /[\t\r\n]/g, ' ') + ' ';
+                if (hasClass(elem, className)) {
+                    while (newClass.indexOf(' ' + className + ' ') >= 0 ) {
+                        newClass = newClass.replace(' ' + className + ' ', ' ');
+                    }
+                    elem.className = newClass.replace(/^\s+|\s+$/g, '');
+                }
+            };
+            var addClass = function(elem, className) {
+                if (!hasClass(elem, className)) {
+                    elem.className += ' ' + className;
+                }
+            };
+            var hasClass = function (elem, className) {
+                return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
+            };
+            $scope.toggle = function(val){
+                var newValue = val || !controller.$modelValue;
+                if(newValue){
+                    addClass(element, 'active');
+                }else{
+                    removeClass(element, 'active');
+                }
+                controller.$setViewValue(newValue);
+            };
+            controller.$render = function() {
+                var current = controller.$modelValue;
+                $scope.toggle(current);
+            };
+        }
+    };
 });

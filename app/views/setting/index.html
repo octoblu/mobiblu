@@ -5,21 +5,35 @@
 
 
 
-        <form class="input-group">
+        <form class="input-group" ng-init="init()">
             <label>Device Name</label>
             <div class="input-row">
                 <input type="text" placeholder="Device Name" ng-model="devicename">
             </div>
             <label>Background Updates</label>
             <div class="input-row">
-                <div class="toggle pull-right" ng-class="{active : settings.bg_updates}">
-                  <div class="toggle-handle"></div>
-                </div>
+                <switch-button ng-model="settings.bg_updates"></switch-button>
              </div>
             <label>Update Frequency</label>
             <div class="input-row">
                 <input type="text" placeholder="1" ng-model="settings.bg_update_interval">
             </div>
+
+            <label>Compass</label>
+            <div class="input-row">
+                <switch-button ng-model="settings.compass"></switch-button>
+             </div>
+
+             <label>Accelerometer</label>
+             <div class="input-row">
+                 <switch-button ng-model="settings.accelerometer"></switch-button>
+              </div>
+
+              <label>Geolocation</label>
+              <div class="input-row">
+                  <switch-button ng-model="settings.geolocation"></switch-button>
+               </div>
+
             <button class="btn btn-primary btn-block" hm-tap="update()">Save</button>
         </form>
 
