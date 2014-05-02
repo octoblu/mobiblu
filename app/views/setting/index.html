@@ -12,26 +12,34 @@
             </div>
             <label>Background Updates</label>
             <div class="input-row">
-                <switch-button ng-model="settings.bg_updates"></switch-button>
+                <div ng-model="settings.bg_updates" class="toggle pull-right" ng-class="{ active : settings.bg_updates }" ng-click="toggleSwitch('bg_updates')">
+                    <div class="toggle-handle"></div>
+                </div>
              </div>
             <label>Update Frequency</label>
             <div class="input-row">
-                <input type="text" placeholder="1" ng-model="settings.bg_update_interval">
+                <input type="number" placeholder="1" ng-model="settings.update_interval">
             </div>
 
             <label>Compass</label>
             <div class="input-row">
-                <switch-button ng-model="settings.compass"></switch-button>
+                <div ng-model="settings.compass" class="toggle pull-right" ng-class="{ active : settings.compass }" ng-click="toggleSwitch('compass')">
+                    <div class="toggle-handle"></div>
+                </div>
              </div>
 
              <label>Accelerometer</label>
              <div class="input-row">
-                 <switch-button ng-model="settings.accelerometer"></switch-button>
+                 <div ng-model="settings.accelerometer" class="toggle pull-right" ng-class="{ active : settings.accelerometer }" ng-click="toggleSwitch('accelerometer')">
+                     <div class="toggle-handle"></div>
+                 </div>
               </div>
 
               <label>Geolocation</label>
               <div class="input-row">
-                  <switch-button ng-model="settings.geolocation"></switch-button>
+                  <div ng-model="settings.geolocation" class="toggle pull-right" ng-class="{ active : settings.geolocation }" ng-click="toggleSwitch('geolocation')">
+                      <div class="toggle-handle"></div>
+                  </div>
                </div>
 
             <button class="btn btn-primary btn-block" hm-tap="update()">Save</button>

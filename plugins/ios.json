@@ -8,6 +8,9 @@
             "/*": {
                 "<feature name=\"BackgroundMode\"><param name=\"ios-package\" onload=\"true\" value=\"APPBackgroundMode\" /><param name=\"onload\" value=\"true\" /></feature>": 1,
                 "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>": 1
+            },
+            "/widget": {
+                "<feature name=\"PushNotificationPlugin\"><param name=\"ios-package\" value=\"PushNotificationPlugin\" /><param name=\"onload\" value=\"true\" /></feature>": 1
             }
         },
         "*-Info.plist": {
@@ -17,6 +20,38 @@
             "NSLocationUsageDescription": {
                 "<string>Is required -for iOS 6 and above- to run the app in background!</string>": 1
             }
+        },
+        "framework": {
+            "libsqlite3.dylib": {
+                "false": 1
+            },
+            "libz.dylib": {
+                "false": 1
+            },
+            "CFNetwork.framework": {
+                "true": 1
+            },
+            "CoreGraphics.framework": {
+                "true": 1
+            },
+            "Foundation.framework": {
+                "true": 1
+            },
+            "Security.framework": {
+                "true": 1
+            },
+            "MobileCoreServices.framework": {
+                "true": 2
+            },
+            "SystemConfiguration.framework": {
+                "true": 1
+            },
+            "UIKit.framework": {
+                "true": 1
+            },
+            "CoreTelephony.framework": {
+                "true": 1
+            }
         }
     },
     "installed_plugins": {
@@ -24,6 +59,9 @@
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
         },
         "org.apache.cordova.device": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        },
+        "com.urbanairship.phonegap.PushNotification": {
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
         }
     },

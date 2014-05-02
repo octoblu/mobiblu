@@ -25,11 +25,15 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
         $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
         $scope.mobiletoken_dummy = tokenmask;
         Skynet.init(function(data){
-            $scope.loading = false;
-            $scope.devicename = data.name;
-            $scope.settings = data.setting || {};
-        });
-        SkynetRest.getDevice($scope.mobileuuid, function(data){
+            Skynet.getDeviceSetting($scope.mobileuuid, function(data){
+                $scope.loading = false;
+                $scope.$apply(function(){
+                    $scope.devicename = data.name;
+                    $scope.settings = data.setting || {};
+                    console.log('Settings', JSON.stringify($scope.settings));
+                });
+
+            });
         });
         // SkynetRestangular.one('devices/' + $scope.mobileuuid).get().then( function(data) {
         //     alert(JSON.stringify(data));
@@ -43,8 +47,8 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
             name : $scope.devicename,
             setting : $scope.settings
         };
-        console.log(data);
         window.localStorage.setItem("devicename", data.name);
+        console.log('Update', JSON.stringify(data));
         Skynet.updateDeviceSetting(data, function(rData){
             alert('Saved');
             $scope.loading = false;
@@ -79,6 +83,10 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
         window.localStorage.removeItem("skynettoken");
     };
 
+    $scope.toggleSwitch = function(setting){
+        $scope.settings[setting] = !$scope.settings[setting];
+    };
+
     // -- Native navigation
 
     var rightButton = new steroids.buttons.NavigationBarButton();
@@ -100,57 +108,4 @@ settingApp.controller('ErrorsCtrl', function ($scope, Skynet, Sensors) {
 
     $scope.errors = [];
 
-});
-
-settingApp.directive('switchButton', function() {
-    return {
-        require: 'ngModel',
-        restrict: 'E',
-        template: '<div class="toggle pull-right" ng-click="toggle()">' +
-            '<div class="toggle-handle"></div>' +
-        '</div>',
-        link: function($scope, element, attrs, controller) {
-            var toggleClass = function(elem, className) {
-                var newClass = ' ' + elem.className.replace( /[\t\r\n]/g, ' ' ) + ' ';
-                if (hasClass(elem, className)) {
-                    while (newClass.indexOf(' ' + className + ' ') >= 0 ) {
-                        newClass = newClass.replace( ' ' + className + ' ' , ' ' );
-                    }
-                    elem.className = newClass.replace(/^\s+|\s+$/g, '');
-                } else {
-                    elem.className += ' ' + className;
-                }
-            };
-            var removeClass = function (elem, className) {
-                var newClass = ' ' + elem.className.replace( /[\t\r\n]/g, ' ') + ' ';
-                if (hasClass(elem, className)) {
-                    while (newClass.indexOf(' ' + className + ' ') >= 0 ) {
-                        newClass = newClass.replace(' ' + className + ' ', ' ');
-                    }
-                    elem.className = newClass.replace(/^\s+|\s+$/g, '');
-                }
-            };
-            var addClass = function(elem, className) {
-                if (!hasClass(elem, className)) {
-                    elem.className += ' ' + className;
-                }
-            };
-            var hasClass = function (elem, className) {
-                return new RegExp(' ' + className + ' ').test(' ' + elem.className + ' ');
-            };
-            $scope.toggle = function(val){
-                var newValue = val || !controller.$modelValue;
-                if(newValue){
-                    addClass(element, 'active');
-                }else{
-                    removeClass(element, 'active');
-                }
-                controller.$setViewValue(newValue);
-            };
-            controller.$render = function() {
-                var current = controller.$modelValue;
-                $scope.toggle(current);
-            };
-        }
-    };
 });

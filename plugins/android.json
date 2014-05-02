@@ -12,6 +12,33 @@
         "res/xml/config.xml": {
             "/*": {
                 "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>": 1
+            },
+            "/widget": {
+                "<feature name=\"PushNotificationPlugin\"><param name=\"android-package\" value=\"com.urbanairship.phonegap.PushNotificationPlugin\" /><param name=\"onload\" value=\"true\" /></feature>": 1
+            }
+        },
+        "AndroidManifest.xml": {
+            "/manifest": {
+                "<uses-permission android:name=\"android.permission.INTERNET\" />": 1,
+                "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />": 1,
+                "<uses-permission android:name=\"android.permission.VIBRATE\" />": 1,
+                "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\" />": 1,
+                "<uses-permission android:name=\"android.permission.WAKE_LOCK\" />": 1,
+                "<uses-permission android:name=\"com.google.android.c2dm.permission.RECEIVE\" />": 1,
+                "<uses-permission android:name=\"com.appgyver.helloSteroids.permission.C2D_MESSAGE\" />": 1,
+                "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />": 1,
+                "<permission android:name=\"com.appgyver.helloSteroids.permission.C2D_MESSAGE\" android:protectionLevel=\"signature\" />": 1
+            },
+            "/manifest/application": {
+                "<receiver android:name=\"com.urbanairship.phonegap.PushReceiver\" />": 1,
+                "<receiver android:name=\"com.urbanairship.CoreReceiver\" />": 1,
+                "<receiver android:name=\"com.urbanairship.push.GCMPushReceiver\" android:permission=\"com.google.android.c2dm.permission.SEND\"><intent-filter><action android:name=\"com.google.android.c2dm.intent.RECEIVE\" /><action android:name=\"com.google.android.c2dm.intent.REGISTRATION\" /><category android:name=\"com.appgyver.helloSteroids\" /></intent-filter></receiver>": 1,
+                "<meta-data android:name=\"com.urbanairship.autopilot\" android:value=\"com.urbanairship.phonegap.PushAutopilot\" />": 1,
+                "<service android:label=\"Push Notification Service\" android:name=\"com.urbanairship.push.PushService\" />": 1,
+                "<service android:label=\"Push Notification Worker Service\" android:name=\"com.urbanairship.push.PushWorkerService\" />": 1,
+                "<service android:label=\"Event Service\" android:name=\"com.urbanairship.analytics.EventService\" />": 1,
+                "<provider android:authorities=\"com.appgyver.helloSteroids.urbanairship.provider\" android:exported=\"false\" android:multiprocess=\"true\" android:name=\"com.urbanairship.UrbanAirshipProvider\" />": 1,
+                "<service android:label=\"Segments Service\" android:name=\"com.urbanairship.location.LocationService\" />": 1
             }
         }
     },
@@ -20,6 +47,9 @@
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
         },
         "org.apache.cordova.device": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        },
+        "com.urbanairship.phonegap.PushNotification": {
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
         }
     },
