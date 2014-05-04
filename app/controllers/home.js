@@ -10,9 +10,9 @@ homeApp.controller('IndexCtrl', function ($scope, $filter, HomeRestangular, Skyn
         var home = $filter('filter')($scope.homes.$$v, {
             home_id: id
         })[0];
-        if(home && home.url){
+        if (home && home.url) {
             url = home.url;
-        }else{
+        } else {
             url = "views/home/show.html?id=" + id;
         }
         webView = new steroids.views.WebView(url);

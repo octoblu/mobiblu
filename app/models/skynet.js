@@ -23,15 +23,19 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     obj.register = function (callback) {
         if (obj.isRegistered()) {
             // Already Registered & Update the device
-            obj.updateDeviceSetting({}, function (data) {
+            obj.updateDeviceSetting({
+                'type' : 'octobluMobile',
+                'online' : true
+            }, function (data) {
                 callback(data);
                 obj.logSensorData();
             });
         } else {
             obj.skynetSocket.emit('register', {
-                "name": obj.devicename,
-                "owner": obj.skynetuuid,
-                "online": true
+                'name': obj.devicename,
+                'owner': obj.skynetuuid,
+                'type' : 'octobluMobile',
+                'online': true
             }, function (data) {
 
                 data.mobileuuid = data.uuid;

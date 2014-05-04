@@ -7,4 +7,10 @@
     <access origin="*" />
 
     <preference name="fullscreen" value="false" />
+
+    <preference name="com.urbanairship.production_app_key" value="N_z6j9tTRrCbxq59pTeFbg" />
+    <preference name="com.urbanairship.production_app_secret" value="T_Sk_ZY7ROOf0dKB89WW7w" />
+    <preference name="com.urbanairship.in_production" value="false" />
+    <preference name="com.urbanairship.gcm_sender" value="Android only: Your GCM sender id" />
+    
 </widget>

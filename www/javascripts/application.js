@@ -30,9 +30,9 @@ steroids.view.navigationBar.setButtons({
 });
 
 
-window.onload = function(){
+window.onload = function () {
     var element = document.getElementById('sensor-activity');
-    var hammertime = Hammer(element).on("tap", function(event) {
+    var hammertime = Hammer(element).on("tap", function (event) {
         webView = new steroids.views.WebView("/views/setting/errors.html");
         steroids.layers.push(webView);
     });
@@ -49,3 +49,9 @@ function getParam(variable) {
     }
     return (false);
 }
+
+steroids.addons.urbanairship.enabled.then(function () {
+    console.log("Ready, configured and listening for notifications!");
+}).error(function (error) {
+    console.log("Could not enable Urban Airship: " + error.message);
+});
