@@ -36,6 +36,12 @@ window.onload = function () {
         webView = new steroids.views.WebView("/views/setting/errors.html");
         steroids.layers.push(webView);
     });
+
+    steroids.addons.urbanairship.enabled.then(function () {
+        console.log("Ready, configured and listening for notifications!");
+    }).error(function (error) {
+        console.log("Could not enable Urban Airship: " + error.message);
+    });
 };
 
 function getParam(variable) {
@@ -49,9 +55,3 @@ function getParam(variable) {
     }
     return (false);
 }
-
-steroids.addons.urbanairship.enabled.then(function () {
-    console.log("Ready, configured and listening for notifications!");
-}).error(function (error) {
-    console.log("Could not enable Urban Airship: " + error.message);
-});

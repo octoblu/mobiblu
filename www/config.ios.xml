@@ -25,8 +25,8 @@
     <preference name="DisableDoubleTapToFocus" value="true" />
     <preference name="ViewIgnoresStatusBar" value="false" />
 
-    <preference name="com.urbanairship.production_app_key" value="N_z6j9tTRrCbxq59pTeFbg" />
-    <preference name="com.urbanairship.production_app_secret" value="T_Sk_ZY7ROOf0dKB89WW7w" />
-    <preference name="com.urbanairship.in_production" value="false" />
+    <preference name="com.urbanairship.production_app_key" value="BbFhUodQS6KondqSehTy0w" />
+    <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
+    <preference name="com.urbanairship.in_production" value="true" />
 
 </widget>
