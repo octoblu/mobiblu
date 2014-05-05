@@ -24,8 +24,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
         if (obj.isRegistered()) {
             // Already Registered & Update the device
             obj.updateDeviceSetting({
-                'type' : 'octobluMobile',
-                'online' : true
+                'type' : 'octobluMobile'
             }, function (data) {
                 callback(data);
                 obj.logSensorData();

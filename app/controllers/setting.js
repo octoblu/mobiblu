@@ -29,7 +29,18 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
                 $scope.loading = false;
                 $scope.$apply(function(){
                     $scope.devicename = data.name;
-                    $scope.settings = data.setting || {};
+                    if(data.setting && data.setting.length){
+                        $scope.settings = data.setting;
+                    }else{
+                        $scope.settings = {
+                            compass : true,
+                            accelerometer : true,
+                            geolocation : true,
+                            update_interval : 0,
+                            bg_updates : 0
+                        };
+                        $scope.update();
+                    }
                     console.log('Settings', JSON.stringify($scope.settings));
                 });
 
@@ -50,7 +61,6 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
         window.localStorage.setItem("devicename", data.name);
         console.log('Update', JSON.stringify(data));
         Skynet.updateDeviceSetting(data, function(rData){
-            alert('Saved');
             $scope.loading = false;
         });
     };
@@ -78,9 +88,11 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
     });
 
 
-    $scope.logout = function(){
+    $scope.logout = function(callback){
         window.localStorage.removeItem("skynetuuid");
         window.localStorage.removeItem("skynettoken");
+        window.localStorage.removeItem("devicename");
+        callback();
     };
 
     $scope.toggleSwitch = function(setting){
@@ -93,9 +105,10 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
 
     rightButton.title = "Logout";
     rightButton.onTap = function() {
-        $scope.logout();
-        webView = new steroids.views.WebView('/views/home/index.html');
-        steroids.layers.push(webView);
+        $scope.logout(function(){
+            webView = new steroids.views.WebView('/views/home/index.html');
+            steroids.layers.pop(webView);
+        });
     };
 
     steroids.view.navigationBar.setButtons({

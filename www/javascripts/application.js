@@ -15,6 +15,7 @@ if (skynetuuid && skynettoken) {
     if (newskynetuuid && newskynettoken) {
         window.localStorage.setItem("skynetuuid", newskynetuuid);
         window.localStorage.setItem("skynettoken", newskynettoken);
+        window.location.href="http://localhost/views/home/index.html";
     }
 
     rightButton.title = "Login";

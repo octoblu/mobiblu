@@ -26,7 +26,7 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
             $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
 
             OctobluRest.getDevices($scope.skynetuuid, $scope.skynettoken, function(data) {
-                var devices = data.devices;
+                var devices = data.devices || [];
                 for (var i in devices) {
                     if(devices[i].type == 'gateway'){
                         $scope.devices.splice(i,1);
