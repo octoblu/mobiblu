@@ -77,9 +77,9 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             sensors = [];
         obj.getDeviceSetting(obj.mobileuuid, function(data){
 
-            if(data.setting.geolocation) sensors.push('Geolocation');
-            if(data.setting.compass) sensors.push('Compass');
-            if(data.setting.accelerometer) sensors.push('Accelerometer');
+            if(!data.setting || data.setting.geolocation) sensors.push('Geolocation');
+            if(!data.setting || data.setting.compass) sensors.push('Compass');
+            if(!data.setting || data.setting.accelerometer) sensors.push('Accelerometer');
             sensors.forEach(function (sensorType) {
                 if (sensorType && typeof Sensors[sensorType] === 'function') {
                     var sensorObj = Sensors[sensorType]();
