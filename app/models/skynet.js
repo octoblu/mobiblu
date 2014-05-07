@@ -21,7 +21,8 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     };
 
     obj.register = function (callback) {
-        if (obj.isRegistered()) {
+        console.log('Registering', obj.skynetuuid, obj.skynettoken);
+        if (obj.isRegistered() && obj.isAuthenticated()) {
             // Already Registered & Update the device
             obj.updateDeviceSetting({
                 'type' : 'octobluMobile'
@@ -131,6 +132,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
         data.uuid = obj.mobileuuid;
         data.token = obj.mobiletoken;
         data.online = true;
+        data.owner = obj.skynetuuid;
         data.name = data.name || obj.devicename;
 
         obj.skynetSocket.emit('update', data, callback);
@@ -190,6 +192,16 @@ module.service('OctobluRest', function ($http) {
         })
         .error(function(data, status, headers, config) {
             callback({});
+        });
+    };
+
+    obj.logout = function(callback){
+        $http.get(baseURL + '/logout')
+        .success(function(data, status, headers, config) {
+            callback(true);
+        })
+        .error(function(data, status, headers, config) {
+            callback(false);
         });
     };
 

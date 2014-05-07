@@ -6,7 +6,7 @@ var settingApp = angular.module('settingApp', ['hmTouchevents', 'SkynetModel']);
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
+settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, OctobluRest) {
 
     // This will be populated with Restangula
     $scope.settings = {};
@@ -24,6 +24,25 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
         $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
         $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
         $scope.mobiletoken_dummy = tokenmask;
+
+        var rightButton = new steroids.buttons.NavigationBarButton();
+
+        if($scope.skynetuuid && $scope.skynettoken){
+            window.rightButtonSet = true;
+            rightButton.title = "Logout";
+            rightButton.onTap = function() {
+                $scope.logout(function(){
+                    webView = new steroids.views.WebView('/views/home/index.html');
+                    steroids.layers.pop(webView);
+                });
+            };
+
+            steroids.view.navigationBar.setButtons({
+              right: [rightButton],
+              overrideBackButton: false
+            });
+        }
+
         Skynet.init(function(data){
             Skynet.getDeviceSetting($scope.mobileuuid, function(data){
                 $scope.loading = false;
@@ -89,32 +108,24 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest) {
 
 
     $scope.logout = function(callback){
+
         window.localStorage.removeItem("skynetuuid");
         window.localStorage.removeItem("skynettoken");
+
+        window.localStorage.removeItem("mobileuuid");
+        window.localStorage.removeItem("mobiletoken");
+
         window.localStorage.removeItem("devicename");
-        callback();
+
+        OctobluRest.logout(function(res){
+            console.log('Octoblu logout success', res);
+            callback();
+        });
     };
 
     $scope.toggleSwitch = function(setting){
         $scope.settings[setting] = !$scope.settings[setting];
     };
-
-    // -- Native navigation
-
-    var rightButton = new steroids.buttons.NavigationBarButton();
-
-    rightButton.title = "Logout";
-    rightButton.onTap = function() {
-        $scope.logout(function(){
-            webView = new steroids.views.WebView('/views/home/index.html');
-            steroids.layers.pop(webView);
-        });
-    };
-
-    steroids.view.navigationBar.setButtons({
-      right: [rightButton],
-      overrideBackButton: false
-    });
 });
 
 settingApp.controller('ErrorsCtrl', function ($scope, Skynet, Sensors) {
