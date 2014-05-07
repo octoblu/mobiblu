@@ -8,6 +8,8 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     // Octoblu User Data
     obj.skynetuuid = window.localStorage.getItem("skynetuuid");
     obj.skynettoken = window.localStorage.getItem("skynettoken");
+    //Push ID
+    obj.pushID = window.localStorage.getItem("pushID");
     // Mobile App Data
     obj.mobileuuid = window.localStorage.getItem("mobileuuid");
     obj.mobiletoken = window.localStorage.getItem("mobiletoken");
@@ -21,7 +23,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     };
 
     obj.register = function (callback) {
-        console.log('Registering', obj.skynetuuid, obj.skynettoken);
+        console.log('Registering', obj.skynetuuid, obj.skynettoken, obj.mobileuuid, obj.mobiletoken);
         if (obj.isRegistered() && obj.isAuthenticated()) {
             // Already Registered & Update the device
             obj.updateDeviceSetting({
@@ -35,7 +37,8 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 'name': obj.devicename,
                 'owner': obj.skynetuuid,
                 'type' : 'octobluMobile',
-                'online': true
+                'online': true,
+                'pushID' : obj.pushID || undefined
             }, function (data) {
 
                 data.mobileuuid = data.uuid;
@@ -85,7 +88,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 if (sensorType && typeof Sensors[sensorType] === 'function') {
                     var sensorObj = Sensors[sensorType]();
                     sensorObj.start(function (sensorData) {
-                            if(!data.setting.update_interval || ms < 0 || (data.setting.update_interval * 1000) < ms){
+                            if((!data.setting || !data.setting.update_interval) || ms < 0 || (data.setting.update_interval * 1000) < ms){
                                 ms = 0;
                                 start_date = new Date();
                                 obj.skynetSocket.emit('data', {
@@ -133,6 +136,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
         data.token = obj.mobiletoken;
         data.online = true;
         data.owner = obj.skynetuuid;
+        data.pushID = obj.pushID;
         data.name = data.name || obj.devicename;
 
         obj.skynetSocket.emit('update', data, callback);
@@ -151,12 +155,24 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     };
 
     obj.init = function (callback) {
+        document.addEventListener("urbanairship.registration", function (event) {
+            if (event.error) {
+            } else {
+                obj.pushID = event.pushID;
+                window.localStorage.setItem("pushID", obj.pushID);
+                obj.updateDeviceSetting({}, function (data) {
+                    callback(data);
+                    obj.logSensorData();
+                });
+            }
+        }, false);
 
         if (obj.isAuthenticated()) {
             obj.auth(callback);
         }
-
     };
+
+
 
     return obj;
 });
@@ -195,16 +211,6 @@ module.service('OctobluRest', function ($http) {
         });
     };
 
-    obj.logout = function(callback){
-        $http.get(baseURL + '/logout')
-        .success(function(data, status, headers, config) {
-            callback(true);
-        })
-        .error(function(data, status, headers, config) {
-            callback(false);
-        });
-    };
-
     obj.getGateways = function(uuid, token, includeDevices, callback) {
         // $http.get('/api/owner/gateways/' + uuid + '/' + token)
         $http({
@@ -216,10 +222,10 @@ module.service('OctobluRest', function ($http) {
         }).success(function(data) {
             callback(null, data);
         })
-            .error(function(error) {
-                console.log('Error: ' + error);
-                callback(error, null);
-            });
+        .error(function(error) {
+            console.log('Error: ' + error);
+            callback(error, null);
+        });
 
     };
 

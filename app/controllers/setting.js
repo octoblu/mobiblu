@@ -32,8 +32,8 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
             rightButton.title = "Logout";
             rightButton.onTap = function() {
                 $scope.logout(function(){
-                    webView = new steroids.views.WebView('/views/home/index.html');
-                    steroids.layers.pop(webView);
+                    webView = new steroids.views.WebView("http://octoblu.com/logout?referrer=" + encodeURIComponent("http://localhost/views/setting/index.html?logout=true"));
+                    steroids.layers.push(webView);
                 });
             };
 
@@ -48,7 +48,7 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
                 $scope.loading = false;
                 $scope.$apply(function(){
                     $scope.devicename = data.name;
-                    if(data.setting && data.setting.length){
+                    if(data.setting){
                         $scope.settings = data.setting;
                     }else{
                         $scope.settings = {
@@ -80,6 +80,7 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
         window.localStorage.setItem("devicename", data.name);
         console.log('Update', JSON.stringify(data));
         Skynet.updateDeviceSetting(data, function(rData){
+            console.log('Update', JSON.stringify(rData));
             $scope.loading = false;
         });
     };
@@ -117,10 +118,7 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
 
         window.localStorage.removeItem("devicename");
 
-        OctobluRest.logout(function(res){
-            console.log('Octoblu logout success', res);
-            callback();
-        });
+        callback();
     };
 
     $scope.toggleSwitch = function(setting){
