@@ -53,6 +53,10 @@ window.onload = function () {
     steroids.addons.urbanairship.notifications.onValue(function(notification) {
         alert("Message: " + notification.message);
     });
+
+    document.addEventListener("urbanairship.push", function (event) {
+        alert("Incoming push: " + event.message);
+    }, false);
 };
 
 function getParam(variable) {
