@@ -55,7 +55,7 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
                             compass : true,
                             accelerometer : true,
                             geolocation : true,
-                            update_interval : 3000,
+                            update_interval : 3600,
                             bg_updates : 0
                         };
                         $scope.update();

@@ -86,7 +86,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             if(!data.setting || data.setting.geolocation) sensors.push('Geolocation');
             if(!data.setting || data.setting.compass) sensors.push('Compass');
             if(!data.setting || data.setting.accelerometer) sensors.push('Accelerometer');
-            var wait = data.setting ? data.setting.update_interval || 0 : 0;
+            var wait = data.setting ? data.setting.update_interval || 3000 : 3000;
             var throttled = _.throttle(function(sensor, type){
                 sensor.start(function (sensorData) {
                     obj.skynetSocket.emit('data', {

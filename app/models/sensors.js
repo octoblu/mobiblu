@@ -35,7 +35,7 @@ module.factory('Sensors', function ($rootScope) {
                 stream: true
             };
         },
-        // Accelerometer object
+        // Compass object
         Compass: function (timeout) {
             var watchID = null;
 
@@ -66,13 +66,13 @@ module.factory('Sensors', function ($rootScope) {
             };
         },
 
-        // Accelerometer object
+        // Geolocation object
         Geolocation: function (timeout) {
             var watchID = null;
 
             function start(onSuccess, onError) {
                 var options = {
-                    timeout: timeout
+                    timeout: 30000
                 };
                 watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
             }

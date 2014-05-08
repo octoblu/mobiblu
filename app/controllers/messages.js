@@ -140,8 +140,6 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
                         }
 
                     }
-
-                    alert(uuid);
                     Skynet.message({
                         "devices": uuid,
                         "subdevice": $scope.subdevicename,
