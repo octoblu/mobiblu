@@ -130,4 +130,5 @@ settingApp.controller('ErrorsCtrl', function ($scope, Skynet, Sensors) {
 
     $scope.errors = [];
 
+    Skynet.init(function () {});
 });
