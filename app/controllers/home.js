@@ -46,17 +46,17 @@ homeApp.controller('ShowCtrl', function ($scope, $filter, HomeRestangular, Skyne
 
     $scope.startTracking = function (sensorType) {
         if (sensorType && typeof Sensors[sensorType] === 'function') {
-            var sensorObj = Sensors[sensorType]();
+            var sensorObj = Sensors[sensorType](3000);
             sensorObj.start(function (sensorData) {
-                    var el = document.getElementById('sensorData');
-                    if (el) {
-                        var html = sensorObj.prettify(sensorData);
-                        el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
-                    }
-                },
-                function (err) {
-                    alert('Error: ' + err.code);
-                });
+                var el = document.getElementById('sensorData');
+                if (el) {
+                    var html = sensorObj.prettify(sensorData);
+                    el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
+                }
+            },
+            function (err) {
+                alert('Error: ' + err.code);
+            });
         }
     };
 

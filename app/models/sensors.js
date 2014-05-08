@@ -2,12 +2,12 @@ var module = angular.module('SensorModel', []);
 module.factory('Sensors', function ($rootScope) {
     var obj = {
         // Accelerometer object
-        Accelerometer: function () {
+        Accelerometer: function (timeout) {
             var watchID = null;
 
             function start(onSuccess, onError) {
                 var options = {
-                    frequency: 3000
+                    frequency: timeout
                 }; // Update every 3 seconds
                 watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
             }
@@ -36,12 +36,12 @@ module.factory('Sensors', function ($rootScope) {
             };
         },
         // Accelerometer object
-        Compass: function () {
+        Compass: function (timeout) {
             var watchID = null;
 
             function start(onSuccess, onError) {
                 var options = {
-                    frequency: 3000
+                    frequency: timeout
                 }; // Update every 3 seconds
                 watchID = navigator.compass.watchHeading(onSuccess, onError, options);
             }
@@ -67,12 +67,12 @@ module.factory('Sensors', function ($rootScope) {
         },
 
         // Accelerometer object
-        Geolocation: function () {
+        Geolocation: function (timeout) {
             var watchID = null;
 
             function start(onSuccess, onError) {
                 var options = {
-                    timeout: 30000
+                    timeout: timeout
                 };
                 watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
             }
