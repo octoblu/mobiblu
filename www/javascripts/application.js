@@ -3,30 +3,6 @@ window.rightButtonSet = false;
 var newskynetuuid = getParam('uuid'),
     newskynettoken = getParam('token');
 
-if(!window.rightButtonSet){
-    var rightButton = new steroids.buttons.NavigationBarButton(),
-        skynetuuid = window.localStorage.getItem("skynetuuid"),
-        skynettoken = window.localStorage.getItem("skynettoken");
-    if (skynetuuid && skynettoken) {
-        rightButton.title = "Settings";
-        rightButton.onTap = function () {
-            console.log('On tap');
-            webView = new steroids.views.WebView('/views/setting/index.html');
-            steroids.layers.push(webView);
-        };
-    } else {
-        rightButton.title = "Login";
-        rightButton.onTap = function () {
-            webView = new steroids.views.WebView("http://octoblu.com/login?referrer=" + encodeURIComponent("http://localhost/views/setting/index.html"));
-            steroids.layers.push(webView);
-        };
-    }
-    steroids.view.navigationBar.setButtons({
-        right: [rightButton],
-        overrideBackButton: false
-    });
-}
-
 if (newskynetuuid && newskynettoken) {
     window.localStorage.setItem("skynetuuid", newskynetuuid);
     window.localStorage.setItem("skynettoken", newskynettoken);
@@ -38,6 +14,30 @@ if(getParam('logout')){
 }
 
 window.onload = function () {
+    if(!window.rightButtonSet){
+        var rightButton = new steroids.buttons.NavigationBarButton(),
+            skynetuuid = window.localStorage.getItem("skynetuuid"),
+            skynettoken = window.localStorage.getItem("skynettoken");
+        if (skynetuuid && skynettoken) {
+            rightButton.title = "Settings";
+            rightButton.onTap = function () {
+                console.log('On tap');
+                webView = new steroids.views.WebView('/views/setting/index.html');
+                steroids.layers.push(webView);
+            };
+        } else {
+            rightButton.title = "Login";
+            rightButton.onTap = function () {
+                webView = new steroids.views.WebView("http://octoblu.com/login?referrer=" + encodeURIComponent("http://localhost/views/setting/index.html"));
+                steroids.layers.push(webView);
+            };
+        }
+        steroids.view.navigationBar.setButtons({
+            right: [rightButton],
+            overrideBackButton: false
+        });
+    }
+
     var element = document.getElementById('sensor-activity');
     var hammertime = Hammer(element).on("tap", function (event) {
         webView = new steroids.views.WebView("/views/setting/errors.html");
@@ -53,10 +53,6 @@ window.onload = function () {
     steroids.addons.urbanairship.notifications.onValue(function(notification) {
         alert("Message: " + notification.message);
     });
-
-    document.addEventListener("urbanairship.push", function (event) {
-        alert("Incoming push: " + event.message);
-    }, false);
 };
 
 function getParam(variable) {
