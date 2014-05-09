@@ -6,7 +6,9 @@
     <div class="card">
       <ul class="table-view">
         <li class="table-view-cell" ng-repeat="home in homes" hm-tap="open(home.home_id)">
-            <strong>{{home.name}}</strong>
+            <span class="navigate-right">
+                <strong>{{home.name}}</strong>
+            </span>
         </li>
       </ul>
     </div>

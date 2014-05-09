@@ -5,12 +5,10 @@
         <p>{{home.description}}</p>
         <ul class="table-view" ng-show="home.steps">
             <li class="table-view-cell media" ng-repeat="step in home.steps">
-              <a class="navigate-right">
                 <div class="media-body">
                     {{step.name}}
                     <p>{{step.description}}</p>
                 </div>
-              </a>
             </li>
         </ul>
         <button class="btn btn-block" ng-show="home.sensorType" ng-click="startTracking(home.sensorType)">Track {{home.sensorType}}</button>

@@ -14,7 +14,13 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
     var tokenmask = '*************************';
     $scope.loading = true;
 
-    $scope.init = function(){
+    $scope.minutes = [];
+
+    for (var i = 0; i < (60 * 3); i++) {
+        $scope.minutes.push(i);
+    }
+
+    $scope.init = function () {
         $scope.devicename = window.localStorage.getItem("devicename");
 
         $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
@@ -25,78 +31,77 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
         $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
         $scope.mobiletoken_dummy = tokenmask;
 
+        $scope.loggedin = !! window.localStorage.getItem("loggedin");
+
         var rightButton = new steroids.buttons.NavigationBarButton();
 
-        if($scope.skynetuuid && $scope.skynettoken){
-            window.rightButtonSet = true;
-            rightButton.title = "Logout";
-            rightButton.onTap = function() {
-                $scope.logout(function(){
-                    webView = new steroids.views.WebView("http://octoblu.com/logout?referrer=" + encodeURIComponent("http://localhost/views/setting/index.html?logout=true"));
-                    steroids.layers.push(webView);
-                });
-            };
+        window.rightButtonSet = true;
+        rightButton.title = "Logout";
+        rightButton.onTap = function () {
+            $scope.logout(function () {
+                window.location.href="http://octoblu.com/logout?referrer=" + encodeURIComponent("http://localhost/logout.html");
+            });
+        };
 
-            steroids.view.navigationBar.setButtons({
-              right: [rightButton],
-              overrideBackButton: false
+        steroids.view.navigationBar.setButtons({
+            right: [rightButton],
+            overrideBackButton: false
+        });
+
+        if ($scope.loggedin && $scope.skynetuuid && $scope.skynettoken) {
+
+
+            Skynet.init(function (data) {
+                Skynet.getDeviceSetting($scope.mobileuuid, function (data) {
+                    $scope.loading = false;
+                    $scope.$apply(function () {
+                        $scope.devicename = data.name;
+                        if (data.setting) {
+                            $scope.settings = data.setting;
+                        } else {
+                            $scope.settings = {
+                                compass: true,
+                                accelerometer: true,
+                                geolocation: true,
+                                update_interval: 1,
+                                bg_updates: 0
+                            };
+                            $scope.update();
+                        }
+                        console.log('Settings', JSON.stringify($scope.settings));
+                    });
+
+                });
             });
         }
-
-        Skynet.init(function(data){
-            Skynet.getDeviceSetting($scope.mobileuuid, function(data){
-                $scope.loading = false;
-                $scope.$apply(function(){
-                    $scope.devicename = data.name;
-                    if(data.setting){
-                        $scope.settings = data.setting;
-                    }else{
-                        $scope.settings = {
-                            compass : true,
-                            accelerometer : true,
-                            geolocation : true,
-                            update_interval : 3600,
-                            bg_updates : 0
-                        };
-                        $scope.update();
-                    }
-                    console.log('Settings', JSON.stringify($scope.settings));
-                });
-
-            });
-        });
-        // SkynetRestangular.one('devices/' + $scope.mobileuuid).get().then( function(data) {
-        //     alert(JSON.stringify(data));
-        //     $scope.loading = false;
-        // });
     };
 
-    $scope.update = function(){
+    $scope.update = function () {
         $scope.loading = true;
         var data = {
-            name : $scope.devicename,
-            setting : $scope.settings
+            name: $scope.devicename,
+            setting: $scope.settings
         };
         window.localStorage.setItem("devicename", data.name);
         console.log('Update', JSON.stringify(data));
-        Skynet.updateDeviceSetting(data, function(rData){
+        Skynet.updateDeviceSetting(data, function (rData) {
             console.log('Update', JSON.stringify(rData));
             $scope.loading = false;
         });
     };
 
-    $scope.revealMobileToken = function(){
-        if($scope.mobiletoken_dummy.match(/^\**$/)){
+    $scope.revealMobileToken = function () {
+        if ($scope.mobiletoken_dummy.match(/^\**$/)) {
             $scope.mobiletoken_dummy = $scope.mobiletoken;
-        }else{
+        } else {
             $scope.mobiletoken_dummy = tokenmask;
         }
     };
 
-    $scope.revealUserToken = function(){
-        if($scope.skynettoken_dummy.match(/^\**$/)){
+    $scope.revealUserToken = function () {
+        if ($scope.skynettoken_dummy.match(/^\**$/)) {
             $scope.skynettoken_dummy = $scope.skynettoken;
-        }else{
+        } else {
             $scope.skynettoken_dummy = tokenmask;
         }
     };
@@ -108,21 +113,18 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
     });
 
 
-    $scope.logout = function(callback){
-
-        window.localStorage.removeItem("skynetuuid");
-        window.localStorage.removeItem("skynettoken");
-
-        window.localStorage.removeItem("mobileuuid");
-        window.localStorage.removeItem("mobiletoken");
-
-        window.localStorage.removeItem("devicename");
-
+    $scope.logout = function (callback) {
+        $scope.loggedin = false;
+        window.loggedin = $scope.loggedin;
+        window.localStorage.removeItem('loggedin');
+        console.log("Logging out!! ", window.localStorage.getItem("loggedin"));
+        window.rightButtonSet = false;
         callback();
     };
 
-    $scope.toggleSwitch = function(setting){
+    $scope.toggleSwitch = function (setting) {
         $scope.settings[setting] = !$scope.settings[setting];
+        $scope.update();
     };
 });
 

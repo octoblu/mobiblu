@@ -2,7 +2,7 @@
   {
     "home_id": 1,
     "name": "Getting Started",
-    "description": "...",
+    "description": "Welcome to Octoblu Mobile Hub. This app allows you to connect your device's sensor data to Octoblu and Skynet. You can also message other devices.",
     "steps" : [
         {
             "name" : "Login",
@@ -15,6 +15,10 @@
         {
             "name" : "Setup flows",
             "description" : "Create flows through Octoblu's designer to trigger events when something happens."
+        },
+        {
+            "name" : "Message Devices",
+            "description" : "Use our interface for messaging devices on your network."
         }
     ]
   },

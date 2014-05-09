@@ -8,7 +8,7 @@
         <form class="input-group" ng-init="init()">
             <label>Device Name</label>
             <div class="input-row">
-                <input type="text" placeholder="Device Name" ng-model="devicename">
+                <input type="text" placeholder="Device Name" ng-model="devicename" ng-change="update()">
             </div>
             <label>Background Updates</label>
             <div class="input-row">
@@ -16,9 +16,9 @@
                     <div class="toggle-handle"></div>
                 </div>
              </div>
-            <label>Update Frequency (milliseconds)</label>
+            <label>Update Frequency (minutes)</label>
             <div class="input-row">
-                <input type="number" placeholder="1" ng-model="settings.update_interval">
+                <select ng-model="settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
             </div>
 
             <label>Compass</label>
@@ -42,7 +42,7 @@
                   </div>
                </div>
 
-            <button class="btn btn-primary btn-block" hm-tap="update()">Save</button>
+<!--             <button class="btn btn-primary btn-block" hm-tap="update()">Save</button> -->
         </form>
 
         <div class="card">

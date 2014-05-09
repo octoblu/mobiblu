@@ -1,8 +1,27 @@
 window.load = function () {
     var bgGeo = window.plugins.backgroundGeoLocation;
 
+    var mobileuuid = window.localStorage.getItem("mobileuuid"),
+        mobiletoken = window.localStorage.getItem("mobiletoken");
     // Send POST to SkyNet
     var sendToSkynet = function (response) {
+
+        $.ajax({
+            url: "http://skynet.im/data/" + mobileuuid + '?token=' + mobiletoken,
+            type: "POST",
+            timeout: 30000,
+            data: {
+                "token": mobiletoken,
+            },
+            success: function (data, textStatus) {
+                console.log("Received response HTTP " + textStatus + " (http://skynet.im/data/");
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("Error during request " + textStatus + " (http://skynet.im/data/)");
+                console.log(errorThrown);
+            },
+        });
 
         // App will crash if finish isn't called
         bgGeo.finish();
@@ -14,22 +33,6 @@ window.load = function () {
     var callbackFn = function (location) {
         console.log('[js] BackgroundGeoLocation callback:  ' + location.latitudue + ',' + location.longitude);
 
-        $.ajax({
-            url: "http://skynet.im/data/" + mobileuuid,
-            type: "POST",
-            timeout: 30000,
-            data: {
-                "token": mobiletoken,
-            },
-            success: function (data, textStatus) {
-                console.log("Received response HTTP " + textStatus + " (http://skynet.im/data/c3d389e1-d638-11e3-922d-bd3555246855)");
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("Error during request " + textStatus + " (http://skynet.im/data/c3d389e1-d638-11e3-922d-bd3555246855)");
-                console.log(errorThrown);
-            },
-        });
 
         sendToSkynet.call(this);
     };
@@ -40,7 +43,7 @@ window.load = function () {
 
     // BackgroundGeoLocation is highly configurable.
     bgGeo.configure(callbackFn, failureFn, {
-        url: 'http://skynet.im/data/' + mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
+        url: 'http://skynet.im/data/' + mobileuuid + '?token=' + mobiletoken, // <-- only required for Android; ios allows javascript callbacks for your http
         params: { // HTTP POST params sent to your server when persisting locations.
             token: mobiletoken,
         },
@@ -50,8 +53,10 @@ window.load = function () {
         debug: true // <-- enable this hear sounds for background-geolocation life-cycle.
     });
 
-    // Turn ON the background-geolocation system.  The user will be tracked whenever they suspend the app.
-    bgGeo.start();
+    if(mobileuuid && mobiletoken){
+        // Turn ON the background-geolocation system.  The user will be tracked whenever they suspend the app.
+        bgGeo.start();
+    }
 
     // If you wish to turn OFF background-tracking, call the #stop method.
     // bgGeo.stop()
