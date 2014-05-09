@@ -36,8 +36,20 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
                     if(error) {
                         console.log('Error' + error);
                     }
-                    console.log('Devices and Gateways', data.gateways);
-                    devices = devices.concat(data.gateways);
+                    data.gateways.forEach(function(gateway){
+                        var found = -1;
+                        for(var x in devices){
+                            if(devices[x]._id === gateway._id){
+                                found = x;
+                                break;
+                            }
+                        }
+                        if(true){
+                            devices.push(gateway);
+                        }else{
+                            //devices[found] = gateway;
+                        }
+                    });
                     for (var i in devices) {
                         console.log(devices[i].name);
                         if(!devices[i].name){
