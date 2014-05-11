@@ -218,6 +218,7 @@ module.service('OctobluRest', function ($http) {
 
     obj.getGateways = function(uuid, token, includeDevices, callback) {
         // $http.get('/api/owner/gateways/' + uuid + '/' + token)
+        console.log(baseURL + '/api/owner/gateways/' + uuid + '/' + token);
         $http({
             url: baseURL + '/api/owner/gateways/' + uuid + '/' + token,
             method: 'get',

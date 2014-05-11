@@ -32,24 +32,30 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
                         $scope.devices.splice(i,1);
                     }
                 }
+                $scope.devices = devices;
+
                 OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, false, function(error, data) {
                     if(error) {
                         console.log('Error' + error);
                     }
-                    data.gateways.forEach(function(gateway){
-                        var found = -1;
-                        for(var x in devices){
-                            if(devices[x]._id === gateway._id){
-                                found = x;
-                                break;
+                    console.log('Here');
+
+                    if(data && data.gateways){
+                        data.gateways.forEach(function(gateway){
+                            var found = -1;
+                            for(var x in devices){
+                                if(devices[x]._id === gateway._id){
+                                    found = x;
+                                    break;
+                                }
                             }
-                        }
-                        if(true){
-                            devices.push(gateway);
-                        }else{
-                            //devices[found] = gateway;
-                        }
-                    });
+                            if(true){
+                                devices.push(gateway);
+                            }else{
+                                //devices[found] = gateway;
+                            }
+                        });
+                    }
                     for (var i in devices) {
                         console.log(devices[i].name);
                         if(!devices[i].name){

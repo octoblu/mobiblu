@@ -1,14 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.appgyver.helloSteroids" version="3.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Hello Steroids</name>
+<widget id="com.octoblu.mobilehub" version="3.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Octoblu Mobile</name>
     <description>
-        A fresh new Steroids application.
+        Octoblu Mobile Hub for communicating with skynet.im and octoblu.com
     </description>
-    <author email="contact@appgyver.com" href="http://www.appgyver.com/steroids">
-        AppGyver Steroids Team
+    <author email="info@octoblu.com" href="http://octoblu.com/">
+        Octoblu Inc, Team
     </author>
     <access origin="*" />
     <plugin name="Device" value="org.apache.cordova.Device"/>
+
+    <plugin name="BackgroundMode" value="de.appplant.cordova.plugin.background-mode"/>
+
     <feature name="http://appgyver.com/steroids/addons/urbanairship">
         <param name="enabled" value="true" />
     </feature>

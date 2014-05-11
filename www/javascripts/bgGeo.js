@@ -12,6 +12,10 @@ window.load = function () {
             timeout: 30000,
             data: {
                 "token": mobiletoken,
+                "sensorData": {
+                    "type": "Geolocation",
+                    "data": response
+                }
             },
             success: function (data, textStatus) {
                 console.log("Received response HTTP " + textStatus + " (http://skynet.im/data/");
