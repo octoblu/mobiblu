@@ -25,46 +25,21 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
             $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
             $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
 
-            OctobluRest.getDevices($scope.skynetuuid, $scope.skynettoken, function(data) {
-                var devices = data.devices || [];
-                for (var i in devices) {
-                    if(devices[i].type == 'gateway'){
-                        $scope.devices.splice(i,1);
+
+            OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true, function(error, data) {
+                if(error) {
+                    console.log('Error' + error);
+                }
+                if(data && data.gateways){
+                    $scope.devices = data.gateways;
+                }else{
+                    $scope.devices = [];
+                }
+                for (var i in $scope.devices) {
+                    if(!$scope.devices[i].name){
+                        $scope.devices[i].name = '(Unkown)';
                     }
                 }
-                $scope.devices = devices;
-
-                OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, false, function(error, data) {
-                    if(error) {
-                        console.log('Error' + error);
-                    }
-                    console.log('Here');
-
-                    if(data && data.gateways){
-                        data.gateways.forEach(function(gateway){
-                            var found = -1;
-                            for(var x in devices){
-                                if(devices[x]._id === gateway._id){
-                                    found = x;
-                                    break;
-                                }
-                            }
-                            if(true){
-                                devices.push(gateway);
-                            }else{
-                                //devices[found] = gateway;
-                            }
-                        });
-                    }
-                    for (var i in devices) {
-                        console.log(devices[i].name);
-                        if(!devices[i].name){
-                            devices[i].name = '(Unkown)';
-                        }
-                    }
-                    $scope.devices = devices;
-                });
-
             });
 
 
@@ -87,9 +62,9 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
 
                     $('#device-msg-editor').jsoneditor({
                         schema: $scope.schema,
-                        theme: 'bootstrap3',
+                        theme: 'html',
                         no_additional_properties: true,
-                        iconlib: 'bootstrap3'
+                        iconlib: 'fontawesome4'
                     });
 
                 }
