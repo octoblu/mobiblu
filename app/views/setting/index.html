@@ -8,7 +8,7 @@
         <form class="input-group" ng-init="init()">
             <label>Device Name</label>
             <div class="input-row">
-                <input type="text" placeholder="Device Name" ng-model="devicename" ng-change="update()">
+                <input type="text" placeholder="Device Name" ng-model="devicename" ng-blur="update()">
             </div>
             <label>Background Updates</label>
             <div class="input-row">

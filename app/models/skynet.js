@@ -4,17 +4,21 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     var obj = this,
         devicename = window.localStorage.getItem("devicename");
 
-    obj.devicename = devicename && devicename.length ? devicename : "Octoblu Mobile (" + device.model + ")";
-    // Octoblu User Data
-    obj.skynetuuid = window.localStorage.getItem("skynetuuid");
-    obj.skynettoken = window.localStorage.getItem("skynettoken");
-    //Push ID
-    obj.pushID = window.localStorage.getItem("pushID");
-    // Logged In
-    obj.loggedin = !!window.localStorage.getItem("loggedin");
-    // Mobile App Data
-    obj.mobileuuid = window.localStorage.getItem("mobileuuid");
-    obj.mobiletoken = window.localStorage.getItem("mobiletoken");
+    obj.setData = function(){
+        obj.devicename = devicename && devicename.length ? devicename : "Octoblu Mobile (" + device.model + ")";
+        // Octoblu User Data
+        obj.skynetuuid = window.localStorage.getItem("skynetuuid");
+        obj.skynettoken = window.localStorage.getItem("skynettoken");
+        //Push ID
+        obj.pushID = window.localStorage.getItem("pushID");
+        // Logged In
+        obj.loggedin = !!window.localStorage.getItem("loggedin");
+        // Mobile App Data
+        obj.mobileuuid = window.localStorage.getItem("mobileuuid");
+        obj.mobiletoken = window.localStorage.getItem("mobiletoken");
+    };
+
+    obj.setData();
 
     obj.isAuthenticated = function () {
         return obj.loggedin && obj.skynetuuid && obj.skynettoken;
@@ -46,6 +50,9 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 data.mobileuuid = data.uuid;
                 data.mobiletoken = data.token;
 
+                obj.mobileuuid = data.mobileuuid;
+                obj.mobiletoken = data.mobiletoken;
+
                 window.localStorage.setItem("mobileuuid", data.uuid);
                 window.localStorage.setItem("mobiletoken", data.token);
 
@@ -71,10 +78,6 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 obj.register(callback);
             }
         });
-    };
-
-    obj.startSensor = function(){
-
     };
 
     obj.logSensorData = function () {
@@ -160,6 +163,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     };
 
     obj.init = function (callback) {
+        obj.setData();
         document.addEventListener("urbanairship.registration", function (event) {
             if (event.error) {
             } else {
