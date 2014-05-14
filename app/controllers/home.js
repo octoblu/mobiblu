@@ -42,22 +42,34 @@ homeApp.controller('ShowCtrl', function ($scope, $filter, HomeRestangular, Skyne
         steroids.view.navigationBar.show($scope.home.name);
     });
 
-    Skynet.init(function () {});
+    Skynet.init(function () {
+        $scope.startTracking = function (sensorType) {
+            if (sensorType && typeof Sensors[sensorType] === 'function') {
+                var sensorObj = Sensors[sensorType](3000);
+                sensorObj.start(function (sensorData) {
+                    var el = document.getElementById('sensorData');
+                    if (el) {
+                        var html = sensorObj.prettify(sensorData);
+                        el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
 
-    $scope.startTracking = function (sensorType) {
-        if (sensorType && typeof Sensors[sensorType] === 'function') {
-            var sensorObj = Sensors[sensorType](3000);
-            sensorObj.start(function (sensorData) {
-                var el = document.getElementById('sensorData');
-                if (el) {
-                    var html = sensorObj.prettify(sensorData);
-                    el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
-                }
-            },
-            function (err) {
-                alert('Error: ' + err.code);
-            });
-        }
-    };
+                        Skynet.skynetSocket.emit('data', {
+                            "uuid": Skynet.mobileuuid,
+                            "token": Skynet.mobiletoken,
+                            "sensorData": {
+                                "type": sensorType,
+                                "data": sensorData
+                            }
+                        }, function (data) {
+                            el.innerHTML = html + '<strong>Skynet Updated</strong><hr>';
+                        });
+                    }
+                },
+                function (err) {
+                    alert('Error: ' + err.code);
+                });
+            }
+        };
+    });
+
 
 });
