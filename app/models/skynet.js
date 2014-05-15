@@ -91,13 +91,26 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             if(!data.setting || data.setting.geolocation) sensors.push('Geolocation');
             if(!data.setting || data.setting.compass) sensors.push('Compass');
             if(!data.setting || data.setting.accelerometer) sensors.push('Accelerometer');
-            var wait = data.setting ? data.setting.update_interval || 1 : 1;
+            var wait = 1;
+            if(data.setting){
+                if(data.setting.update_interval){
+                    wait = data.setting.update_interval;
+                }else if(data.setting.update_interval === 0){
+                    wait = 0.5;
+                }
+            }
             wait = wait * 60 * 1000;
-
+            console.log(wait);
+            var throttled = {};
             sensors.forEach(function (sensorType) {
                 if (sensorType && typeof Sensors[sensorType] === 'function') {
-                    var throttled = _.throttle(function(sensor, type){
+                     throttled[sensorType] = _.throttle(function(sensor, type){
+                        var sent = false;
+                        console.log('Sensor!', JSON.stringify(sensor));
                         sensor.start(function (sensorData) {
+                            if(sent) return;
+                            console.log('Sensor Data!', JSON.stringify(sensorData));
+                            sent = true;
                             obj.skynetSocket.emit('data', {
                                 "uuid": obj.mobileuuid,
                                 "token": obj.mobiletoken,
@@ -130,8 +143,10 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                             sensActBadge.className = 'badge';
                         });
                     }, wait);
-                    var sensorObj = Sensors[sensorType](wait);
-                    throttled(sensorObj, sensorType);
+                    var sensorObj = Sensors[sensorType](1000);
+                    setInterval(function(){
+                        throttled[sensorType](sensorObj, sensorType);
+                    }, wait);
                 }
             });
         });

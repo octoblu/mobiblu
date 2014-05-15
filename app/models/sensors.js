@@ -32,7 +32,8 @@ module.factory('Sensors', function ($rootScope) {
                 start: start,
                 clear: clear,
                 prettify: prettify,
-                stream: true
+                stream: true,
+                name : 'Accelerometer'
             };
         },
         // Compass object
@@ -62,7 +63,8 @@ module.factory('Sensors', function ($rootScope) {
                 start: start,
                 clear: clear,
                 prettify: prettify,
-                stream: false
+                stream: false,
+                name : 'Compass'
             };
         },
 
@@ -95,7 +97,8 @@ module.factory('Sensors', function ($rootScope) {
                 start: start,
                 clear: clear,
                 prettify: prettify,
-                stream: true
+                stream: true,
+                name : 'Geolocation'
             };
         }
     };
