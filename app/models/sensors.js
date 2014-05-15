@@ -55,7 +55,7 @@ module.factory('Sensors', function ($rootScope) {
 
             // Return HTML pretty print of data
             function prettify(heading) {
-                return 'Heading: ' + heading.magneticHeading;
+                return 'Heading: ' + heading.magneticHeading + '<hr>';
             }
 
             return {

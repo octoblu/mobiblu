@@ -93,43 +93,43 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             if(!data.setting || data.setting.accelerometer) sensors.push('Accelerometer');
             var wait = data.setting ? data.setting.update_interval || 1 : 1;
             wait = wait * 60 * 1000;
-            var throttled = _.throttle(function(sensor, type){
-                sensor.start(function (sensorData) {
-                    obj.skynetSocket.emit('data', {
-                        "uuid": obj.mobileuuid,
-                        "token": obj.mobiletoken,
-                        "sensorData": {
-                            "type": type,
-                            "data": sensorData
-                        }
-                    }, function (data) {
-                        x++;
-                        sensActBadge.innerHTML = x.toString();
-                        sensActBadge.className = 'badge badge-negative';
-                    });
-                },
-                function (err) {
-                    if (sensorErrors) {
-                        var html = '<strong>Sensor:</strong> ' + type + '<br>';
-                        if (err.code) {
-                            html = html + '<strong>Error Code:</strong> ' + err.code + '<br>';
-                        }
-                        if (err.message) {
-                            html = html + '<strong>Error Message:</strong> ' + err.message + '<br>';
-                        }
-                        if (!err.message && !err.code) {
-                            html = html + '<strong>Error:</strong> ' + err + '<br>';
-                        }
-                        sensorErrors.innerHTML = sensorErrors.innerHTML + html + '<hr>';
-                    }
-
-                    sensActBadge.innerHTML = 'Error';
-                    sensActBadge.className = 'badge';
-                });
-            }, wait);
 
             sensors.forEach(function (sensorType) {
                 if (sensorType && typeof Sensors[sensorType] === 'function') {
+                    var throttled = _.throttle(function(sensor, type){
+                        sensor.start(function (sensorData) {
+                            obj.skynetSocket.emit('data', {
+                                "uuid": obj.mobileuuid,
+                                "token": obj.mobiletoken,
+                                "sensorData": {
+                                    "type": type,
+                                    "data": sensorData
+                                }
+                            }, function (data) {
+                                x++;
+                                sensActBadge.innerHTML = x.toString();
+                                sensActBadge.className = 'badge badge-negative';
+                            });
+                        },
+                        function (err) {
+                            if (sensorErrors) {
+                                var html = '<strong>Sensor:</strong> ' + type + '<br>';
+                                if (err.code) {
+                                    html = html + '<strong>Error Code:</strong> ' + err.code + '<br>';
+                                }
+                                if (err.message) {
+                                    html = html + '<strong>Error Message:</strong> ' + err.message + '<br>';
+                                }
+                                if (!err.message && !err.code) {
+                                    html = html + '<strong>Error:</strong> ' + err + '<br>';
+                                }
+                                sensorErrors.innerHTML = sensorErrors.innerHTML + html + '<hr>';
+                            }
+
+                            sensActBadge.innerHTML = 'Error';
+                            sensActBadge.className = 'badge';
+                        });
+                    }, wait);
                     var sensorObj = Sensors[sensorType](wait);
                     throttled(sensorObj, sensorType);
                 }
