@@ -5,11 +5,15 @@ module.factory('Sensors', function ($rootScope) {
         Accelerometer: function (timeout) {
             var watchID = null;
 
-            function start(onSuccess, onError) {
+            function watch(onSuccess, onError) {
                 var options = {
                     frequency: timeout
                 }; // Update every 3 seconds
                 watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+            }
+
+            function start(onSuccess, onError) {
+                watchID = navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
             }
 
             function clear() {
@@ -40,11 +44,15 @@ module.factory('Sensors', function ($rootScope) {
         Compass: function (timeout) {
             var watchID = null;
 
-            function start(onSuccess, onError) {
+            function watch(onSuccess, onError) {
                 var options = {
                     frequency: timeout
                 }; // Update every 3 seconds
                 watchID = navigator.compass.watchHeading(onSuccess, onError, options);
+            }
+
+            function start(onSuccess, onError) {
+                navigator.compass.getCurrentHeading(onSuccess, onError);
             }
 
             function clear() {
@@ -72,12 +80,17 @@ module.factory('Sensors', function ($rootScope) {
         Geolocation: function (timeout) {
             var watchID = null;
 
-            function start(onSuccess, onError) {
+            function watch(onSuccess, onError) {
                 var options = {
                     timeout: 30000
                 };
                 watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
             }
+
+            function start(onSuccess, onError) {
+                navigator.geolocation.getCurrentPosition(onSuccess, onError);
+            }
+
 
             function clear() {
                 if (watchID) {

@@ -100,16 +100,13 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 }
             }
             wait = wait * 60 * 1000;
-            console.log(wait);
             var throttled = {};
             sensors.forEach(function (sensorType) {
                 if (sensorType && typeof Sensors[sensorType] === 'function') {
                      throttled[sensorType] = _.throttle(function(sensor, type){
                         var sent = false;
-                        console.log('Sensor!', JSON.stringify(sensor));
                         sensor.start(function (sensorData) {
                             if(sent) return;
-                            console.log('Sensor Data!', JSON.stringify(sensorData));
                             sent = true;
                             obj.skynetSocket.emit('data', {
                                 "uuid": obj.mobileuuid,

@@ -9,14 +9,19 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
 
     $scope.loading = true;
 
-    $scope.devices = [];
+    $scope.devices = [{
+        name : 'Select Device',
+        type : 'dummy'
+    }];
+    $scope.device = $scope.devices[0];
 
     $scope.init = function () {
         Skynet.init(function (data) {
             $scope.loading = false;
             $scope.getSubdevices = function (device) {
-                if (device.type == 'gateway') {
+                if (device.type !== 'dummy' && device.type == 'gateway') {
                     $scope.subdevices = device.subdevices;
+                    $scope.subdevice = $scope.subdevices[0];
                 }
             };
 
@@ -25,15 +30,14 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
             $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
             $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
 
-
             OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true, function(error, data) {
                 if(error) {
                     console.log('Error' + error);
                 }
                 if(data && data.gateways){
-                    $scope.devices = data.gateways;
-                }else{
-                    $scope.devices = [];
+                    data.gateways.forEach(function(gateway){
+                        $scope.devices.push(gateway);
+                    });
                 }
                 for (var i in $scope.devices) {
                     if(!$scope.devices[i].name){
