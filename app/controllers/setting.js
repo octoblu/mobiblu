@@ -14,25 +14,13 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
     var tokenmask = '*************************';
     $scope.loading = true;
 
+    // Set up minutes
     $scope.minutes = [];
-
     for (var i = 0; i < (60 * 3); i++) {
         $scope.minutes.push(i);
     }
 
-    $scope.init = function () {
-        $scope.devicename = window.localStorage.getItem("devicename");
-
-        $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
-        $scope.skynettoken = window.localStorage.getItem("skynettoken");
-        $scope.skynettoken_dummy = tokenmask;
-
-        $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
-        $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
-        $scope.mobiletoken_dummy = tokenmask;
-
-        $scope.loggedin = !! window.localStorage.getItem("loggedin");
-
+    var setLogoutBtn = function(){
         var rightButton = new steroids.buttons.NavigationBarButton();
 
         window.rightButtonSet = true;
@@ -47,9 +35,30 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
             right: [rightButton],
             overrideBackButton: false
         });
+    };
 
-        if ($scope.loggedin && $scope.skynetuuid && $scope.skynettoken) {
+    $scope.init = function () {
+        $scope.devicename = Skynet.devicename;
 
+        $scope.skynetuuid = Skynet.skynetuuid;
+        $scope.skynettoken = Skynet.skynettoken;
+
+        $scope.mobileuuid = Skynet.mobileuuid;
+        $scope.mobiletoken = Skynet.mobiletoken;
+
+        $scope.skynettoken_dummy = tokenmask;
+        $scope.mobiletoken_dummy = tokenmask;
+
+        $scope.settings = Skynet.setting;
+
+        $scope.loggedin = Skynet.loggedin;
+
+        // Set logout button
+        setLogoutBtn();
+
+        if ($scope.loggedin &&
+             $scope.skynetuuid &&
+             $scope.skynettoken) {
 
             Skynet.init(function (data) {
                 Skynet.getDeviceSetting($scope.mobileuuid, function (data) {
@@ -57,20 +66,11 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
                     $scope.$apply(function () {
                         $scope.devicename = data.name;
                         if (data.setting) {
-                            $scope.settings = data.setting;
+                            $scope.settings = Skynet.setting = data.setting;
                         } else {
-                            $scope.settings = {
-                                compass: true,
-                                accelerometer: true,
-                                geolocation: true,
-                                update_interval: 1,
-                                bg_updates: 0
-                            };
                             $scope.update();
                         }
-                        console.log('Settings', JSON.stringify($scope.settings));
                     });
-
                 });
             });
         }
@@ -82,10 +82,11 @@ settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, Octoblu
             name: $scope.devicename,
             setting: $scope.settings
         };
+        Skynet.setting = data.setting;
+
         window.localStorage.setItem("devicename", data.name);
-        console.log('Update', JSON.stringify(data));
+
         Skynet.updateDeviceSetting(data, function (rData) {
-            console.log('Update', JSON.stringify(rData));
             $scope.loading = false;
         });
     };

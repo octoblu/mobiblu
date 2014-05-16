@@ -25,10 +25,11 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
                 }
             };
 
-            $scope.skynetuuid = window.localStorage.getItem("skynetuuid");
-            $scope.skynettoken = window.localStorage.getItem("skynettoken");
-            $scope.mobileuuid = window.localStorage.getItem("mobileuuid");
-            $scope.mobiletoken = window.localStorage.getItem("mobiletoken");
+            $scope.skynetuuid = Skynet.skynetuuid;
+            $scope.skynettoken = Skynet.skynettoken;
+
+            $scope.mobileuuid = Skynet.mobileuuid;
+            $scope.mobiletoken = Skynet.mobiletoken;
 
             OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true, function(error, data) {
                 if(error) {
@@ -49,8 +50,7 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
 
 
             $scope.getSchema = function (device, subdevice) {
-                console.log('device', device);
-                console.log('subdevice', subdevice);
+
                 $('#device-msg-editor').jsoneditor('destroy');
 
                 for (var i in device.plugins) {
@@ -60,7 +60,6 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
                         $scope.schema.title = subdevice.name;
                     }
                 }
-                console.log($scope.schema);
 
                 if ($scope.schema) {
 
@@ -74,20 +73,18 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
                 }
             };
 
-
             Skynet.skynetSocket.on('message', function (channel, message) {
                 alert('Message received from ' + channel + ': ' + message);
             });
 
-
             $scope.sendMessage = function () {
                 /*
-                     if schema exists - get the value from the editor, validate the input and send the message if valid
-                     otherwise notify the user that there was an error.
+                 if schema exists - get the value from the editor, validate the input and send the message if valid
+                 otherwise notify the user that there was an error.
 
-                     if no schema exists, they are doing this manually and we check if the UUID field is populated and that
-                     there is a message to send.
-                     */
+                 if no schema exists, they are doing this manually and we check if the UUID field is populated and that
+                 there is a message to send.
+                 */
 
                 var message, uuid;
 
@@ -145,7 +142,6 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
                         console.log(data);
                     });
                     $scope.messageOutput = "Message Sent: " + JSON.stringify(message);
-
                 }
             };
         });

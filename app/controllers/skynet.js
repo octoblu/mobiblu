@@ -23,7 +23,6 @@ skynetApp.controller('IndexCtrl', function ($scope) {
         }
     });
 
-
     // -- Native navigation
 
     // Set up the navigation bar

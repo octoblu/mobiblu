@@ -16,6 +16,14 @@ module.factory('Skynet', function ($rootScope, Sensors) {
         // Mobile App Data
         obj.mobileuuid = window.localStorage.getItem("mobileuuid");
         obj.mobiletoken = window.localStorage.getItem("mobiletoken");
+
+        obj.setting = {
+            compass: true,
+            accelerometer: true,
+            geolocation: true,
+            update_interval: 1,
+            bg_updates: 0
+        };
     };
 
     obj.setData();
@@ -55,7 +63,6 @@ module.factory('Skynet', function ($rootScope, Sensors) {
 
                 window.localStorage.setItem("mobileuuid", data.uuid);
                 window.localStorage.setItem("mobiletoken", data.token);
-
                 window.localStorage.setItem("devicename", data.name);
 
                 callback(data);
@@ -88,26 +95,35 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             sensors = [];
 
         obj.getDeviceSetting(obj.mobileuuid, function(data){
-            if(!data.setting || data.setting.geolocation) sensors.push('Geolocation');
-            if(!data.setting || data.setting.compass) sensors.push('Compass');
-            if(!data.setting || data.setting.accelerometer) sensors.push('Accelerometer');
+            obj.setting = data;
+            // Push Sensors
+            if(!obj.setting || obj.setting.geolocation) sensors.push('Geolocation');
+            if(!obj.setting || obj.setting.compass) sensors.push('Compass');
+            if(!obj.setting || obj.setting.accelerometer) sensors.push('Accelerometer');
+
             var wait = 1;
-            if(data.setting){
-                if(data.setting.update_interval){
-                    wait = data.setting.update_interval;
-                }else if(data.setting.update_interval === 0){
+
+            if(obj.setting){
+                if(obj.setting.update_interval){
+                    wait = obj.setting.update_interval;
+                }else if(obj.setting.update_interval === 0){
                     wait = 0.5;
                 }
             }
+            // Convert min to ms
             wait = wait * 60 * 1000;
+
             var throttled = {};
+
             sensors.forEach(function (sensorType) {
                 if (sensorType && typeof Sensors[sensorType] === 'function') {
                      throttled[sensorType] = _.throttle(function(sensor, type){
                         var sent = false;
                         sensor.start(function (sensorData) {
+                            // Make sure it hasn't already been sent
                             if(sent) return;
                             sent = true;
+                            // Emit data
                             obj.skynetSocket.emit('data', {
                                 "uuid": obj.mobileuuid,
                                 "token": obj.mobiletoken,
@@ -121,6 +137,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                                 sensActBadge.className = 'badge badge-negative';
                             });
                         },
+                        // Handle Errors
                         function (err) {
                             if (sensorErrors) {
                                 var html = '<strong>Sensor:</strong> ' + type + '<br>';
@@ -140,6 +157,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                             sensActBadge.className = 'badge';
                         });
                     }, wait);
+                    // Trigger Sensor Data every wait
                     var sensorObj = Sensors[sensorType](1000);
                     setInterval(function(){
                         throttled[sensorType](sensorObj, sensorType);
@@ -234,7 +252,6 @@ module.service('OctobluRest', function ($http) {
 
     obj.getGateways = function(uuid, token, includeDevices, callback) {
         // $http.get('/api/owner/gateways/' + uuid + '/' + token)
-        console.log(baseURL + '/api/owner/gateways/' + uuid + '/' + token);
         $http({
             url: baseURL + '/api/owner/gateways/' + uuid + '/' + token,
             method: 'get',
