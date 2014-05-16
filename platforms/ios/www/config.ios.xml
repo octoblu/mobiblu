@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.appgyver.helloSteroids" version="3.1.2" xmlns="http://www.w3.org/ns/widgets">
+<widget id="com.octoblu.mobilehub" version="3.1.2" xmlns="http://www.w3.org/ns/widgets">
     <!--
       The following preferences are explained in more detail in the config.ios.xml guide:
         http://guides.appgyver.com/steroids/guides/project_configuration/config-xml-ios/
@@ -24,4 +24,11 @@
     <preference name="AutoHideSplashScreen" value="true" />
     <preference name="DisableDoubleTapToFocus" value="true" />
     <preference name="ViewIgnoresStatusBar" value="false" />
+
+    <preference name="com.urbanairship.production_app_key" value="BbFhUodQS6KondqSehTy0w" />
+    <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
+    <preference name="com.urbanairship.in_production" value="true" />
+
+    <plugin name="BackgroundGeoLocation" value="BackgroundGeoLocation" onload="true"/>
+
 </widget>

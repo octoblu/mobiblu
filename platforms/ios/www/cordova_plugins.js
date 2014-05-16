@@ -20,6 +20,41 @@ module.exports = [
         "clobbers": [
             "PushNotification"
         ]
+    },
+    {
+        "file": "plugins/org.transistorsoft.cordova.background-geolocation/www/BackgroundGeoLocation.js",
+        "id": "org.transistorsoft.cordova.background-geolocation.BackgroundGeoLocation",
+        "clobbers": [
+            "plugins.backgroundGeoLocation"
+        ]
+    },
+    {
+        "file": "plugins/org.apache.cordova.geolocation/www/Coordinates.js",
+        "id": "org.apache.cordova.geolocation.Coordinates",
+        "clobbers": [
+            "Coordinates"
+        ]
+    },
+    {
+        "file": "plugins/org.apache.cordova.geolocation/www/PositionError.js",
+        "id": "org.apache.cordova.geolocation.PositionError",
+        "clobbers": [
+            "PositionError"
+        ]
+    },
+    {
+        "file": "plugins/org.apache.cordova.geolocation/www/Position.js",
+        "id": "org.apache.cordova.geolocation.Position",
+        "clobbers": [
+            "Position"
+        ]
+    },
+    {
+        "file": "plugins/org.apache.cordova.geolocation/www/geolocation.js",
+        "id": "org.apache.cordova.geolocation.geolocation",
+        "clobbers": [
+            "navigator.geolocation"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -27,7 +62,9 @@ module.exports.metadata =
 {
     "de.appplant.cordova.plugin.background-mode": "0.5.0",
     "org.apache.cordova.device": "0.2.8",
-    "com.urbanairship.phonegap.PushNotification": "2.2.0"
+    "com.urbanairship.phonegap.PushNotification": "2.2.0",
+    "org.transistorsoft.cordova.background-geolocation": "0.2.0",
+    "org.apache.cordova.geolocation": "0.3.7"
 }
 // BOTTOM OF METADATA
 });

@@ -10,8 +10,6 @@
     <access origin="*" />
     <plugin name="Device" value="org.apache.cordova.Device"/>
 
-    <plugin name="BackgroundMode" value="de.appplant.cordova.plugin.background-mode"/>
-
     <feature name="http://appgyver.com/steroids/addons/urbanairship">
         <param name="enabled" value="true" />
     </feature>

@@ -20,4 +20,7 @@
         <param name="android-package" value="com.urbanairship.phonegap.PushNotificationPlugin" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="BackgroundGeoLocation">
+        <param name="android-package" value="com.tenforwardconsulting.cordova.bgloc.BackgroundGpsPlugin" />
+    </feature>
 </widget>

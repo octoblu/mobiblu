@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <script src="http://localhost/cordova.js"></script>
+        <script src="/components/steroids-js/steroids.js"></script>
+        <script src="/components/steroids-addons/index.js"></script>
+
+        <script src="/javascripts/jquery.min.js" type="text/javascript"></script>
+
+        <script type="text/javascript">
+
+            function getParam(variable) {
+                var query = window.location.search.substring(1);
+                var vars = query.split("&");
+                for (var i = 0; i < vars.length; i++) {
+                    var pair = vars[i].split("=");
+                    if (pair[0] == variable) {
+                        return pair[1];
+                    }
+                }
+                return (false);
+            }
+
+            $(document).ready(function(){
+
+                var newskynetuuid = getParam('uuid'),
+                    newskynettoken = getParam('token'),
+                    skynetuuid = window.localStorage.getItem("skynetuuid"),
+                    skynettoken = window.localStorage.getItem("skynettoken");
+
+                // Set new Skynet Tokens
+                if (newskynetuuid && newskynettoken) {
+                    console.log('Setting new credentials');
+                    // If user changed then do delete the mobileuuid && mobiletoken
+                    if(skynetuuid !== newskynetuuid){
+                        console.log('Setting new mobile credentials');
+                        window.localStorage.removeItem("mobileuuid");
+                        window.localStorage.removeItem("mobiletoken");
+                    }
+                    window.localStorage.setItem("skynetuuid", newskynetuuid);
+                    window.localStorage.setItem("skynettoken", newskynettoken);
+                    window.localStorage.setItem('loggedin', true);
+                    webView = new steroids.views.WebView("/views/home/index.html");
+                    steroids.layers.pop(webView, {
+                        onFailure : function(){
+                            steroids.layers.popAll();
+                        }
+                    });
+                }
+
+            });
+
+        </script>
+    </head>
+    <body>
+    </body>
+</html>

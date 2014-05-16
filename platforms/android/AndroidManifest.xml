@@ -24,6 +24,7 @@
         <service android:label="Event Service" android:name="com.urbanairship.analytics.EventService" />
         <provider android:authorities="com.appgyver.helloSteroids.urbanairship.provider" android:exported="false" android:multiprocess="true" android:name="com.urbanairship.UrbanAirshipProvider" />
         <service android:label="Segments Service" android:name="com.urbanairship.location.LocationService" />
+        <service android:enabled="true" android:name="com.tenforwardconsulting.cordova.bgloc.LocationUpdateService" android:process=":remote" />
     </application>
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -34,4 +35,6 @@
     <uses-permission android:name="com.appgyver.helloSteroids.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <permission android:name="com.appgyver.helloSteroids.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
 </manifest>

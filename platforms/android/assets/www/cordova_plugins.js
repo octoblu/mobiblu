@@ -20,6 +20,13 @@ module.exports = [
         "clobbers": [
             "PushNotification"
         ]
+    },
+    {
+        "file": "plugins/org.transistorsoft.cordova.background-geolocation/www/BackgroundGeoLocation.js",
+        "id": "org.transistorsoft.cordova.background-geolocation.BackgroundGeoLocation",
+        "clobbers": [
+            "plugins.backgroundGeoLocation"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -27,7 +34,9 @@ module.exports.metadata =
 {
     "de.appplant.cordova.plugin.background-mode": "0.5.0",
     "org.apache.cordova.device": "0.2.8",
-    "com.urbanairship.phonegap.PushNotification": "2.2.0"
+    "com.urbanairship.phonegap.PushNotification": "2.2.0",
+    "org.transistorsoft.cordova.background-geolocation": "0.2.0",
+    "org.apache.cordova.geolocation": "0.3.7"
 }
 // BOTTOM OF METADATA
 });

@@ -45,6 +45,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             }, function (data) {
                 callback(data);
                 obj.logSensorData();
+                obj.startBG();
             });
         } else {
             obj.skynetSocket.emit('register', {
@@ -67,6 +68,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
 
                 callback(data);
                 obj.logSensorData();
+                obj.startBG();
             });
         }
     };
@@ -165,6 +167,85 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 }
             });
         });
+    };
+
+    obj.startBG = function(){
+        Sensors.Geolocation(1000).start(function(data){
+            obj.bgGeo = window.cordova.plugins.backgroundGeoLocation;
+
+            if(!obj.bgGeo){
+                obj.bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
+            }
+
+            if(!obj.bgGeo){
+                return;
+            }
+
+            // Send POST to SkyNet
+            var sendToSkynet = function (response) {
+
+                $.ajax({
+                    url: "http://skynet.im/data/" + obj.mobileuuid + '?token=' + obj.mobiletoken,
+                    type: "POST",
+                    timeout: 30000,
+                    data: {
+                        "token": mobiletoken,
+                        "sensorData": {
+                            "type": "Geolocation",
+                            "data": response
+                        }
+                    },
+                    headers : {
+                        skynet_auth_uuid : obj.mobileuuid,
+                        skynet_auth_token : obj.mobiletoken
+                    },
+                    success: function (data, textStatus) {
+                        console.log("Received response HTTP " + textStatus + " (http://skynet.im/data/");
+                        console.log(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log("Error during request " + textStatus + " (http://skynet.im/data/)");
+                        console.log(errorThrown);
+                    },
+                });
+
+                // App will crash if finish isn't called
+                obj.bgGeo.finish();
+            };
+            /**
+             * This callback will be executed every time a geolocation is recorded in the background.
+             */
+            var callbackFn = function (location) {
+                console.log('[js] BackgroundGeoLocation callback:  ' + location.latitudue + ',' + location.longitude);
+
+                sendToSkynet.call(this);
+            };
+
+            var failureFn = function (error) {
+                console.log('BackgroundGeoLocation error');
+            };
+
+            // BackgroundGeoLocation is highly configurable.
+            obj.bgGeo.configure(callbackFn, failureFn, {
+                url: 'http://skynet.im/data/' + obj.mobileuuid + '?token=' + obj.mobiletoken, // <-- only required for Android; ios allows javascript callbacks for your http
+                params: { // HTTP POST params sent to your server when persisting locations.
+                    token: obj.mobiletoken,
+                },
+                desiredAccuracy: 10,
+                stationaryRadius: 20,
+                distanceFilter: 30,
+                debug: true // <-- enable this hear sounds for background-geolocation life-cycle.
+            });
+
+            obj.bgGeo.start();
+
+            alert('BG Location Started');
+
+        }, function(err){
+
+        });
+
+
 
     };
 

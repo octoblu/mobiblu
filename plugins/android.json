@@ -11,7 +11,8 @@
         },
         "res/xml/config.xml": {
             "/*": {
-                "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>": 1
+                "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>": 1,
+                "<feature name=\"BackgroundGeoLocation\"><param name=\"android-package\" value=\"com.tenforwardconsulting.cordova.bgloc.BackgroundGpsPlugin\" /></feature>": 1
             },
             "/widget": {
                 "<feature name=\"PushNotificationPlugin\"><param name=\"android-package\" value=\"com.urbanairship.phonegap.PushNotificationPlugin\" /><param name=\"onload\" value=\"true\" /></feature>": 1
@@ -19,15 +20,17 @@
         },
         "AndroidManifest.xml": {
             "/manifest": {
-                "<uses-permission android:name=\"android.permission.INTERNET\" />": 1,
-                "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />": 1,
+                "<uses-permission android:name=\"android.permission.INTERNET\" />": 2,
+                "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />": 2,
                 "<uses-permission android:name=\"android.permission.VIBRATE\" />": 1,
                 "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\" />": 1,
-                "<uses-permission android:name=\"android.permission.WAKE_LOCK\" />": 1,
+                "<uses-permission android:name=\"android.permission.WAKE_LOCK\" />": 2,
                 "<uses-permission android:name=\"com.google.android.c2dm.permission.RECEIVE\" />": 1,
                 "<uses-permission android:name=\"com.appgyver.helloSteroids.permission.C2D_MESSAGE\" />": 1,
-                "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />": 1,
-                "<permission android:name=\"com.appgyver.helloSteroids.permission.C2D_MESSAGE\" android:protectionLevel=\"signature\" />": 1
+                "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />": 2,
+                "<permission android:name=\"com.appgyver.helloSteroids.permission.C2D_MESSAGE\" android:protectionLevel=\"signature\" />": 1,
+                "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\" />": 1,
+                "<uses-permission android:name=\"android.permission.ACCESS_LOCATION_EXTRA_COMMANDS\" />": 1
             },
             "/manifest/application": {
                 "<receiver android:name=\"com.urbanairship.phonegap.PushReceiver\" />": 1,
@@ -38,7 +41,12 @@
                 "<service android:label=\"Push Notification Worker Service\" android:name=\"com.urbanairship.push.PushWorkerService\" />": 1,
                 "<service android:label=\"Event Service\" android:name=\"com.urbanairship.analytics.EventService\" />": 1,
                 "<provider android:authorities=\"com.appgyver.helloSteroids.urbanairship.provider\" android:exported=\"false\" android:multiprocess=\"true\" android:name=\"com.urbanairship.UrbanAirshipProvider\" />": 1,
-                "<service android:label=\"Segments Service\" android:name=\"com.urbanairship.location.LocationService\" />": 1
+                "<service android:label=\"Segments Service\" android:name=\"com.urbanairship.location.LocationService\" />": 1,
+                "<service android:enabled=\"true\" android:name=\"com.tenforwardconsulting.cordova.bgloc.LocationUpdateService\" android:process=\":remote\" />": 1
+            },
+            "/*": {
+                "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\" />": 1,
+                "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />": 1
             }
         }
     },
@@ -51,7 +59,14 @@
         },
         "com.urbanairship.phonegap.PushNotification": {
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        },
+        "org.transistorsoft.cordova.background-geolocation": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "org.apache.cordova.geolocation": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        }
+    }
 }

@@ -50,6 +50,10 @@
 		E9613CEF008B4E349A5FF33A /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6618986062284919A9D36C71 /* SystemConfiguration.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		8206685FBD894182835DAD62 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F41D3E0F212496E929B4737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		F6120E841F934EE5A7E1AF13 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0936C974545743FF9C4356BB /* CoreTelephony.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		FCDC013F29524E15AE0C7F15 /* CDVLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5832D0A4B24EE7820B52F4 /* CDVLocation.m */; };
+		90BBD97471E94D4285E3E462 /* CDVBackgroundGeoLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = F75A356BFDAF42558D6F4C09 /* CDVBackgroundGeoLocation.m */; };
+		3AC0ED4E15424A70BC141991 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 569C84E41F574106B1BE30D3 /* AudioToolbox.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		53C56F56C0D6451995514B81 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E3832AF85DC413E90832157 /* AVFoundation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,7 +76,7 @@
 /* Begin PBXFileReference section */
 		1D3623240D0F684500981E51 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* Hello Steroids.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hello Steroids.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* Octoblu Mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Octoblu Mobile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F766FDD13BBADB100FB74C0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		1F766FE013BBADB100FB74C0 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = Localizable.strings; sourceTree = "<group>"; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -95,7 +99,7 @@
 		30A0434414DC770100060A13 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = Localizable.strings; sourceTree = "<group>"; };
 		30A0434714DC770100060A13 /* se */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = se; path = Localizable.strings; sourceTree = "<group>"; };
 		30FC414816E50CA1004E6F35 /* icon-72@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-72@2x.png"; sourceTree = "<group>"; };
-		32CA4F630368D1EE00C91783 /* Hello Steroids-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Hello Steroids-Prefix.pch"; sourceTree = "<group>"; };
+		32CA4F630368D1EE00C91783 /* Octoblu Mobile-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Octoblu Mobile-Prefix.pch"; sourceTree = "<group>"; };
 		5AEE5B34173C68D80009041E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		5B1594DC16A7569C00FEF299 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		7E7966D41810823500FA85AD /* icon-40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-40.png"; sourceTree = "<group>"; };
@@ -108,18 +112,18 @@
 		7E7966DB1810823500FA85AD /* icon-76@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-76@2x.png"; sourceTree = "<group>"; };
 		7E7966DC1810823500FA85AD /* icon-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small.png"; sourceTree = "<group>"; };
 		7E7966DD1810823500FA85AD /* icon-small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small@2x.png"; sourceTree = "<group>"; };
-		8D1107310486CEB800E47090 /* Hello Steroids-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Hello Steroids-Info.plist"; path = "../Hello Steroids-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		8D1107310486CEB800E47090 /* Octoblu Mobile-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Octoblu Mobile-Info.plist"; path = "../Octoblu Mobile-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x~iphone.png"; sourceTree = "<group>"; };
 		EB87FDF21871DA7A0020F90C /* merges */ = {isa = PBXFileReference; lastKnownFileType = folder; name = merges; path = ../../merges; sourceTree = "<group>"; };
 		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
-		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "Hello Steroids/config.xml"; sourceTree = "<group>"; };
+		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "Octoblu Mobile/config.xml"; sourceTree = "<group>"; };
 		E46A2376188A4E36A418C946 /* APPBackgroundMode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "APPBackgroundMode.m"; path = "de.appplant.cordova.plugin.background-mode/APPBackgroundMode.m"; sourceTree = "<group>"; fileEncoding = 4; };
 		E636E063719A4636942061B2 /* APPBackgroundMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "APPBackgroundMode.h"; path = "de.appplant.cordova.plugin.background-mode/APPBackgroundMode.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		557F30A7DA174B729575F7D7 /* CDVDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVDevice.m"; path = "org.apache.cordova.device/CDVDevice.m"; sourceTree = "<group>"; fileEncoding = 4; };
 		CDDB091390F64248B56778A0 /* CDVDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVDevice.h"; path = "org.apache.cordova.device/CDVDevice.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		7A956F49D99C4046AFBC584E /* PushNotificationPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "PushNotificationPlugin.m"; path = "com.urbanairship.phonegap.PushNotification/PushNotificationPlugin.m"; sourceTree = "<group>"; fileEncoding = 4; };
-		E7D8399A1A824EAC9A7C4631 /* libUAirship-iOS5-3.0.1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libUAirship-iOS5-3.0.1.a"; path = "Hello Steroids/Plugins/com.urbanairship.phonegap.PushNotification/libUAirship-iOS5-3.0.1.a"; sourceTree = "<group>"; fileEncoding = 4; };
+		E7D8399A1A824EAC9A7C4631 /* libUAirship-iOS5-3.0.1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libUAirship-iOS5-3.0.1.a"; path = "Octoblu Mobile/Plugins/com.urbanairship.phonegap.PushNotification/libUAirship-iOS5-3.0.1.a"; sourceTree = "<group>"; fileEncoding = 4; };
 		B21333B464774BB3A673D3EF /* PushNotificationPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "PushNotificationPlugin.h"; path = "com.urbanairship.phonegap.PushNotification/PushNotificationPlugin.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		97CD8618DA3445DEAF5CBFAF /* UAAnalytics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "UAAnalytics.h"; path = "com.urbanairship.phonegap.PushNotification/UAAnalytics.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		14D26804786B4DD59DF6FFF2 /* UAAnalyticsDBManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "UAAnalyticsDBManager.h"; path = "com.urbanairship.phonegap.PushNotification/UAAnalyticsDBManager.h"; sourceTree = "<group>"; fileEncoding = 4; };
@@ -166,6 +170,12 @@
 		6618986062284919A9D36C71 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "SystemConfiguration.framework"; path = "System/Library/Frameworks/SystemConfiguration.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 		5F41D3E0F212496E929B4737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "UIKit.framework"; path = "System/Library/Frameworks/UIKit.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 		0936C974545743FF9C4356BB /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "CoreTelephony.framework"; path = "System/Library/Frameworks/CoreTelephony.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		4F5832D0A4B24EE7820B52F4 /* CDVLocation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVLocation.m"; path = "org.apache.cordova.geolocation/CDVLocation.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		83B326A6355B4EDCA4FA188E /* CDVLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVLocation.h"; path = "org.apache.cordova.geolocation/CDVLocation.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		F75A356BFDAF42558D6F4C09 /* CDVBackgroundGeoLocation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVBackgroundGeoLocation.m"; path = "org.transistorsoft.cordova.background-geolocation/CDVBackgroundGeoLocation.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		0C0CCAF86D8B47D1BDB90AE6 /* CDVBackgroundGeoLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVBackgroundGeoLocation.h"; path = "org.transistorsoft.cordova.background-geolocation/CDVBackgroundGeoLocation.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		569C84E41F574106B1BE30D3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "AudioToolbox.framework"; path = "System/Library/Frameworks/AudioToolbox.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		7E3832AF85DC413E90832157 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "AVFoundation.framework"; path = "System/Library/Frameworks/AVFoundation.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +197,8 @@
 				E9613CEF008B4E349A5FF33A /* SystemConfiguration.framework in Frameworks */,
 				8206685FBD894182835DAD62 /* UIKit.framework in Frameworks */,
 				F6120E841F934EE5A7E1AF13 /* CoreTelephony.framework in Frameworks */,
+				3AC0ED4E15424A70BC141991 /* AudioToolbox.framework in Frameworks */,
+				53C56F56C0D6451995514B81 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,13 +215,13 @@
 				1D3623250D0F684500981E51 /* AppDelegate.m */,
 			);
 			name = Classes;
-			path = "Hello Steroids/Classes";
+			path = "Octoblu Mobile/Classes";
 			sourceTree = SOURCE_ROOT;
 		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* Hello Steroids.app */,
+				1D6058910D05DD3D006BFB54 /* Octoblu Mobile.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -251,11 +263,11 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				32CA4F630368D1EE00C91783 /* Hello Steroids-Prefix.pch */,
+				32CA4F630368D1EE00C91783 /* Octoblu Mobile-Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 			);
 			name = "Other Sources";
-			path = "Hello Steroids";
+			path = "Octoblu Mobile";
 			sourceTree = "<group>";
 		};
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
@@ -267,10 +279,10 @@
 				1F766FDE13BBADB100FB74C0 /* es.lproj */,
 				308D052D1370CCF300D202BF /* icons */,
 				308D05311370CCF300D202BF /* splash */,
-				8D1107310486CEB800E47090 /* Hello Steroids-Info.plist */,
+				8D1107310486CEB800E47090 /* Octoblu Mobile-Info.plist */,
 			);
 			name = Resources;
-			path = "Hello Steroids/Resources";
+			path = "Octoblu Mobile/Resources";
 			sourceTree = "<group>";
 		};
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
@@ -289,6 +301,8 @@
 				6618986062284919A9D36C71 /* SystemConfiguration.framework */,
 				5F41D3E0F212496E929B4737 /* UIKit.framework */,
 				0936C974545743FF9C4356BB /* CoreTelephony.framework */,
+				569C84E41F574106B1BE30D3 /* AudioToolbox.framework */,
+				7E3832AF85DC413E90832157 /* AVFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -347,9 +361,13 @@
 				DF3DAFA29ED144A1A0E7F83B /* UAPush.h */,
 				B4C69BD7D23F486B94F3243C /* UA_Base64.h */,
 				1F38A9A83EB94F67BE79E011 /* UA_Reachability.h */,
+				4F5832D0A4B24EE7820B52F4 /* CDVLocation.m */,
+				83B326A6355B4EDCA4FA188E /* CDVLocation.h */,
+				F75A356BFDAF42558D6F4C09 /* CDVBackgroundGeoLocation.m */,
+				0C0CCAF86D8B47D1BDB90AE6 /* CDVBackgroundGeoLocation.h */,
 			);
 			name = Plugins;
-			path = "Hello Steroids/Plugins";
+			path = "Octoblu Mobile/Plugins";
 			sourceTree = SOURCE_ROOT;
 		};
 		308D052D1370CCF300D202BF /* icons */ = {
@@ -415,9 +433,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* Hello Steroids */ = {
+		1D6058900D05DD3D006BFB54 /* Octoblu Mobile */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Hello Steroids" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Octoblu Mobile" */;
 			buildPhases = (
 				304B58A110DAC018002A0835 /* Copy www directory */,
 				1D60588D0D05DD3D006BFB54 /* Resources */,
@@ -429,9 +447,9 @@
 			dependencies = (
 				301BF551109A68C00062928A /* PBXTargetDependency */,
 			);
-			name = "Hello Steroids";
-			productName = "Hello Steroids";
-			productReference = 1D6058910D05DD3D006BFB54 /* Hello Steroids.app */;
+			name = "Octoblu Mobile";
+			productName = "Octoblu Mobile";
+			productReference = 1D6058910D05DD3D006BFB54 /* Octoblu Mobile.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -466,7 +484,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* Hello Steroids */,
+				1D6058900D05DD3D006BFB54 /* Octoblu Mobile */,
 			);
 		};
 /* End PBXProject section */
@@ -544,6 +562,8 @@
 				5CDB3AAA44214E7CAC9BCBBD /* APPBackgroundMode.m in Sources */,
 				0B1C882C291B450A8A024FAF /* CDVDevice.m in Sources */,
 				5353B785A684401D83E46B76 /* PushNotificationPlugin.m in Sources */,
+				FCDC013F29524E15AE0C7F15 /* CDVLocation.m in Sources */,
+				90BBD97471E94D4285E3E462 /* CDVBackgroundGeoLocation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,10 +622,10 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Hello Steroids/Hello Steroids-Prefix.pch";
+				GCC_PREFIX_HEADER = "Octoblu Mobile/Octoblu Mobile-Prefix.pch";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				INFOPLIST_FILE = "Hello Steroids/Hello Steroids-Info.plist";
+				INFOPLIST_FILE = "Octoblu Mobile/Octoblu Mobile-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
@@ -621,11 +641,11 @@
 					"\"$(BUILT_PRODUCTS_DIR)/libCordova.a\"",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "Hello Steroids";
+				PRODUCT_NAME = "Octoblu Mobile";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/Hello Steroids/Plugins/com.urbanairship.phonegap.PushNotification\"",
+					"\"$(SRCROOT)/Octoblu Mobile/Plugins/com.urbanairship.phonegap.PushNotification\"",
 				);
 			};
 			name = Debug;
@@ -637,10 +657,10 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Hello Steroids/Hello Steroids-Prefix.pch";
+				GCC_PREFIX_HEADER = "Octoblu Mobile/Octoblu Mobile-Prefix.pch";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				INFOPLIST_FILE = "Hello Steroids/Hello Steroids-Info.plist";
+				INFOPLIST_FILE = "Octoblu Mobile/Octoblu Mobile-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = (
 					"-weak_framework",
@@ -656,11 +676,11 @@
 					"\"$(BUILT_PRODUCTS_DIR)/libCordova.a\"",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "Hello Steroids";
+				PRODUCT_NAME = "Octoblu Mobile";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/Hello Steroids/Plugins/com.urbanairship.phonegap.PushNotification\"",
+					"\"$(SRCROOT)/Octoblu Mobile/Plugins/com.urbanairship.phonegap.PushNotification\"",
 				);
 			};
 			name = Release;
@@ -759,7 +779,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Hello Steroids" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Octoblu Mobile" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,

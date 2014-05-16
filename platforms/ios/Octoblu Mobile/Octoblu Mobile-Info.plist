@@ -49,7 +49,7 @@
       </dict>
     </dict>
     <key>CFBundleIdentifier</key>
-    <string>com.appgyver.helloSteroids</string>
+    <string>com.octoblu.mobilehub</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
@@ -81,6 +81,7 @@
     <string>3.1.2</string>
     <key>UIBackgroundModes</key>
     <array>
+      <string>location</string>
       <string>location</string>
       <string>location</string>
     </array>
