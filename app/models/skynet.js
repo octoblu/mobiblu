@@ -1,6 +1,80 @@
 var module = angular.module('SkynetModel', ['SensorModel', 'restangular']);
 
-module.factory('Skynet', function ($rootScope, Sensors) {
+module.service('SkynetRest', function ($http) {
+
+    var obj = this,
+        baseURL = 'http://skynet.im';
+
+    obj.getDevice = function(uuid, callback){
+        $http.get(baseURL + '/devices/' + uuid)
+        .success(function(data, status, headers, config) {
+            callback(data);
+        })
+        .error(function(data, status, headers, config) {
+            callback({});
+        });
+    };
+
+    obj.sendData = function(uuid, token, data, callback){
+        $http({
+            url: baseURL + '/data/' + uuid,
+            method: 'POST',
+            params: data,
+            headers :{
+                skynet_auth_uuid : uuid,
+                skynet_auth_token : token
+            }
+        }).success(function(data) {
+            callback(null, data);
+        })
+        .error(function(data, status, headers, config) {
+            console.log('Error: ', data, status, headers, config);
+            callback(error, null);
+        });
+    };
+
+    return obj;
+
+});
+
+module.service('OctobluRest', function ($http) {
+
+    var obj = this,
+        baseURL = 'http://octoblu.com';
+
+    obj.getDevices = function(uuid, token, callback){
+        $http.get(baseURL + '/api/owner/devices/' + uuid + '/' + token)
+        .success(function(data, status, headers, config) {
+            callback(data);
+        })
+        .error(function(data, status, headers, config) {
+            callback({});
+        });
+    };
+
+    obj.getGateways = function(uuid, token, includeDevices, callback) {
+        // $http.get('/api/owner/gateways/' + uuid + '/' + token)
+        $http({
+            url: baseURL + '/api/owner/gateways/' + uuid + '/' + token,
+            method: 'get',
+            params: {
+                devices: includeDevices
+            }
+        }).success(function(data) {
+            callback(null, data);
+        })
+        .error(function(error) {
+            console.log('Error: ' + error);
+            callback(error, null);
+        });
+
+    };
+
+    return obj;
+
+});
+
+module.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
     var obj = this,
         devicename = window.localStorage.getItem("devicename");
 
@@ -29,7 +103,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
     obj.setData();
 
     obj.isAuthenticated = function () {
-        return obj.loggedin && obj.skynetuuid && obj.skynettoken;
+        return !obj.skynetSocket && obj.loggedin && obj.skynetuuid && obj.skynettoken;
     };
 
     obj.isRegistered = function () {
@@ -38,7 +112,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
 
     obj.register = function (callback) {
         console.log('Registering', obj.skynetuuid, obj.skynettoken, obj.mobileuuid, obj.mobiletoken);
-        if (obj.isRegistered() && obj.isAuthenticated()) {
+        if (obj.isRegistered()) {
             // Already Registered & Update the device
             obj.updateDeviceSetting({
                 'type' : 'octobluMobile'
@@ -109,7 +183,7 @@ module.factory('Skynet', function ($rootScope, Sensors) {
                 if(obj.setting.update_interval){
                     wait = obj.setting.update_interval;
                 }else if(obj.setting.update_interval === 0){
-                    wait = 0.5;
+                    wait = 0.15;
                 }
             }
             // Convert min to ms
@@ -184,33 +258,18 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             // Send POST to SkyNet
             var sendToSkynet = function (response) {
 
-                $.ajax({
-                    url: "http://skynet.im/data/" + obj.mobileuuid + '?token=' + obj.mobiletoken,
-                    type: "POST",
-                    timeout: 30000,
-                    data: {
-                        "token": mobiletoken,
-                        "sensorData": {
-                            "type": "Geolocation",
-                            "data": response
-                        }
-                    },
-                    headers : {
-                        skynet_auth_uuid : obj.mobileuuid,
-                        skynet_auth_token : obj.mobiletoken
-                    },
-                    success: function (data, textStatus) {
-                        console.log("Received response HTTP " + textStatus + " (http://skynet.im/data/");
-                        console.log(data);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.log("Error during request " + textStatus + " (http://skynet.im/data/)");
-                        console.log(errorThrown);
-                    },
-                });
+                SkynetRest.sendData(obj.mobileuuid, obj.mobiletoken, {
+                    "token": obj.mobiletoken,
+                    "sensorData": {
+                        "type": "Geolocation",
+                        "sensorData": response
+                    }
+                }, function(err, data){
+                    console.log('Response Send Data', JSON.stringify(err), JSON.stringify(data));
 
-                // App will crash if finish isn't called
-                obj.bgGeo.finish();
+                    // App will crash if finish isn't called
+                    obj.bgGeo.finish();
+                });
             };
             /**
              * This callback will be executed every time a geolocation is recorded in the background.
@@ -238,8 +297,6 @@ module.factory('Skynet', function ($rootScope, Sensors) {
             });
 
             obj.bgGeo.start();
-
-            alert('BG Location Started');
 
         }, function(err){
 
@@ -292,63 +349,5 @@ module.factory('Skynet', function ($rootScope, Sensors) {
         }
     };
 
-
-
     return obj;
-});
-
-module.service('SkynetRest', function ($http) {
-
-    var obj = this,
-        baseURL = 'http://skynet.im';
-
-    obj.getDevice = function(uuid, callback){
-        $http.get(baseURL + '/devices/' + uuid)
-        .success(function(data, status, headers, config) {
-            callback(data);
-        })
-        .error(function(data, status, headers, config) {
-            callback({});
-        });
-    };
-
-    return obj;
-
-});
-
-module.service('OctobluRest', function ($http) {
-
-    var obj = this,
-        baseURL = 'http://octoblu.com';
-
-    obj.getDevices = function(uuid, token, callback){
-        $http.get(baseURL + '/api/owner/devices/' + uuid + '/' + token)
-        .success(function(data, status, headers, config) {
-            callback(data);
-        })
-        .error(function(data, status, headers, config) {
-            callback({});
-        });
-    };
-
-    obj.getGateways = function(uuid, token, includeDevices, callback) {
-        // $http.get('/api/owner/gateways/' + uuid + '/' + token)
-        $http({
-            url: baseURL + '/api/owner/gateways/' + uuid + '/' + token,
-            method: 'get',
-            params: {
-                devices: includeDevices
-            }
-        }).success(function(data) {
-            callback(null, data);
-        })
-        .error(function(error) {
-            console.log('Error: ' + error);
-            callback(error, null);
-        });
-
-    };
-
-    return obj;
-
 });
