@@ -8,20 +8,19 @@ function add_buttons(){
 
     if(false && !window.rightButtonSet){
         window.rightButtonSet = true;
-        console.log('loggedin', window.loggedin);
         var rightButton = new steroids.buttons.NavigationBarButton();
         if (window.loggedin && skynetuuid && skynettoken) {
             rightButton.title = 'Settings';
             rightButton.onTap = function () {
                 console.log('On tap settings');
-                webView = new steroids.views.WebView('/views/setting/index.html');
+                var webView = new steroids.views.WebView('/views/setting/index.html');
                 steroids.layers.push(webView);
             };
         } else {
             rightButton.title = 'Login';
             rightButton.onTap = function () {
                 console.log('On tap login');
-                webView = new steroids.views.WebView('http://octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'));
+                var webView = new steroids.views.WebView('http://octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'));
                 steroids.layers.push(webView);
             };
         }
@@ -45,19 +44,20 @@ function onPageLoad(){
     window.loggedin = !!window.localStorage.getItem('loggedin');
 
     add_buttons();
-
+    /*
     var element = document.getElementById('sensor-activity');
     var hammertime = Hammer(element).on('tap', function (event) {
         webView = new steroids.views.WebView('/views/setting/errors.html');
         steroids.layers.push(webView);
     });
+    */
 
     if(getParam('logout')){
         console.log('Logged out', getParam('logout'));
         window.loggedin = false;
         steroids.layers.popAll(null, {
             onFailure : function(){
-                webView = new steroids.views.WebView('/views/home/index.html');
+                var webView = new steroids.views.WebView('/views/home/index.html');
                 steroids.layers.pop(webView);
             }
         });

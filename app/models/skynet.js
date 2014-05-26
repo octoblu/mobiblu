@@ -1,6 +1,8 @@
-var module = angular.module('SkynetModel', ['SensorModel', 'restangular']);
+'use strict';
 
-module.service('SkynetRest', function ($http) {
+var skynetModel = angular.module('SkynetModel', ['SensorModel', 'restangular']);
+
+skynetModel.service('SkynetRest', function ($http) {
 
     var obj = this,
         baseURL = 'http://skynet.im';
@@ -37,7 +39,7 @@ module.service('SkynetRest', function ($http) {
 
 });
 
-module.service('OctobluRest', function ($http) {
+skynetModel.service('OctobluRest', function ($http) {
 
     var obj = this,
         baseURL = 'http://octoblu.com';
@@ -74,22 +76,22 @@ module.service('OctobluRest', function ($http) {
 
 });
 
-module.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
+skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
     var obj = this,
-        devicename = window.localStorage.getItem("devicename");
+        devicename = window.localStorage.getItem('devicename');
 
     obj.setData = function(){
-        obj.devicename = devicename && devicename.length ? devicename : "Octoblu Mobile (" + device.model + ")";
+        obj.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile (' + device.model + ')';
         // Octoblu User Data
-        obj.skynetuuid = window.localStorage.getItem("skynetuuid");
-        obj.skynettoken = window.localStorage.getItem("skynettoken");
+        obj.skynetuuid = window.localStorage.getItem('skynetuuid');
+        obj.skynettoken = window.localStorage.getItem('skynettoken');
         //Push ID
-        obj.pushID = window.localStorage.getItem("pushID");
+        obj.pushID = window.localStorage.getItem('pushID');
         // Logged In
-        obj.loggedin = !!window.localStorage.getItem("loggedin");
+        obj.loggedin = !!window.localStorage.getItem('loggedin');
         // Mobile App Data
-        obj.mobileuuid = window.localStorage.getItem("mobileuuid");
-        obj.mobiletoken = window.localStorage.getItem("mobiletoken");
+        obj.mobileuuid = window.localStorage.getItem('mobileuuid');
+        obj.mobiletoken = window.localStorage.getItem('mobiletoken');
 
         obj.setting = {
             compass: true,
@@ -100,14 +102,33 @@ module.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         };
     };
 
+    obj.logout = function(){
+
+        window.localStorage.removeItem('skynetuuid');
+        window.localStorage.removeItem('skynettoken');
+        obj.skynetuuid = null;
+        obj.skynettoken = null;
+
+        window.loggedin = obj.loggedin = false;
+        window.localStorage.removeItem('loggedin');
+
+        obj.setData();
+    };
+
+    obj.login = function(){
+
+        window.location = 'http://octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html');
+    };
+
     obj.setData();
 
     obj.isAuthenticated = function () {
-        return !obj.skynetSocket && obj.loggedin && obj.skynetuuid && obj.skynettoken;
+        //console.log(JSON.stringify([obj.loggedin, obj.skynetuuid, obj.skynettoken]));
+        return !!(obj.loggedin && obj.skynetuuid && obj.skynettoken);
     };
 
     obj.isRegistered = function () {
-        return obj.mobileuuid && obj.mobiletoken;
+        return !!(obj.mobileuuid && obj.mobiletoken);
     };
 
     obj.register = function (callback) {
@@ -136,9 +157,9 @@ module.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                 obj.mobileuuid = data.mobileuuid;
                 obj.mobiletoken = data.mobiletoken;
 
-                window.localStorage.setItem("mobileuuid", data.uuid);
-                window.localStorage.setItem("mobiletoken", data.token);
-                window.localStorage.setItem("devicename", data.name);
+                window.localStorage.setItem('mobileuuid', data.uuid);
+                window.localStorage.setItem('mobiletoken', data.token);
+                window.localStorage.setItem('devicename', data.name);
 
                 callback(data);
                 obj.logSensorData();
@@ -201,11 +222,11 @@ module.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                             sent = true;
                             // Emit data
                             obj.skynetSocket.emit('data', {
-                                "uuid": obj.mobileuuid,
-                                "token": obj.mobiletoken,
-                                "sensorData": {
-                                    "type": type,
-                                    "data": sensorData
+                                'uuid': obj.mobileuuid,
+                                'token': obj.mobiletoken,
+                                'sensorData': {
+                                    'type': type,
+                                    'data': sensorData
                                 }
                             }, function (data) {
                                 x++;
@@ -259,10 +280,10 @@ module.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             var sendToSkynet = function (response) {
 
                 SkynetRest.sendData(obj.mobileuuid, obj.mobiletoken, {
-                    "token": obj.mobiletoken,
-                    "sensorData": {
-                        "type": "Geolocation",
-                        "sensorData": response
+                    'token': obj.mobiletoken,
+                    'sensorData': {
+                        'type': 'Geolocation',
+                        'sensorData': response
                     }
                 }, function(err, data){
                     console.log('Response Send Data', JSON.stringify(err), JSON.stringify(data));
@@ -332,11 +353,11 @@ module.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
     obj.init = function (callback) {
         obj.setData();
-        document.addEventListener("urbanairship.registration", function (event) {
+        document.addEventListener('urbanairship.registration', function (event) {
             if (event.error) {
             } else {
                 obj.pushID = event.pushID;
-                window.localStorage.setItem("pushID", obj.pushID);
+                window.localStorage.setItem('pushID', obj.pushID);
                 obj.updateDeviceSetting({}, function (data) {
                     callback(data);
                     obj.logSensorData();

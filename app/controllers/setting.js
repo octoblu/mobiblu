@@ -1,3 +1,5 @@
+'use strict';
+
 var settingApp = angular.module('main.setting', ['hmTouchevents', 'SkynetModel']);
 
 // Index: http://localhost/views/setting/index.html
@@ -16,23 +18,6 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
         $scope.minutes.push(i);
     }
 
-    var setLogoutBtn = function(){
-        var rightButton = new steroids.buttons.NavigationBarButton();
-
-        window.rightButtonSet = true;
-        rightButton.title = "Logout";
-        rightButton.onTap = function () {
-            $scope.logout(function () {
-                window.location.href="http://octoblu.com/logout?referrer=" + encodeURIComponent("http://localhost/logout.html");
-            });
-        };
-
-        steroids.view.navigationBar.setButtons({
-            right: [rightButton],
-            overrideBackButton: false
-        });
-    };
-
     $scope.init = function () {
         $scope.devicename = Skynet.devicename;
 
@@ -48,9 +33,6 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
         $scope.settings = Skynet.setting;
 
         $scope.loggedin = Skynet.loggedin;
-
-        // Set logout button
-        setLogoutBtn();
 
         if ($scope.loggedin &&
              $scope.skynetuuid &&
@@ -108,16 +90,6 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
         // reload data on message with reload status
         if (event.data.status === "reload") {}
     });
-
-
-    $scope.logout = function (callback) {
-        $scope.loggedin = false;
-        window.loggedin = $scope.loggedin;
-        window.localStorage.removeItem('loggedin');
-        console.log("Logging out!! ", window.localStorage.getItem("loggedin"));
-        window.rightButtonSet = false;
-        callback();
-    };
 
     $scope.toggleSwitch = function (setting) {
         $scope.settings[setting] = !$scope.settings[setting];

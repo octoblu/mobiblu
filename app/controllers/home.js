@@ -21,6 +21,8 @@ homeApp.controller('HomeCtrl', function ($scope, $filter, HomeRestangular, Skyne
 
     Skynet.init(function () {});
 
+    $scope.login = Skynet.login;
+
     $scope.homes = HomeRestangular.all('home').getList();
     // Fetch all objects from the local JSON (see app/models/home.js)
 });

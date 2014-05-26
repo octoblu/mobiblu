@@ -39,14 +39,16 @@
                     window.localStorage.setItem("skynetuuid", newskynetuuid);
                     window.localStorage.setItem("skynettoken", newskynettoken);
                     window.localStorage.setItem('loggedin', true);
-                    webView = new steroids.views.WebView("/views/home/index.html");
-                    steroids.layers.pop(webView, {
-                        onFailure : function(){
-                            steroids.layers.popAll();
-                        }
-                    });
+                    // webView = new steroids.views.WebView("/views/home/index.html");
+                    // steroids.layers.pop(webView, {
+                    //     onFailure : function(){
+                    //         steroids.layers.popAll();
+                    //     }
+                    // });
+                }else{
+                    console.log('No Credentials', JSON.stringify([newskynetuuid, newskynettoken]));
                 }
-
+                window.location = '/#!/';
             });
 
         </script>

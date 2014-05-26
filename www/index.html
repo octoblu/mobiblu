@@ -68,33 +68,32 @@
     <script src="/controllers/home.js"></script>
     <script src="/controllers/messages.js"></script>
     <script src="/controllers/setting.js"></script>
-    <script src="/controllers/header.js"></script>
-    <script src="/controllers/footer.js"></script>
+    <script src="/controllers/system.js"></script>
 
     <script src="/public/app/init.js"></script>
 </head>
 
 <body>
-
-    <header ng-controller="HeaderCtrl" class="bar bar-nav">
-        <button style="display: none;" class="btn btn-link btn-nav pull-left">
+    <header ng-controller="HeaderCtrl" ng-init="init()" class="bar bar-nav">
+        <a href="#!/" ng-show="backbtn" class="btn btn-link btn-nav pull-left">
             <span class="icon icon-left-nav"></span>
             Back
-        </button>
+        </a>
         <h1 class="title">Mobile Hub</h1>
-        <br>
-
-    </header>
-    <div class="bar bar-standard bar-header-secondary">
-        <button id="sensor-activity" class="btn pull-right">
-            Skynet Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
+        <button ng-show="loggedin" ng-click="logout()" class="btn btn-link btn-nav pull-right">
+            Logout
         </button>
+    </header>
+    <div ng-controller="HeaderCtrl" class="bar bar-standard bar-header-secondary">
+        <a href="#!/sensors/errors" id="sensor-activity" class="btn pull-right">
+            Skynet Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
+        </a>
     </div>
     <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
     <div class="content" data-ng-view>
     </div>
 
-    <nav ng-controller="FooterCtrl" class="bar bar-tab">
+    <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-hide="disabled">
         <a class="tab-item" href="#!/" ng-class="{active: isActive('/')}" data-transition="fade">
             <span class="icon icon-home"></span>
             <span class="tab-label">Home</span>
