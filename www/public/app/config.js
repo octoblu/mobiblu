@@ -12,11 +12,14 @@ angular.module('main').config(['$routeProvider',
             .when('/plugins', {
                 templateUrl: '/public/views/plugins/index.html'
             })
-            .when('/sensors', {
-                templateUrl: '/public/views/sensors/index.html'
-            })
             .when('/sensors/errors', {
-                templateUrl: '/public/views/setting/errors.html'
+                templateUrl: '/public/views/sensors/errors.html'
+            })
+            .when('/sensors/:sensorType', {
+                templateUrl: '/public/views/sensors/view.html'
+            })
+            .when('/sensors', {
+                templateUrl: '/public/views/sensors/list.html'
             })
             .when('/setting', {
                 templateUrl: '/public/views/setting/index.html'

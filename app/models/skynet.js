@@ -93,7 +93,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         obj.mobileuuid = window.localStorage.getItem('mobileuuid');
         obj.mobiletoken = window.localStorage.getItem('mobiletoken');
 
-        obj.setting = {
+        obj.settings = {
             compass: true,
             accelerometer: true,
             geolocation: true,
@@ -192,18 +192,18 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             sensors = [];
 
         obj.getDeviceSetting(obj.mobileuuid, function(data){
-            obj.setting = data;
+            obj.settings = data;
             // Push Sensors
-            if(!obj.setting || obj.setting.geolocation) sensors.push('Geolocation');
-            if(!obj.setting || obj.setting.compass) sensors.push('Compass');
-            if(!obj.setting || obj.setting.accelerometer) sensors.push('Accelerometer');
+            if(!obj.settings || obj.settings.geolocation) sensors.push('Geolocation');
+            if(!obj.settings || obj.settings.compass) sensors.push('Compass');
+            if(!obj.settings || obj.settings.accelerometer) sensors.push('Accelerometer');
 
             var wait = 1;
 
-            if(obj.setting){
-                if(obj.setting.update_interval){
-                    wait = obj.setting.update_interval;
-                }else if(obj.setting.update_interval === 0){
+            if(obj.settings){
+                if(obj.settings.update_interval){
+                    wait = obj.settings.update_interval;
+                }else if(obj.settings.update_interval === 0){
                     wait = 0.15;
                 }
             }

@@ -21,12 +21,7 @@
                 <select ng-model="settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
             </div>
 
-            <label>Compass</label>
-            <div class="input-row">
-                <div ng-model="settings.compass" class="toggle pull-right" ng-class="{ active : settings.compass }" ng-click="toggleSwitch('compass')">
-                    <div class="toggle-handle"></div>
-                </div>
-             </div>
+
 
              <label>Accelerometer</label>
              <div class="input-row">

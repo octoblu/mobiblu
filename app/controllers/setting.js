@@ -30,7 +30,7 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
         $scope.skynettoken_dummy = tokenmask;
         $scope.mobiletoken_dummy = tokenmask;
 
-        $scope.settings = Skynet.setting;
+        $scope.settings = Skynet.settings;
 
         $scope.loggedin = Skynet.loggedin;
 
@@ -44,7 +44,7 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
                     $scope.$apply(function () {
                         $scope.devicename = data.name;
                         if (data.setting) {
-                            $scope.settings = Skynet.setting = data.setting;
+                            $scope.settings = Skynet.settings = data.setting;
                         } else {
                             $scope.update();
                         }
@@ -60,7 +60,7 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
             name: $scope.devicename,
             setting: $scope.settings
         };
-        Skynet.setting = data.setting;
+        Skynet.settings = data.setting;
 
         window.localStorage.setItem("devicename", data.name);
 
