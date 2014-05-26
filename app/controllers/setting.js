@@ -1,12 +1,8 @@
-document.addEventListener("skynetready", function () {
-    angular.bootstrap(document, ['settingApp']);
-});
-
-var settingApp = angular.module('settingApp', ['hmTouchevents', 'SkynetModel']);
+var settingApp = angular.module('main.setting', ['hmTouchevents', 'SkynetModel']);
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('IndexCtrl', function ($scope, Skynet, SkynetRest, OctobluRest) {
+settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, OctobluRest) {
 
     // This will be populated with Restangula
     $scope.settings = {};

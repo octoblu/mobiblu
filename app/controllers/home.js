@@ -1,31 +1,28 @@
-var homeApp = angular.module('homeApp', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel']);
+'use strict';
 
+var homeApp = angular.module('main.home', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel']);
 
 // Index: http://localhost/views/home/index.html
 
-homeApp.controller('IndexCtrl', function ($scope, $filter, HomeRestangular, Skynet, Sensors) {
-
+homeApp.controller('HomeCtrl', function ($scope, $filter, HomeRestangular, Skynet) {
     // Helper function for opening new webviews
     $scope.open = function (id) {
         var home = $filter('filter')($scope.homes.$$v, {
             home_id: id
         })[0];
+        var url;
         if (home && home.url) {
             url = home.url;
         } else {
-            url = "views/home/show.html?id=" + id;
+            url = 'views/home/show.html?id=' + id;
         }
-        webView = new steroids.views.WebView(url);
-        steroids.layers.push(webView);
+        window.location = url;
     };
 
     Skynet.init(function () {});
 
-    // Fetch all objects from the local JSON (see app/models/home.js)
     $scope.homes = HomeRestangular.all('home').getList();
-
-    steroids.view.navigationBar.show("Home");
-
+    // Fetch all objects from the local JSON (see app/models/home.js)
 });
 
 
@@ -39,7 +36,6 @@ homeApp.controller('ShowCtrl', function ($scope, $filter, HomeRestangular, Skyne
         $scope.home = $filter('filter')(homes, {
             home_id: steroids.view.params.id
         })[0];
-        steroids.view.navigationBar.show($scope.home.name);
     });
 
     Skynet.init(function () {
@@ -53,13 +49,13 @@ homeApp.controller('ShowCtrl', function ($scope, $filter, HomeRestangular, Skyne
                         el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
 
                         Skynet.skynetSocket.emit('data', {
-                            "uuid": Skynet.mobileuuid,
-                            "token": Skynet.mobiletoken,
-                            "sensorData": {
-                                "type": sensorType,
-                                "data": sensorData
+                            'uuid': Skynet.mobileuuid,
+                            'token': Skynet.mobiletoken,
+                            'sensorData': {
+                                'type': sensorType,
+                                'data': sensorData
                             }
-                        }, function (data) {
+                        }, function () {
                             el.innerHTML = html + '<strong>Skynet Updated</strong><hr>';
                         });
                     }

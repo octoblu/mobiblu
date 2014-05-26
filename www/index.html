@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8">
     <title>Octoblu Mobile</title>
 
@@ -11,66 +12,110 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <link rel="stylesheet" href="/vendor/topcoat/css/topcoat-mobile-light.css" />
-    <link rel="stylesheet" href="/stylesheets/application.css" />
-
-    <script src="/javascripts/onerror.js"></script>
-    <script src="/javascripts/console.log.js"></script>
-
     <!-- cordova.js is served from localhost to ensure the correct version -->
     <script src="http://localhost/cordova.js"></script>
     <script src="/components/steroids-js/steroids.js"></script>
-
-    <script src="/javascripts/geolocation.js"></script>
-    <script src="/javascripts/accelerometer.js"></script>
-    <script src="/javascripts/compass.js"></script>
+    <script src="/components/steroids-addons/index.js"></script>
 
     <!-- Include the compiled Ratchet CSS -->
     <link href="/stylesheets/ratchet.css" rel="stylesheet">
 
+    <link href="/stylesheets/ratchet-theme-ios.css" rel="stylesheet">
+
     <!-- Include the compiled Ratchet JS -->
     <script src="/javascripts/ratchet.js"></script>
-  </head>
-  <body>
 
-    <!-- Make sure all your bars are the first things in your <body> -->
-    <header class="bar bar-nav">
-        <button class="btn pull-right">
-          <a href="/" title="Back">
-              Login
-          </a>
+    <link rel="stylesheet" href="/stylesheets/application.css" />
+    <link rel="stylesheet" href="/stylesheets/font-awesome/css/font-awesome.min.css" />
+
+    <script src="/javascripts/jquery.min.js" type="text/javascript"></script>
+
+    <!-- Skynet.js -->
+    <!--<script src="https://skynet.im/js/skynet.js"></script>-->
+    <script src="http://skynet.im/socket.io/socket.io.js"></script>
+    <script src="/javascripts/skynet.js"></script>
+
+    <script src="/components/angular/angular.min.js"></script>
+    <script src="/components/angular-route/angular-route.js"></script>
+    <script src="/components/angular-ui-utils/ui-utils.min.js"></script>
+
+    <script src="/components/underscore/underscore-min.js"></script>
+    <script src="/components/restangular/dist/restangular.min.js"></script>
+    <!--
+    <script src="/vendor/persistencejs/persistence.js"></script>
+    <script src="/vendor/persistencejs/persistence.store.sql.js"></script>
+    <script src="/vendor/persistencejs/persistence.store.websql.js"></script>
+    -->
+
+    <script src="/vendor/hammerjs/hammer.min.js"></script>
+    <script src="/vendor/angular-hammer/angular-hammer.js"></script>
+
+    <script src="/javascripts/jsoneditor/jsoneditor.js" type="text/javascript"></script>
+
+    <script src="/javascripts/underscore-min.js" type="text/javascript"></script>
+
+    <script src="/javascripts/octoblu.js"></script>
+
+    <script src="/javascripts/application.js"></script>
+
+    <script src="/models/models.js"></script>
+
+<!--- <script src="/controllers/<%= yield.controller %>.js"></script> -->
+
+    <script src="/public/app/app.js"></script>
+    <script src="/public/app/config.js"></script>
+
+    <script src="/controllers/home.js"></script>
+    <script src="/controllers/messages.js"></script>
+    <script src="/controllers/setting.js"></script>
+    <script src="/controllers/header.js"></script>
+    <script src="/controllers/footer.js"></script>
+
+    <script src="/public/app/init.js"></script>
+</head>
+
+<body>
+
+    <header ng-controller="HeaderCtrl" class="bar bar-nav">
+        <button style="display: none;" class="btn btn-link btn-nav pull-left">
+            <span class="icon icon-left-nav"></span>
+            Back
         </button>
-        <h1 class="title">Octoblu Mobile</h1>
-    </header>
+        <h1 class="title">Mobile Hub</h1>
+        <br>
 
+    </header>
+    <div class="bar bar-standard bar-header-secondary">
+        <button id="sensor-activity" class="btn pull-right">
+            Skynet Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
+        </button>
+    </div>
     <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
-    <div class="content">
-      <p class="content-padded">Welcome to the #IoT world.</p>
-      <div class="card">
-        <ul class="table-view">
-          <li class="table-view-cell">
-            <a class="push-right" href="/getting-started.html">
-              <strong>Getting Started</strong>
-            </a>
-          </li>
-          <li class="table-view-cell">
-            <a class="push-right" href="/geo-location.html">
-              <strong>Geolocation</strong>
-            </a>
-          </li>
-          <li class="table-view-cell">
-            <a class="push-right" href="/compass.html">
-              <strong>Compass</strong>
-            </a>
-          </li>
-          <li class="table-view-cell">
-            <a class="push-right" href="/accelerometer.html">
-              <strong>Accelerometer</strong>
-            </a>
-          </li>
-        </ul>
-      </div>
+    <div class="content" data-ng-view>
     </div>
 
-  </body>
+    <nav ng-controller="FooterCtrl" class="bar bar-tab">
+        <a class="tab-item" href="#!/" ng-class="{active: isActive('/')}" data-transition="fade">
+            <span class="icon icon-home"></span>
+            <span class="tab-label">Home</span>
+        </a>
+        <a class="tab-item" href="#!/plugins" ng-class="{active: isActive('/plugins')}" data-transition="fade">
+            <span class="icon fa fa-puzzle-piece"></span>
+            <span class="tab-label">Plugins</span>
+        </a>
+        <a class="tab-item" href="#!/sensors" ng-class="{active: isActive('/sensors')}" data-transition="fade">
+            <span class="icon fa fa-crosshairs"></span>
+            <span class="tab-label">Sensors</span>
+        </a>
+        <a class="tab-item" href="#!/messages" ng-class="{active: isActive('/messages')}" data-transition="fade">
+            <span class="icon fa fa-comments"></span>
+            <span class="tab-label">Messages</span>
+        </a>
+        <a class="tab-item" href="#!/setting" ng-class="{active: isActive('/setting')}" data-transition="fade">
+            <span class="icon icon-gear"></span>
+            <span class="tab-label">Settings</span>
+        </a>
+    </nav>
+</body>
+
 </html>

@@ -1,8 +1,8 @@
-var messagesApp = angular.module('messagesApp', ['hmTouchevents', 'SkynetModel']);
+var messagesApp = angular.module('main.messages', ['hmTouchevents', 'SkynetModel']);
 
 // Index: http://localhost/views/messages/index.html
 
-messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
+messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
     // This will be populated with Restangula
     $scope.messagess = {};
@@ -153,5 +153,3 @@ messagesApp.controller('IndexCtrl', function ($scope, Skynet, OctobluRest) {
         if (event.data.status === "reload") {}
     });
 });
-
-angular.bootstrap(document, ['messagesApp']);

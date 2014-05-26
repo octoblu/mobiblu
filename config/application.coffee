@@ -4,7 +4,7 @@
 steroids.config.name = "octoblu-mobile"
 
 # -- Initial Location --
-steroids.config.location = "http://localhost/views/home/index.html"
+steroids.config.location = "http://localhost/"
 
 # -- Tab Bar --
 # steroids.config.tabBar.enabled = true
@@ -29,9 +29,9 @@ steroids.config.location = "http://localhost/views/home/index.html"
 # steroids.config.tabBar.backgroundImage = ""
 
 # -- Navigation Bar --
-steroids.config.navigationBar.tintColor = "#00aeef"
-steroids.config.navigationBar.titleColor = "#ffffff"
-steroids.config.navigationBar.buttonTintColor = "#ffffff"
+#steroids.config.navigationBar.tintColor = "#00aeef"
+#steroids.config.navigationBar.titleColor = "#ffffff"
+#steroids.config.navigationBar.buttonTintColor = "#ffffff"
 
 # steroids.config.navigationBar.landscape.backgroundImage = ""
 # steroids.config.navigationBar.portrait.backgroundImage = ""
