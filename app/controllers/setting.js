@@ -6,6 +6,8 @@ var settingApp = angular.module('main.setting', ['hmTouchevents', 'SkynetModel']
 
 settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, OctobluRest) {
 
+    $(document).trigger('togglebackbtn', false);
+
     // This will be populated with Restangula
     $scope.settings = {};
 
@@ -95,11 +97,4 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
         $scope.settings[setting] = !$scope.settings[setting];
         $scope.update();
     };
-});
-
-settingApp.controller('ErrorsCtrl', function ($scope, Skynet, Sensors) {
-
-    $scope.errors = [];
-
-    Skynet.init(function () {});
 });

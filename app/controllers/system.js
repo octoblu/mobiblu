@@ -2,17 +2,52 @@
 
 var systemApp = angular.module('main.system', ['SkynetModel']);
 
-systemApp.controller('HeaderCtrl',
-    function ($scope, Skynet, $location) {
+var matchRoute = function(route){
+    var regex = new RegExp('\\#\\!' + route);
+    if(window.location.href.match(regex)){
+        return true;
+    }
+    return false;
+};
+
+systemApp.controller('SubHeaderCtrl',
+    function ($scope) {
+
+        $scope.activity = true;
+
         $scope.showActivity = function(){
-            var regex = new RegExp('\\#\\!/$');
-            if(window.location.href.match(regex)){
-                return true;
+            var excludes = [
+                '/login$'
+            ];
+            for(var x in excludes){
+                var exclude = excludes[x];
+                if(matchRoute(exclude)) {
+                    $scope.activity = false;
+                    return false;
+                }
             }
-            return false;
+
+            $scope.activity = true;
+            return true;
         };
 
+        $scope.showActivity();
+});
+
+systemApp.controller('HeaderCtrl',
+    function ($scope, Skynet, $location) {
+
+
+        // TODO improve this functionality for multiple levels
         $scope.backbtn = false;
+
+        $(document).on('togglebackbtn', function(e, val){
+            $scope.backbtn = val;
+        });
+
+        $scope.goBack = function(){
+            window.history.back();
+        };
 
         $scope.logout = function(){
             Skynet.logout();
@@ -23,7 +58,6 @@ systemApp.controller('HeaderCtrl',
         };
 
         $scope.loggedin = Skynet.loggedin;
-        console.log('Logged in', JSON.stringify($scope.loggedin));
 
         $scope.init = function(){
             if(!Skynet.isAuthenticated()){
@@ -36,11 +70,10 @@ systemApp.controller('HeaderCtrl',
 
 systemApp.controller('FooterCtrl', function ($scope, Skynet) {
     $scope.isActive = function(route){
-        var regex = new RegExp('\\#\\!' + route + '$');
-        if(window.location.href.match(regex)){
-            return true;
+        if(route === '/'){
+            route += '$'; // Make sure regex finds the end
         }
-        return false;
+        return matchRoute(route);
     };
 
     $scope.init = function(){

@@ -4,6 +4,9 @@ var homeApp = angular.module('main.home', ['HomeModel', 'hmTouchevents', 'Skynet
 
 homeApp.controller('HomeCtrl', function ($scope, $filter, HomeRestangular, Skynet) {
 
+    $(document).trigger('togglebackbtn', false);
+    $(document).trigger('toggleerrors', true);
+
     Skynet.init(function () {});
 
     $scope.login = Skynet.login;

@@ -6,6 +6,7 @@ var messagesApp = angular.module('main.messages', ['hmTouchevents', 'SkynetModel
 
 messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
+    $(document).trigger('togglebackbtn', false);
     // This will be populated with Restangula
     $scope.messagess = {};
 

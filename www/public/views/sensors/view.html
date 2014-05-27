@@ -1,7 +1,7 @@
 <div>
 
     <div ng-controller="SensorCtrl" ng-init="init()">
-        <h3 class="content-padded">{{ sensor.label }}</h3>
+        <h3 class="page-title content-padded"><span class="pull-left icon {{ sensor.icon }}"></span>{{ sensor.label }}</h3>
         <form class="input-group">
             <label>Enable Background Tracking</label>
             <div class="input-row">

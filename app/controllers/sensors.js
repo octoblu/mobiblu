@@ -1,8 +1,8 @@
 'use strict';
 
-var homeApp = angular.module('main.sensors', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel']);
+var sensorsApp = angular.module('main.sensors', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel']);
 
-homeApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, HomeRestangular, Skynet, Sensors) {
+sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, HomeRestangular, Skynet, Sensors) {
 
     $scope.sensorTypes = [
         {
@@ -30,6 +30,12 @@ homeApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, HomeRe
                 $scope.sensor = $scope.sensorTypes[x];
             }
         }
+    }
+
+    if($scope.sensor){
+        $(document).trigger('togglebackbtn', true);
+    }else{
+        $(document).trigger('togglebackbtn', false);
     }
 
     $scope.init = function(){
@@ -86,10 +92,18 @@ homeApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, HomeRe
     };
 
     $scope.toggleSwitch = function () {
-        console.log('Toggle Switch', $scope.sensor.type);
         var setting = $scope.sensor.type;
         $scope.settings[setting] = !$scope.settings[setting];
         $scope.update();
     };
 
+});
+
+sensorsApp.controller('ErrorsCtrl', function ($scope, Skynet, Sensors) {
+
+    $scope.errors = [];
+
+    $(document).trigger('togglebackbtn', true);
+
+    Skynet.init(function () {});
 });
