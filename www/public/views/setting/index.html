@@ -21,22 +21,6 @@
                 <select ng-model="settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
             </div>
 
-
-
-             <label>Accelerometer</label>
-             <div class="input-row">
-                 <div ng-model="settings.accelerometer" class="toggle pull-right" ng-class="{ active : settings.accelerometer }" ng-click="toggleSwitch('accelerometer')">
-                     <div class="toggle-handle"></div>
-                 </div>
-              </div>
-
-              <label>Geolocation</label>
-              <div class="input-row">
-                  <div ng-model="settings.geolocation" class="toggle pull-right" ng-class="{ active : settings.geolocation }" ng-click="toggleSwitch('geolocation')">
-                      <div class="toggle-handle"></div>
-                  </div>
-               </div>
-
 <!--             <button class="btn btn-primary btn-block" hm-tap="update()">Save</button> -->
         </form>
 
