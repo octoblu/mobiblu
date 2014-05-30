@@ -1,9 +1,9 @@
 {
-  "name": "mySteroidsProject",
-  "version": "0.0.1",
-  "description": "My awesome AppGyver Steroids project.",
-  "repository": "N/A",
-  "readme":"N/A",
+  "name": "octoblu-mobile",
+  "version": "0.2.1",
+  "description": "Octoblu Mobile Hub",
+  "repository": "https://github.com/skynetim/mobile",
+  "readme":"https://github.com/skynetim/mobile/README.md",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

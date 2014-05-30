@@ -18,8 +18,5 @@
     "steroids-addons": "https://21358:GAWAEFDBQM2DXBNK2ZSRV6GG2VTZKJC6K6VTWQACCQYVLBDSLMAT35GPANXMXDFFPWTY32FURQ@addons.appgyver.com/steroids-addons.js?version=3.1.1",
     "angular-route": "~1.2.16",
     "angular-ui-utils": "~0.1.1"
-  },
-  "resolutions": {
-    "angular": "1.0.7"
   }
 }

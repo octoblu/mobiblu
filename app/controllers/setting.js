@@ -4,7 +4,7 @@ var settingApp = angular.module('main.setting', ['hmTouchevents', 'SkynetModel']
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, OctobluRest) {
+settingApp.controller('SettingCtrl', function ($scope, Skynet) {
 
     $(document).trigger('togglebackbtn', false);
 
@@ -21,39 +21,22 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
     }
 
     $scope.init = function () {
-        $scope.devicename = Skynet.devicename;
-
-        $scope.skynetuuid = Skynet.skynetuuid;
-        $scope.skynettoken = Skynet.skynettoken;
-
-        $scope.mobileuuid = Skynet.mobileuuid;
-        $scope.mobiletoken = Skynet.mobiletoken;
 
         $scope.skynettoken_dummy = tokenmask;
         $scope.mobiletoken_dummy = tokenmask;
 
-        $scope.settings = Skynet.settings;
-
         $scope.loggedin = Skynet.loggedin;
+        Skynet.init(function () {
+            $scope.skynetuuid = Skynet.skynetuuid;
+            $scope.skynettoken = Skynet.skynettoken;
 
-        if ($scope.loggedin &&
-             $scope.skynetuuid &&
-             $scope.skynettoken) {
-
-            Skynet.init(function (data) {
-                Skynet.getDeviceSetting($scope.mobileuuid, function (data) {
-                    $scope.loading = false;
-                    $scope.$apply(function () {
-                        $scope.devicename = data.name;
-                        if (data.setting) {
-                            $scope.settings = Skynet.settings = data.setting;
-                        } else {
-                            $scope.update();
-                        }
-                    });
-                });
-            });
-        }
+            $scope.mobileuuid = Skynet.mobileuuid;
+            $scope.mobiletoken = Skynet.mobiletoken;
+            
+            $scope.devicename = Skynet.devicename;
+            $scope.settings = Skynet.settings;
+            console.log('Settings', JSON.stringify($scope.settings));
+        });
     };
 
     $scope.update = function () {
@@ -64,7 +47,7 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
         };
         Skynet.settings = data.setting;
 
-        window.localStorage.setItem("devicename", data.name);
+        window.localStorage.setItem('devicename', data.name);
 
         Skynet.updateDeviceSetting(data, function (rData) {
             $scope.loading = false;
@@ -88,9 +71,9 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet, SkynetRest, Octob
     };
 
     // Get notified when an another webview modifies the data and reload
-    window.addEventListener("message", function (event) {
+    window.addEventListener('message', function (event) {
         // reload data on message with reload status
-        if (event.data.status === "reload") {}
+        if (event.data.status === 'reload') {}
     });
 
     $scope.toggleSwitch = function (setting) {

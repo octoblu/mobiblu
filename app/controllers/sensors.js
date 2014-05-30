@@ -11,7 +11,7 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
             icon : 'fa fa-rss'
         },
         {
-            type : 'codeompass',
+            type : 'compass',
             label : 'Compass',
             icon : 'fa fa-compass'
         },
@@ -40,15 +40,8 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
 
     $scope.init = function(){
         Skynet.init(function () {
-            Skynet.getDeviceSetting(Skynet.mobileuuid, function (data) {
-                $scope.$apply(function () {
-                    if (data.setting) {
-                        $scope.settings = Skynet.settings = data.setting;
-                    }else{
-                        $scope.settings = Skynet.settings;
-                    }
-                });
-            });
+            $scope.settings = Skynet.settings;
+            $scope.setting = Skynet.settings[$scope.sensor.type];
         });
     };
 
@@ -57,14 +50,11 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
             name: Skynet.devicename,
             setting: $scope.settings
         };
-        var type = $scope.sensor.type;
-        Skynet.settings[type] = true;
         Skynet.updateDeviceSetting(data, function () {
         });
     };
 
     $scope.sendTracking = function () {
-        console.log($scope.sensor.label);
         if ($scope.sensor && typeof Sensors[$scope.sensor.label] === 'function') {
             var sensorObj = Sensors[$scope.sensor.label](3000);
             sensorObj.start(function (sensorData) {

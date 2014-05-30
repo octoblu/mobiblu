@@ -7,13 +7,20 @@ skynetModel.service('SkynetRest', function ($http) {
     var obj = this,
         baseURL = 'http://skynet.im';
 
-    obj.getDevice = function(uuid, callback){
-        $http.get(baseURL + '/devices/' + uuid)
-        .success(function(data, status, headers, config) {
-            callback(data);
+    obj.getDevice = function(uuid, token, callback){
+        $http({
+            url: baseURL + '/devices/' + uuid,
+            method: 'GET',
+            headers :{
+                skynet_auth_uuid : uuid,
+                skynet_auth_token : token
+            }
+        }).success(function(data) {
+            callback(null, data);
         })
         .error(function(data, status, headers, config) {
-            callback({});
+            console.log('Error: ', data, status, headers, config);
+            callback(data);
         });
     };
 
@@ -31,7 +38,7 @@ skynetModel.service('SkynetRest', function ($http) {
         })
         .error(function(data, status, headers, config) {
             console.log('Error: ', data, status, headers, config);
-            callback(error, null);
+            callback(data);
         });
     };
 
@@ -46,10 +53,10 @@ skynetModel.service('OctobluRest', function ($http) {
 
     obj.getDevices = function(uuid, token, callback){
         $http.get(baseURL + '/api/owner/devices/' + uuid + '/' + token)
-        .success(function(data, status, headers, config) {
+        .success(function(data) {
             callback(data);
         })
-        .error(function(data, status, headers, config) {
+        .error(function() {
             callback({});
         });
     };
@@ -80,8 +87,16 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
     var obj = this,
         devicename = window.localStorage.getItem('devicename');
 
+    obj.defaultSettings = {
+        compass: true,
+        accelerometer: true,
+        geolocation: true,
+        update_interval: 1,
+        bg_updates: true
+    };
+
     obj.setData = function(){
-        obj.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile (' + device.model + ')';
+        obj.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile';
         // Octoblu User Data
         obj.skynetuuid = window.localStorage.getItem('skynetuuid');
         obj.skynettoken = window.localStorage.getItem('skynettoken');
@@ -93,13 +108,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         obj.mobileuuid = window.localStorage.getItem('mobileuuid');
         obj.mobiletoken = window.localStorage.getItem('mobiletoken');
 
-        obj.settings = {
-            compass: true,
-            accelerometer: true,
-            geolocation: true,
-            update_interval: 1,
-            bg_updates: 0
-        };
+        obj.settings = obj.defaultSettings;
     };
 
     obj.logout = function(){
@@ -127,48 +136,68 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         return !!(obj.loggedin && obj.skynetuuid && obj.skynettoken);
     };
 
-    obj.isRegistered = function () {
+    obj.isRegistered = function (callback) {
+        obj.whoami(null, null, function(data){
+            if(data.uuid === obj.mobileuuid){
+                callback(true);
+            }else{
+                callback(false);
+            }
+        });
+    };
+
+    obj.isRegisteredOld = function () {
         return !!(obj.mobileuuid && obj.mobiletoken);
+    };
+
+    obj.startProcesses = function(){
+        obj.logSensorData();
+        obj.startBG();
     };
 
     obj.register = function (callback) {
         console.log('Registering', obj.skynetuuid, obj.skynettoken, obj.mobileuuid, obj.mobiletoken);
-        if (obj.isRegistered()) {
-            // Already Registered & Update the device
-            obj.updateDeviceSetting({
-                'type' : 'octobluMobile'
-            }, function (data) {
-                callback(data);
-                obj.logSensorData();
-                obj.startBG();
-            });
-        } else {
-            obj.skynetSocket.emit('register', {
-                'name': obj.devicename,
-                'owner': obj.skynetuuid,
-                'type' : 'octobluMobile',
-                'online': true,
-                'pushID' : obj.pushID || undefined
-            }, function (data) {
+        obj.isRegistered(function(registered){
+            if(registered){
+                // Already Registered & Update the device
+                obj.updateDeviceSetting({
+                    'type' : 'octobluMobile'
+                }, function (data) {
+                    callback(data);
+                    obj.startProcesses();
+                });
+            } else {
+                var regData = {
+                    'name': obj.devicename,
+                    'owner': obj.skynetuuid,
+                    'type' : 'octobluMobile',
+                    'online': true,
+                    'pushID' : obj.pushID || undefined
+                };
+                obj.skynetSocket.emit('register', regData, function (data) {
 
-                data.mobileuuid = data.uuid;
-                data.mobiletoken = data.token;
+                    data.mobileuuid = data.uuid;
+                    data.mobiletoken = data.token;
 
-                obj.mobileuuid = data.mobileuuid;
-                obj.mobiletoken = data.mobiletoken;
+                    obj.mobileuuid = data.mobileuuid;
+                    obj.mobiletoken = data.mobiletoken;
 
-                window.localStorage.setItem('mobileuuid', data.uuid);
-                window.localStorage.setItem('mobiletoken', data.token);
-                window.localStorage.setItem('devicename', data.name);
+                    window.localStorage.setItem('mobileuuid', data.uuid);
+                    window.localStorage.setItem('mobiletoken', data.token);
+                    window.localStorage.setItem('devicename', data.name);
 
-                callback(data);
-                obj.logSensorData();
-                obj.startBG();
-            });
-        }
+                    callback(data);
+                    obj.startProcesses();
+                });
+            }
+        });
+
     };
 
     obj.auth = function (callback) {
+        if(obj.skynetSocket) {
+            return obj.getDeviceSetting(null, null, callback);
+        }
         // GETS HERE
         obj.skynetClient = skynet({
             'uuid': obj.skynetuuid,
@@ -191,8 +220,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             x = 0,
             sensors = [];
 
-        obj.getDeviceSetting(obj.mobileuuid, function(data){
-            obj.settings = data;
+        obj.getDeviceSetting(null, null, function(data){
             // Push Sensors
             if(!obj.settings || obj.settings.geolocation) sensors.push('Geolocation');
             if(!obj.settings || obj.settings.compass) sensors.push('Compass');
@@ -265,6 +293,8 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
     };
 
     obj.startBG = function(){
+        // If BG Updates is turned off
+        if(!obj.settings.bg_updates) return;
         Sensors.Geolocation(1000).start(function(data){
             obj.bgGeo = window.cordova.plugins.backgroundGeoLocation;
 
@@ -323,8 +353,6 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
         });
 
-
-
     };
 
     obj.updateDeviceSetting = function (data, callback) {
@@ -345,28 +373,53 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         obj.skynetSocket.emit('message', data, callback);
     };
 
-    obj.getDeviceSetting = function (uuid, callback) {
+    obj.whoami = function (uuid, token, callback) {
         obj.skynetSocket.emit('whoami', {
-            uuid: uuid
+            uuid: uuid || obj.mobileuuid,
+            token : token || obj.mobiletoken
         }, callback);
     };
+
+    obj.getDeviceSetting = function (uuid, token, callback) {
+        SkynetRest.getDevice(uuid || obj.mobileuuid,
+            token || obj.mobiletoken,
+            function(err, data){
+                var device;
+                if(data.devices.length === 1){
+                    device = data.devices[0];
+                }else{
+                    device = data;
+                }
+                if(!uuid || uuid !== obj.mobileuuid){
+                    if(device.setting){
+                        obj.settings = device.setting;
+                    }else{
+                        obj.settings = obj.defaultSettings;
+                    }
+                }
+
+                callback(data);
+            });
+        };
 
     obj.init = function (callback) {
         obj.setData();
         document.addEventListener('urbanairship.registration', function (event) {
             if (event.error) {
+                console.log('Urbanairship Registration Error');
             } else {
                 obj.pushID = event.pushID;
                 window.localStorage.setItem('pushID', obj.pushID);
-                obj.updateDeviceSetting({}, function (data) {
-                    callback(data);
-                    obj.logSensorData();
-                });
+
+                obj.updateDeviceSetting({}, function () {});
             }
         }, false);
 
+        console.log('Skynet.init()');
         if (obj.isAuthenticated()) {
             obj.auth(callback);
+        }else{
+            callback();
         }
     };
 
