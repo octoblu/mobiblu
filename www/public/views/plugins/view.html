@@ -1,0 +1,18 @@
+<div>
+
+    <div ng-controller="PluginCtrl" ng-init="init()">
+
+        <p class="content-padded">Viewing ...</p>
+
+        <form class="input-group">
+            <label>Enable Plugin</label>
+            <div class="input-row">
+                <div ng-model="enabled" class="toggle pull-right" ng-class="{ active : enabled }" ng-click="toggleSwitch()">
+                    <div class="toggle-handle"></div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+</div>

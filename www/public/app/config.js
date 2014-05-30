@@ -12,6 +12,15 @@ angular.module('main').config(['$routeProvider',
             .when('/plugins', {
                 templateUrl: '/public/views/plugins/index.html'
             })
+            .when('/plugins/search', {
+                templateUrl: '/public/views/plugins/search.html'
+            })
+            .when('/plugins/installed', {
+                templateUrl: '/public/views/plugins/installed.html'
+            })
+            .when('/plugins/:pluginId', {
+                templateUrl: '/public/views/plugins/view.html'
+            })
             .when('/sensors/errors', {
                 templateUrl: '/public/views/sensors/errors.html'
             })
