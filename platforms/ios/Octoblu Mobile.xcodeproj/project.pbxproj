@@ -54,6 +54,8 @@
 		90BBD97471E94D4285E3E462 /* CDVBackgroundGeoLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = F75A356BFDAF42558D6F4C09 /* CDVBackgroundGeoLocation.m */; };
 		3AC0ED4E15424A70BC141991 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 569C84E41F574106B1BE30D3 /* AudioToolbox.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		53C56F56C0D6451995514B81 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E3832AF85DC413E90832157 /* AVFoundation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		BFF79972DE20456CBFC2CD14 /* BluetoothLePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 74E40A5395FD413C9BC527D8 /* BluetoothLePlugin.m */; };
+		6B578AC39077497686EE551B /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63159DD8190C4017ACA04BAD /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -176,6 +178,9 @@
 		0C0CCAF86D8B47D1BDB90AE6 /* CDVBackgroundGeoLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVBackgroundGeoLocation.h"; path = "org.transistorsoft.cordova.background-geolocation/CDVBackgroundGeoLocation.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		569C84E41F574106B1BE30D3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "AudioToolbox.framework"; path = "System/Library/Frameworks/AudioToolbox.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 		7E3832AF85DC413E90832157 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "AVFoundation.framework"; path = "System/Library/Frameworks/AVFoundation.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
+		74E40A5395FD413C9BC527D8 /* BluetoothLePlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "BluetoothLePlugin.m"; path = "com.randdusing.bluetoothle/BluetoothLePlugin.m"; sourceTree = "<group>"; fileEncoding = 4; };
+		395AB4876F234B9EB7B8251B /* BluetoothLePlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "BluetoothLePlugin.h"; path = "com.randdusing.bluetoothle/BluetoothLePlugin.h"; sourceTree = "<group>"; fileEncoding = 4; };
+		63159DD8190C4017ACA04BAD /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "CoreBluetooth.framework"; path = "System/Library/Frameworks/CoreBluetooth.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +204,7 @@
 				F6120E841F934EE5A7E1AF13 /* CoreTelephony.framework in Frameworks */,
 				3AC0ED4E15424A70BC141991 /* AudioToolbox.framework in Frameworks */,
 				53C56F56C0D6451995514B81 /* AVFoundation.framework in Frameworks */,
+				6B578AC39077497686EE551B /* CoreBluetooth.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -303,6 +309,7 @@
 				0936C974545743FF9C4356BB /* CoreTelephony.framework */,
 				569C84E41F574106B1BE30D3 /* AudioToolbox.framework */,
 				7E3832AF85DC413E90832157 /* AVFoundation.framework */,
+				63159DD8190C4017ACA04BAD /* CoreBluetooth.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -365,6 +372,8 @@
 				83B326A6355B4EDCA4FA188E /* CDVLocation.h */,
 				F75A356BFDAF42558D6F4C09 /* CDVBackgroundGeoLocation.m */,
 				0C0CCAF86D8B47D1BDB90AE6 /* CDVBackgroundGeoLocation.h */,
+				74E40A5395FD413C9BC527D8 /* BluetoothLePlugin.m */,
+				395AB4876F234B9EB7B8251B /* BluetoothLePlugin.h */,
 			);
 			name = Plugins;
 			path = "Octoblu Mobile/Plugins";
@@ -564,6 +573,7 @@
 				5353B785A684401D83E46B76 /* PushNotificationPlugin.m in Sources */,
 				FCDC013F29524E15AE0C7F15 /* CDVLocation.m in Sources */,
 				90BBD97471E94D4285E3E462 /* CDVBackgroundGeoLocation.m in Sources */,
+				BFF79972DE20456CBFC2CD14 /* BluetoothLePlugin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

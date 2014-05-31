@@ -12,7 +12,8 @@
         "res/xml/config.xml": {
             "/*": {
                 "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>": 1,
-                "<feature name=\"BackgroundGeoLocation\"><param name=\"android-package\" value=\"com.tenforwardconsulting.cordova.bgloc.BackgroundGpsPlugin\" /></feature>": 1
+                "<feature name=\"BackgroundGeoLocation\"><param name=\"android-package\" value=\"com.tenforwardconsulting.cordova.bgloc.BackgroundGpsPlugin\" /></feature>": 1,
+                "<feature name=\"BluetoothLePlugin\"><param name=\"android-package\" value=\"com.randdusing.bluetoothle.BluetoothLePlugin\" /></feature>": 1
             },
             "/widget": {
                 "<feature name=\"PushNotificationPlugin\"><param name=\"android-package\" value=\"com.urbanairship.phonegap.PushNotificationPlugin\" /><param name=\"onload\" value=\"true\" /></feature>": 1
@@ -30,7 +31,9 @@
                 "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />": 2,
                 "<permission android:name=\"com.appgyver.helloSteroids.permission.C2D_MESSAGE\" android:protectionLevel=\"signature\" />": 1,
                 "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\" />": 1,
-                "<uses-permission android:name=\"android.permission.ACCESS_LOCATION_EXTRA_COMMANDS\" />": 1
+                "<uses-permission android:name=\"android.permission.ACCESS_LOCATION_EXTRA_COMMANDS\" />": 1,
+                "<uses-permission android:name=\"android.permission.BLUETOOTH\" />": 1,
+                "<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\" />": 1
             },
             "/manifest/application": {
                 "<receiver android:name=\"com.urbanairship.phonegap.PushReceiver\" />": 1,
@@ -61,6 +64,9 @@
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
         },
         "org.transistorsoft.cordova.background-geolocation": {
+            "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        },
+        "com.randdusing.bluetoothle": {
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
         }
     },

@@ -29,6 +29,13 @@ module.exports = [
         ]
     },
     {
+        "file": "plugins/com.randdusing.bluetoothle/www/bluetoothle.js",
+        "id": "com.randdusing.bluetoothle.BluetoothLe",
+        "clobbers": [
+            "window.bluetoothle"
+        ]
+    },
+    {
         "file": "plugins/org.apache.cordova.geolocation/www/Coordinates.js",
         "id": "org.apache.cordova.geolocation.Coordinates",
         "clobbers": [
@@ -64,6 +71,7 @@ module.exports.metadata =
     "org.apache.cordova.device": "0.2.8",
     "com.urbanairship.phonegap.PushNotification": "2.2.0",
     "org.transistorsoft.cordova.background-geolocation": "0.2.0",
+    "com.randdusing.bluetoothle": "1.0.0",
     "org.apache.cordova.geolocation": "0.3.7"
 }
 // BOTTOM OF METADATA

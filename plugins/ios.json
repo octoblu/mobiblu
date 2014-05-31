@@ -9,7 +9,8 @@
                 "<feature name=\"BackgroundMode\"><param name=\"ios-package\" onload=\"true\" value=\"APPBackgroundMode\" /><param name=\"onload\" value=\"true\" /></feature>": 1,
                 "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>": 1,
                 "<feature name=\"Geolocation\"><param name=\"ios-package\" value=\"CDVLocation\" /></feature>": 1,
-                "<feature name=\"BackgroundGeoLocation\"><param name=\"ios-package\" value=\"CDVBackgroundGeoLocation\" /></feature>": 1
+                "<feature name=\"BackgroundGeoLocation\"><param name=\"ios-package\" value=\"CDVBackgroundGeoLocation\" /></feature>": 1,
+                "<feature name=\"BluetoothLePlugin\"><param name=\"ios-package\" value=\"BluetoothLePlugin\" /></feature>": 1
             },
             "/widget": {
                 "<feature name=\"PushNotificationPlugin\"><param name=\"ios-package\" value=\"PushNotificationPlugin\" /><param name=\"onload\" value=\"true\" /></feature>": 1
@@ -17,7 +18,8 @@
         },
         "*-Info.plist": {
             "UIBackgroundModes": {
-                "<array><string>location</string></array>": 2
+                "<array><string>location</string></array>": 2,
+                "<array><string>bluetooth-central</string></array>": 1
             },
             "NSLocationUsageDescription": {
                 "<string>Is required -for iOS 6 and above- to run the app in background!</string>": 1
@@ -59,6 +61,9 @@
             },
             "AVFoundation.framework": {
                 "true": 1
+            },
+            "CoreBluetooth.framework": {
+                "false": 1
             }
         }
     },
@@ -74,6 +79,9 @@
         },
         "org.transistorsoft.cordova.background-geolocation": {
             "PACKAGE_NAME": "com.appgyver.helloSteroids"
+        },
+        "com.randdusing.bluetoothle": {
+            "PACKAGE_NAME": "com.octoblu.mobilehub"
         }
     },
     "dependent_plugins": {
