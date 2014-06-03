@@ -11,11 +11,11 @@
                 <span ng-show="activity.error.code"><strong>Error Code:</strong> {{ activity.error.code }}</span>
                 <span ng-show="activity.error.message"><strong>Error Message:</strong> {{ activity.error.message }}</span>
                 <span ng-show="!activity.error.message && !activity.error.code"><strong>Error:</strong> {{ activity.error }}</span>
-                <hr>
             </div>
             <div ng-show="!activity.error" ng-bind-html="activity.html">
                 {{ activity.html }}
             </div>
+            <hr>
         </div>
     </div>
   </div>

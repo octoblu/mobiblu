@@ -30,8 +30,7 @@ sensorModel.factory('Sensors', function () {
                 return 'Acceleration X: ' + acceleration.x + '<br>' +
                     'Acceleration Y: ' + acceleration.y + '<br>' +
                     'Acceleration Z: ' + acceleration.z + '<br>' +
-                    'Timestamp: ' + acceleration.timestamp + '<br>' +
-                    '<hr />';
+                    'Timestamp: ' + acceleration.timestamp + '<br>';
             }
 
             return {
@@ -67,7 +66,7 @@ sensorModel.factory('Sensors', function () {
 
             // Return HTML pretty print of data
             function prettify(heading) {
-                return 'Heading: ' + heading.magneticHeading + '<hr>';
+                return 'Heading: ' + heading.magneticHeading;
             }
 
             return {
@@ -106,8 +105,7 @@ sensorModel.factory('Sensors', function () {
             // Return HTML pretty print of data
             function prettify(position) {
                 return 'Latitude: ' + position.coords.latitude + '<br />' +
-                    'Longitude: ' + position.coords.longitude + '<br />' +
-                    '<hr />';
+                    'Longitude: ' + position.coords.longitude + '<br />';
             }
 
             return {

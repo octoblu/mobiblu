@@ -394,6 +394,11 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                     r.onreadystatechange = function () {
                         if (r.readyState !== 4 || r.status !== 200) return;
                         console.log('Success: ' + r.responseText);
+
+                        obj.logActivity({
+                            type : 'BG_Geolocation',
+                            html : 'Successfully updated background location'
+                        });
                     };
 
                     r.send(send);
@@ -406,7 +411,12 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                     sendToSkynet(location);
                 };
 
-                var failureFn = function () {
+                var failureFn = function (err) {
+                    obj.logActivity({
+                        type : 'BG_Geolocation',
+                        error : err
+                    });
+
                     console.log('BackgroundGeoLocation error');
                 };
 
@@ -443,6 +453,10 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             data.name = data.name || obj.devicename;
 
             obj.skynetSocket.emit('update', data, function(res){
+                obj.logActivity({
+                    type : 'UpdateDevice',
+                    html : 'Successfully updated device'
+                });
                 callback(res);
             });
         };
@@ -526,7 +540,8 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                 settings : Skynet.settings
             };
         },
-        getActivity : Skynet.getActivity
+        getActivity : Skynet.getActivity,
+        logActivity : Skynet.logActivity
     };
 
     return publicApi;
