@@ -1,5 +1,7 @@
-var module = angular.module('SensorModel', []);
-module.factory('Sensors', function ($rootScope) {
+'use strict';
+
+var sensorModel = angular.module('SensorModel', []);
+sensorModel.factory('Sensors', function () {
     var obj = {
         // Accelerometer object
         Accelerometer: function (timeout) {
@@ -33,6 +35,7 @@ module.factory('Sensors', function ($rootScope) {
             }
 
             return {
+                watch : watch,
                 start: start,
                 clear: clear,
                 prettify: prettify,
@@ -68,6 +71,7 @@ module.factory('Sensors', function ($rootScope) {
             }
 
             return {
+                watch : watch,
                 start: start,
                 clear: clear,
                 prettify: prettify,
@@ -77,7 +81,7 @@ module.factory('Sensors', function ($rootScope) {
         },
 
         // Geolocation object
-        Geolocation: function (timeout) {
+        Geolocation: function () {
             var watchID = null;
 
             function watch(onSuccess, onError) {
@@ -107,6 +111,7 @@ module.factory('Sensors', function ($rootScope) {
             }
 
             return {
+                watch : watch,
                 start: start,
                 clear: clear,
                 prettify: prettify,

@@ -41,7 +41,6 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
     };
 
     $scope.update = function () {
-        $scope.loading = true;
         var data = {
             name: $scope.devicename,
             setting: $scope.settings
@@ -51,7 +50,7 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
         window.localStorage.setItem('devicename', data.name);
 
         Skynet.updateDeviceSetting(data, function () {
-            $scope.loading = false;
+            Skynet.logSensorData();
         });
     };
 
@@ -70,12 +69,6 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
             $scope.skynettoken_dummy = tokenmask;
         }
     };
-
-    // Get notified when an another webview modifies the data and reload
-    window.addEventListener('message', function (event) {
-        // reload data on message with reload status
-        if (event.data.status === 'reload') {}
-    });
 
     $scope.toggleSwitch = function (setting) {
         $scope.settings[setting] = !$scope.settings[setting];

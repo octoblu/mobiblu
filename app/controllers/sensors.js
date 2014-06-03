@@ -52,6 +52,7 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
             setting: $scope.settings
         };
         Skynet.updateDeviceSetting(data, function () {
+            Skynet.logSensorData();
         });
     };
 
@@ -105,12 +106,14 @@ sensorsApp.controller('ActivityCtrl', function ($scope, $interval, $sce, Skynet,
     };
 
     $scope.init = function(){
-        Skynet.init(function () {
-            $scope.activities = Skynet.getActivity();
-            $(document).on('skynetactivity', function(){
-                setActivity();
-            });
-        });
+
     };
+
+    Skynet.init(function () {
+        $scope.activities = Skynet.getActivity();
+        $(document).on('skynetactivity', function(){
+            setActivity();
+        });
+    });
 
 });

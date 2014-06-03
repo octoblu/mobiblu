@@ -88,7 +88,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
     var Skynet = (function(obj){
 
-        if(obj.init) return obj;
+        if(obj.initilized) return obj;
 
         obj.loaded = false;
 
@@ -121,7 +121,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
             obj.sensorIntervals = {};
 
-            obj.skynetActivity = [];
+            obj.skynetActivity = obj.getActivity();
         };
 
         obj.logout = function () {
@@ -133,6 +133,8 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
             window.loggedin = obj.loggedin = false;
             window.localStorage.removeItem('loggedin');
+
+            window.localStorage.removeItem('skynetactivity');
 
             obj.setData();
         };
@@ -163,15 +165,28 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         obj.startProcesses = function () {
 
             if(!obj.loaded){
-                console.log('Skynet Started Processes');
+
                 obj.loaded = true;
+
+                document.addEventListener('urbanairship.registration', function (event) {
+                    if (event.error) {
+                        console.log('Urbanairship Registration Error');
+                    } else {
+                        obj.pushID = event.pushID;
+                        window.localStorage.setItem('pushID', obj.pushID);
+
+                        steroids.addons.urbanairship.notifications.onValue(function(notification) {
+                            alert('Message: ' + notification.message);
+                        });
+
+                        obj.updateDeviceSetting({}, function () {});
+                    }
+                }, false);
+
                 obj.skynetSocket.on('message', function (channel, message) {
                     alert('Message received from ' + channel + ': ' + message);
                 });
 
-                steroids.addons.urbanairship.notifications.onValue(function(notification) {
-                    alert('Message: ' + notification.message);
-                });
             }
 
             obj.logSensorData();
@@ -235,10 +250,36 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             });
         };
 
+        obj.getActivity = function(){
+            var activity = [];
+            try{
+                activity = JSON.parse(window.localStorage.getItem('skynetactivity'));
+            }catch(e){
+
+            }
+            //console.log('Activity', JSON.stringify(activity));
+            return activity;
+        };
+
+        obj.logActivity = function(data){
+            if( !obj.skynetActivity ||
+                !_.isArray(obj.skynetActivity) )
+                    obj.skynetActivity = [];
+            obj.skynetActivity = obj.skynetActivity.slice(0, 10);
+
+            if(obj.skynetActivity.length)
+                obj.skynetActivity.unshift(data);
+            else
+                obj.skynetActivity.push(data);
+
+            var string = JSON.stringify(obj.skynetActivity);
+
+            window.localStorage.setItem('skynetactivity', string);
+            $(document).trigger('skynetactivity', true);
+        };
+
         obj.logSensorData = function () {
-            var sensAct = document.getElementById('sensor-activity'),
-                sensActBadge = document.getElementById('sensor-activity-badge'),
-                sensorErrors = document.getElementById('sensor-errors'),
+            var sensActBadge = document.getElementById('sensor-activity-badge'),
                 x = 0,
                 sensors = [];
 
@@ -262,19 +303,23 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
                 var throttled = {};
 
+
                 var startSensor = function (sensor, type) {
                     var sent = false;
-                    sensor.start(function (sensorData) {
+                    sensor.start(
+                        // Handle Success
+                        function (sensorData) {
                             // Make sure it hasn't already been sent
                             if (sent) return;
                             sent = true;
-                            // Emit data
-                            obj.skynetActivity.push({
+
+                            obj.logActivity({
                                 type : type,
                                 data : sensorData,
                                 html : sensor.prettify(sensorData)
                             });
 
+                            // Emit data
                             obj.skynetSocket.emit('data', {
                                 'uuid' : obj.mobileuuid,
                                 'token' : obj.mobiletoken,
@@ -286,24 +331,19 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                                 x++;
                                 sensActBadge.innerHTML = x.toString();
                                 sensActBadge.className = 'badge badge-negative';
-
-                                $(document).trigger('skynetactivity', true);
                             });
-
 
                         },
                         // Handle Errors
                         function (err) {
-                            if (sensAct) {
-                                obj.skynetActivity.push({
-                                    type : type,
-                                    error : err
-                                });
-                            }
-                            $(document).trigger('skynetactivity', false);
+                            obj.logActivity({
+                                type : type,
+                                error : err
+                            });
                             sensActBadge.innerHTML = 'Error';
                             sensActBadge.className = 'badge';
-                        });
+                        }
+                    );
                 };
 
                 sensors.forEach(function (sensorType) {
@@ -324,7 +364,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
         obj.startBG = function () {
             // If BG Updates is turned off
-            Sensors.Geolocation(1000).start(function (data) {
+            Sensors.Geolocation(1000).start(function () {
                 obj.bgGeo = window.plugins.backgroundGeoLocation;
 
                 if (!obj.bgGeo) {
@@ -402,9 +442,8 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             data.pushID = obj.pushID;
             data.name = data.name || obj.devicename;
 
-            obj.skynetSocket.emit('update', data, function(data){
-                obj.logSensorData();
-                callback(data);
+            obj.skynetSocket.emit('update', data, function(res){
+                callback(res);
             });
         };
 
@@ -452,17 +491,6 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         obj.init = function (callback) {
             obj.setData();
 
-            document.addEventListener('urbanairship.registration', function (event) {
-                if (event.error) {
-                    console.log('Urbanairship Registration Error');
-                } else {
-                    obj.pushID = event.pushID;
-                    window.localStorage.setItem('pushID', obj.pushID);
-
-                    obj.updateDeviceSetting({}, function () {});
-                }
-            }, false);
-
             if (obj.isAuthenticated()) {
                 obj.auth(callback);
             } else {
@@ -476,6 +504,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
     })(window.Skynet || obj);
 
     var publicApi = window.Skynet = {
+        initilized : true,
         init : Skynet.init,
         getDeviceSetting : Skynet.getDeviceSetting,
         whoami : Skynet.whoami,
@@ -484,6 +513,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         logout : Skynet.logout,
         login : Skynet.login,
         isAuthenticated : Skynet.isAuthenticated,
+        logSensorData : Skynet.logSensorData,
         getCurrentSettings : function(){
             return {
                 skynetSocket : Skynet.skynetSocket,
@@ -496,9 +526,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                 settings : Skynet.settings
             };
         },
-        getActivity : function(){
-            return obj.skynetActivity;
-        }
+        getActivity : Skynet.getActivity
     };
 
     return publicApi;
