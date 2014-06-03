@@ -13,5 +13,5 @@ angular.module('main.system', []);
 angular.module('main.home', []);
 angular.module('main.messages', []);
 angular.module('main.setting', []);
-angular.module('main.sensors', []);
+angular.module('main.sensors', ['ngSanitize']);
 angular.module('main.plugins', []);

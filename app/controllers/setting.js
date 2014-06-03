@@ -27,14 +27,15 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
 
         $scope.loggedin = Skynet.loggedin;
         Skynet.init(function () {
-            $scope.skynetuuid = Skynet.skynetuuid;
-            $scope.skynettoken = Skynet.skynettoken;
+            var settings = Skynet.getCurrentSettings();
+            $scope.skynetuuid = settings.skynetuuid;
+            $scope.skynettoken = settings.skynettoken;
 
-            $scope.mobileuuid = Skynet.mobileuuid;
-            $scope.mobiletoken = Skynet.mobiletoken;
-            
-            $scope.devicename = Skynet.devicename;
-            $scope.settings = Skynet.settings;
+            $scope.mobileuuid = settings.mobileuuid;
+            $scope.mobiletoken = settings.mobiletoken;
+
+            $scope.devicename = settings.devicename;
+            $scope.settings = settings.settings;
             console.log('Settings', JSON.stringify($scope.settings));
         });
     };
@@ -49,7 +50,7 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
 
         window.localStorage.setItem('devicename', data.name);
 
-        Skynet.updateDeviceSetting(data, function (rData) {
+        Skynet.updateDeviceSetting(data, function () {
             $scope.loading = false;
         });
     };

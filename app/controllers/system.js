@@ -37,7 +37,7 @@ systemApp.controller('SubHeaderCtrl',
 systemApp.controller('HeaderCtrl',
     function ($scope, Skynet, $location) {
 
-
+        var settings = Skynet.getCurrentSettings();
         // TODO improve this functionality for multiple levels
         $scope.backbtn = false;
 
@@ -52,12 +52,12 @@ systemApp.controller('HeaderCtrl',
         $scope.logout = function(){
             Skynet.logout();
 
-            $scope.loggedin = Skynet.loggedin;
+            $scope.loggedin = settings.loggedin;
 
             window.location = 'http://octoblu.com/logout?referrer=' + encodeURIComponent('http://localhost/#!/login');
         };
 
-        $scope.loggedin = Skynet.loggedin;
+        $scope.loggedin = settings.loggedin;
 
         $scope.init = function(){
             if(!Skynet.isAuthenticated()){

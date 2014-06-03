@@ -20,24 +20,17 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
     $scope.init = function () {
 
-        $scope.skynetuuid = Skynet.skynetuuid;
-        $scope.skynettoken = Skynet.skynettoken;
-
-        $scope.mobileuuid = Skynet.mobileuuid;
-        $scope.mobiletoken = Skynet.mobiletoken;
-
         Skynet.init(function () {
+
+            var settings = Skynet.getCurrentSettings();
+
             $scope.loading = false;
 
-            $scope.skynetuuid = Skynet.skynetuuid;
-            $scope.skynettoken = Skynet.skynettoken;
+            $scope.skynetuuid = settings.skynetuuid;
+            $scope.skynettoken = settings.skynettoken;
 
-            $scope.mobileuuid = Skynet.mobileuuid;
-            $scope.mobiletoken = Skynet.mobiletoken;
-
-            Skynet.skynetSocket.on('message', function (channel, message) {
-                alert('Message received from ' + channel + ': ' + message);
-            });
+            $scope.mobileuuid = settings.mobileuuid;
+            $scope.mobiletoken = settings.mobiletoken;
 
         });
 

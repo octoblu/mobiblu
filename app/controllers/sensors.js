@@ -1,6 +1,6 @@
 'use strict';
 
-var sensorsApp = angular.module('main.sensors', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel']);
+var sensorsApp = angular.module('main.sensors', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel', 'ngSanitize']);
 
 sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, HomeRestangular, Skynet, Sensors) {
 
@@ -40,8 +40,9 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
 
     $scope.init = function(){
         Skynet.init(function () {
-            $scope.settings = Skynet.settings;
-            $scope.setting = Skynet.settings[$scope.sensor.type];
+            var settings = Skynet.getCurrentSettings();
+            $scope.settings = settings.settings;
+            $scope.setting = settings.settings[$scope.sensor.type];
         });
     };
 
@@ -63,7 +64,7 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
                     var html = sensorObj.prettify(sensorData);
                     el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
 
-                    Skynet.skynetSocket.emit('data', {
+                    Skynet.getCurrentSettings().skynetSocket.emit('data', {
                         'uuid': Skynet.mobileuuid,
                         'token': Skynet.mobiletoken,
                         'sensorData': {
@@ -89,11 +90,27 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
 
 });
 
-sensorsApp.controller('ErrorsCtrl', function ($scope, Skynet, Sensors) {
+sensorsApp.controller('ActivityCtrl', function ($scope, $interval, $sce, Skynet, Sensors) {
 
     $scope.errors = [];
 
     $(document).trigger('togglebackbtn', true);
 
-    Skynet.init(function () {});
+    $scope.activities = [];
+
+    var setActivity = function(){
+        $scope.$apply(function(){
+            $scope.activities = Skynet.getActivity();
+        });
+    };
+
+    $scope.init = function(){
+        Skynet.init(function () {
+            $scope.activities = Skynet.getActivity();
+            $(document).on('skynetactivity', function(){
+                setActivity();
+            });
+        });
+    };
+
 });

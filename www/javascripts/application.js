@@ -84,10 +84,6 @@ $(document).ready(function () {
     }).error(function (error) {
         console.log('Could not enable Urban Airship: ' + error.message);
     });
-
-    steroids.addons.urbanairship.notifications.onValue(function(notification) {
-        alert('Message: ' + notification.message);
-    });
 });
 
 function getParam(variable) {

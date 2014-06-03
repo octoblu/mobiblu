@@ -1,0 +1,23 @@
+<div>
+
+  <div ng-controller="ActivityCtrl" ng-init="init()">
+
+    <h3 class="content-padded">Activity</h3>
+    <div class="content-padded" id="sensor-activity">
+
+        <div ng-repeat="activity in activities">
+            <strong>Sensor:</strong><span> {{ activity.type }}</span>
+            <div ng-show="activity.error">
+                <span ng-show="activity.error.code"><strong>Error Code:</strong> {{ activity.error.code }}</span>
+                <span ng-show="activity.error.message"><strong>Error Message:</strong> {{ activity.error.message }}</span>
+                <span ng-show="!activity.error.message && !activity.error.code"><strong>Error:</strong> {{ activity.error }}</span>
+                <hr>
+            </div>
+            <div ng-show="!activity.error" ng-bind-html="activity.html">
+                {{ activity.html }}
+            </div>
+        </div>
+    </div>
+  </div>
+
+</div>

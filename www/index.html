@@ -40,6 +40,7 @@
 
     <script src="/components/angular/angular.min.js"></script>
     <script src="/components/angular-route/angular-route.js"></script>
+    <script src="/components/angular-sanitize/angular-sanitize.js"></script>
     <script src="/components/angular-ui-utils/ui-utils.min.js"></script>
 
     <script src="/components/underscore/underscore-min.js"></script>
@@ -59,11 +60,11 @@
 
     <script src="/javascripts/octoblu.js"></script>
 
-    <script src="/javascripts/application.js"></script>
+<!-- <script src="/javascripts/application.js"></script> -->
 
     <script src="/models/models.js"></script>
 
-<!--- <script src="/controllers/<%= yield.controller %>.js"></script> -->
+<!-- <script src="/controllers/<%= yield.controller %>.js"></script> -->
 
     <script src="/public/app/app.js"></script>
     <script src="/public/app/config.js"></script>
@@ -90,7 +91,7 @@
         </button>
     </header>
     <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
-        <a href="#!/sensors/errors" id="sensor-activity" class="btn pull-right">
+        <a href="#!/sensors/activity" id="sensor-activity" class="btn pull-right">
             Skynet Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
         </a>
     </div>

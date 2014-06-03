@@ -21,8 +21,8 @@ angular.module('main').config(['$routeProvider',
             .when('/plugins/:pluginId', {
                 templateUrl: '/public/views/plugins/view.html'
             })
-            .when('/sensors/errors', {
-                templateUrl: '/public/views/sensors/errors.html'
+            .when('/sensors/activity', {
+                templateUrl: '/public/views/sensors/activity.html'
             })
             .when('/sensors/:sensorType', {
                 templateUrl: '/public/views/sensors/view.html'
