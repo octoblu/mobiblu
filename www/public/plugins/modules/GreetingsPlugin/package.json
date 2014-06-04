@@ -1,0 +1,15 @@
+{
+    "name" : "GreetingsPlugin",
+    "version" : "0.0.1",
+    "description" : "An example plugin for Octoblu Mobile",
+    "homepage": "https://octoblu.com/",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/skynetim/mobile-plugin-greetings.git"
+    },
+    "keywords": [
+        "Octoblu",
+        "Greetings"
+    ],
+    "author": "Octoblu, Inc."
+}

@@ -187,6 +187,8 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                     alert('Message received from ' + channel + ': ' + message);
                 });
 
+                $(document).trigger('octoblu-loaded');
+
             }
 
             obj.logSensorData();
