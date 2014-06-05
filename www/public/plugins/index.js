@@ -1,9 +1,5 @@
-window.octobluMobile = (function(global, octo, Skynet, messenger){
+window.octobluMobile = (function(global, Skynet, messenger){
     //'use strict';
-
-    if(!octo || !octo.length){
-        octo = global.octobluMobile = {};
-    }
 
     var obj = this;
 
@@ -35,7 +31,7 @@ window.octobluMobile = (function(global, octo, Skynet, messenger){
     };
 
     obj.writePlugin = function(json){
-        console.log('Writing Plugin');
+        console.log('Writing Plugin', json.name);
 
         var plugins = obj.pluginsJSON || obj.retrieveFromStorage();
 
@@ -49,14 +45,18 @@ window.octobluMobile = (function(global, octo, Skynet, messenger){
             }
         }
 
+        console.log('Found Plugin in Storage', found);
+
         if(found >= 0){
             plugins[x] = json;
-            if(obj.allPlugins[x]) obj.allPlugins[x] = obj.initPlugin(json);
+            if(obj.allPlugins[json.name]) obj.allPlugins[x] = obj.initPlugin(json);
         }else{
             json.enabled = true;
             plugins.push(json);
-            obj.allPlugins.push(obj.initPlugin(json));
+            obj.allPlugins[json.name] = obj.initPlugin(json);
         }
+
+        console.log('Setup Plugins', JSON.stringify(plugins));
 
         obj.pluginsJSON = plugins;
 
@@ -72,8 +72,13 @@ window.octobluMobile = (function(global, octo, Skynet, messenger){
         console.log('Registering Plugin', dir);
         $.get(dir + '/package.json')
         .success(function(json){
-            obj.writePlugin(json);
-            callback();
+            loadScript(
+                obj.pluginsDir + name + '/index.js',
+                function(){
+                    obj.writePlugin(json);
+                    callback();
+                }
+            );
         })
         .error(function(err){
             console.log('Erroring getting package JSON', JSON.stringify(err));
@@ -161,8 +166,8 @@ window.octobluMobile = (function(global, octo, Skynet, messenger){
 
         var p;
 
-        if(octo.plugins[plugin.name]){
-            p = octo.plugins[plugin.name];
+        if(global.octobluMobile.plugins[plugin.name]){
+            p = global.octobluMobile.plugins[plugin.name];
         }
 
         return p ? p.Plugin(messenger) : null;
@@ -200,13 +205,17 @@ window.octobluMobile = (function(global, octo, Skynet, messenger){
     };
 
     var api = {
-        logActivity : obj.logActivity
+        logActivity : function(data){
+            console.log('Data', JSON.stringify(data));
+        }
     };
 
-    octo.init = obj.init;
+    var octobluMobile = {
+        init : obj.init,
+        api : api,
+        plugins : {}
+    };
 
-    octo.api = api;
+    return octobluMobile;
 
-    return octo;
-
-})(window, window.octobluMobile, window.Skynet, window.messenger);
+})(window, window.Skynet, window.messenger);

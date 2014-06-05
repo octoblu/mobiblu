@@ -1,5 +1,9 @@
-(function(plugins, api){
+(function(global){
     'use strict';
+
+    var api = global.octobluMobile.api;
+
+    console.log('Sweet', api);
 
     var name = 'GreetingsPlugin';
 
@@ -58,14 +62,9 @@
         }
     };
 
-    plugins[name] = {
+    global.octobluMobile.plugins[name] = {
         name : name,
         Plugin : Plugin
     };
 
-})(
-    // Octoblu Mobile Plugins
-    window.octobluMobile.plugins,
-    // Octoblu Mobile API
-    window.octobluMobile.api
-);
+})(window);
