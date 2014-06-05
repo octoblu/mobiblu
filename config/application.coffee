@@ -4,7 +4,7 @@
 steroids.config.name = "octoblu-mobile"
 
 # -- Initial Location --
-steroids.config.location = "http://localhost/#!/"
+steroids.config.location = "http://localhost/index.html#!/"
 
 # -- Tab Bar --
 # steroids.config.tabBar.enabled = true
