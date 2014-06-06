@@ -18,7 +18,7 @@ angular.module('main').config(['$routeProvider',
             .when('/plugins/installed', {
                 templateUrl: '/public/views/plugins/installed.html'
             })
-            .when('/plugins/:pluginId', {
+            .when('/plugins/:pluginName', {
                 templateUrl: '/public/views/plugins/view.html'
             })
             .when('/sensors/activity', {

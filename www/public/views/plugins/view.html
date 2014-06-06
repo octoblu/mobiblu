@@ -1,13 +1,13 @@
 <div>
 
-    <div ng-controller="PluginCtrl" ng-init="init()">
+    <div ng-controller="PluginCtrl" ng-init="findOne()">
 
-        <p class="content-padded">Viewing ...</p>
+        <p class="content-padded">Viewing {{ plugin.name }}</p>
 
         <form class="input-group">
             <label>Enable Plugin</label>
             <div class="input-row">
-                <div ng-model="enabled" class="toggle pull-right" ng-class="{ active : enabled }" ng-click="toggleSwitch()">
+                <div ng-model="enabled" class="toggle pull-right" ng-class="{ active : plugin.enabled }" ng-click="toggleEnabled()">
                     <div class="toggle-handle"></div>
                 </div>
             </div>

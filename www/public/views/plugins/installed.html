@@ -1,21 +1,14 @@
 <div>
 
-    <div ng-controller="PluginCtrl" ng-init="init()">
+    <div ng-controller="PluginCtrl" ng-init="installed()">
 
         <p class="content-padded">Downloaded plugins.</p>
         <div class="card">
             <ul class="table-view">
                 <li class="table-view-cell">
-                    <a href="index.html#!/plugins" class="navigate-right">
+                    <a ng-href="index.html#!/plugins/{{ plugin.name }}" ng-repeat="plugin in plugins" class="navigate-right">
                         <span>
-                            Plugin A
-                        </span>
-                    </a>
-                </li>
-                <li class="table-view-cell">
-                    <a href="index.html#!/plugins" class="navigate-right">
-                        <span class="">
-                            Plugin B
+                            {{ plugin.name }}
                         </span>
                     </a>
                 </li>

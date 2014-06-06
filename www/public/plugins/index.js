@@ -36,7 +36,7 @@ window.octobluMobile = (function(global){
     obj.writePlugin = function(json){
         console.log('Writing Plugin', json.name);
 
-        var plugins = obj.pluginsJSON || obj.retrieveFromStorage();
+        var plugins = obj.getPlugins();
 
         var found = -1;
 
@@ -176,6 +176,34 @@ window.octobluMobile = (function(global){
         return p ? p.Plugin(obj.Messenger, plugin.options) : null;
     };
 
+    obj.triggerPluginEvent = function(plugin, event, callback){
+        if(obj.allPlugins[plugin.name]){
+
+            switch(event){
+            case 'onEnable':
+                plugin.enabled = true;
+                obj.writePlugin(plugin);
+                break;
+            case 'onDisable':
+                plugin.enabled = false;
+                obj.writePlugin(plugin);
+                break;
+            }
+
+            if(typeof obj.allPlugins[plugin.name][event] === 'function'){
+                return obj.allPlugins[plugin.name][event](callback);
+            }else{
+                return callback('No event found for plugin');
+            }
+
+        }
+        return callback('No plugin found');
+    };
+
+    obj.getPlugins = function(){
+        return obj.pluginsJSON || obj.retrieveFromStorage();
+    };
+
     obj.loadGreetings = function(callback){
         var found = -1;
 
@@ -221,7 +249,9 @@ window.octobluMobile = (function(global){
     var octobluMobile = {
         init : obj.init,
         api : api,
-        plugins : {}
+        plugins : {},
+        getPlugins : obj.getPlugins,
+        triggerPluginEvent : obj.triggerPluginEvent
     };
 
     return octobluMobile;
