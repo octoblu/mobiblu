@@ -2,7 +2,7 @@
 
 var sensorsApp = angular.module('main.sensors', ['hmTouchevents', 'SkynetModel', 'SensorModel', 'ngSanitize']);
 
-sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, HomeRestangular, Skynet, Sensors) {
+sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Skynet, Sensors) {
 
     $scope.sensorTypes = [
         {
