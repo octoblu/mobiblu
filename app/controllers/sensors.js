@@ -1,6 +1,6 @@
 'use strict';
 
-var sensorsApp = angular.module('main.sensors', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel', 'ngSanitize']);
+var sensorsApp = angular.module('main.sensors', ['hmTouchevents', 'SkynetModel', 'SensorModel', 'ngSanitize']);
 
 sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, HomeRestangular, Skynet, Sensors) {
 
@@ -91,7 +91,7 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Hom
 
 });
 
-sensorsApp.controller('ActivityCtrl', function ($scope, $interval, $sce, Skynet, Sensors) {
+sensorsApp.controller('ActivityCtrl', function ($scope, $interval, $sce, Skynet) {
 
     $scope.errors = [];
 

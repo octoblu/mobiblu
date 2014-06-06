@@ -1,70 +1,80 @@
-(function(global){
+(function (global) {
     'use strict';
 
     var api = global.octobluMobile.api;
 
-    console.log('Sweet', api);
-
     var name = 'GreetingsPlugin';
 
-    function Plugin(messenger){
+    var optionsSchema = {
+        type: 'object',
+        properties: {
+            greetingPrefix: {
+                type: 'string',
+                required: true
+            }
+        }
+    };
+
+    function Plugin(messenger, options) {
         this.messenger = messenger;
+        this.options = options;
 
         api.logActivity({
-            type : name,
-            html : 'Greetings plugin loaded'
+            type: name,
+            html: 'Greetings plugin loaded'
         });
 
         return this;
     }
 
-    Plugin.prototype.onEnable = function(cb){
+    Plugin.prototype.onEnable = function (cb) {
         api.logActivity({
-            type : name,
-            html : 'Greetings plugin enabled'
+            type: name,
+            html: 'Greetings plugin enabled'
         });
 
-        if(cb){
+        if (cb) {
             cb();
         }
     };
 
-    Plugin.prototype.onDisable = function(cb){
+    Plugin.prototype.onDisable = function (cb) {
         api.logActivity({
-            type : name,
-            html : 'Greetings plugin disabled'
+            type: name,
+            html: 'Greetings plugin disabled'
         });
 
-        if(cb){
+        if (cb) {
             cb();
         }
     };
 
-    Plugin.prototype.construct = function(cb){
+    Plugin.prototype.onInstall = function (cb) {
         api.logActivity({
-            type : name,
-            html : 'Greetings plugin installed'
+            type: name,
+            html: 'Greetings plugin installed'
         });
 
-        if(cb){
+        if (cb) {
             cb();
         }
     };
 
-    Plugin.prototype.destroy = function(cb){
+    Plugin.prototype.destroy = function (cb) {
         api.logActivity({
-            type : name,
-            html : 'Greetings plugin uninstalled'
+            type: name,
+            html: 'Greetings plugin uninstalled'
         });
 
-        if(cb){
+        if (cb) {
             cb();
         }
     };
 
     global.octobluMobile.plugins[name] = {
-        name : name,
-        Plugin : Plugin
+        name: name, // Required
+        Plugin: Plugin, // Required
+        optionsSchema: optionsSchema // Optional
     };
 
 })(window);

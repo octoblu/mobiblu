@@ -1,6 +1,6 @@
 'use strict';
 
-var pluginsApp = angular.module('main.plugins', ['HomeModel', 'hmTouchevents', 'SkynetModel', 'SensorModel']);
+var pluginsApp = angular.module('main.plugins', ['hmTouchevents', 'SkynetModel', 'SensorModel']);
 
 pluginsApp.controller('PluginCtrl', function ($scope) {
 

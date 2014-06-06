@@ -1,7 +1,10 @@
-window.octobluMobile = (function(global, Skynet, messenger){
+window.octobluMobile = (function(global){
     //'use strict';
 
     var obj = this;
+
+    obj.Skynet = global.Skynet;
+    obj.Messenger = global.Messenger;
 
     obj.allPlugins = {};
 
@@ -170,7 +173,7 @@ window.octobluMobile = (function(global, Skynet, messenger){
             p = global.octobluMobile.plugins[plugin.name];
         }
 
-        return p ? p.Plugin(messenger) : null;
+        return p ? p.Plugin(obj.Messenger, plugin.options) : null;
     };
 
     obj.loadGreetings = function(callback){
@@ -192,9 +195,14 @@ window.octobluMobile = (function(global, Skynet, messenger){
         callback();
     };
 
-    // Called Every Time the App is initilized
+    // Called Every Time the App is loaded
     obj.init = function(){
-        console.log('Init');
+        obj.Skynet = global.Skynet;
+        obj.Messenger = global.Messenger.init();
+
+        global.octobluMobile.api.logActivity = obj.Skynet.logActivity;
+
+        console.log('Init', obj.Skynet);
         obj.retrievePlugins(function(){
             console.log('Retrieved plugins');
             obj.loadGreetings(function(){
@@ -206,7 +214,7 @@ window.octobluMobile = (function(global, Skynet, messenger){
 
     var api = {
         logActivity : function(data){
-            console.log('Data', JSON.stringify(data));
+            console.log('Dummy Skynet Activity', JSON.stringify(data));
         }
     };
 
@@ -218,4 +226,4 @@ window.octobluMobile = (function(global, Skynet, messenger){
 
     return octobluMobile;
 
-})(window, window.Skynet, window.messenger);
+})(window);
