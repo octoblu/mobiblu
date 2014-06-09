@@ -173,7 +173,7 @@ window.octobluMobile = (function(global){
             p = global.octobluMobile.plugins[plugin.name];
         }
 
-        return p ? p.Plugin(obj.Messenger, plugin.options) : null;
+        return p ? new p.Plugin(obj.Messenger, plugin.options) : null;
     };
 
     obj.triggerPluginEvent = function(plugin, event, callback){
