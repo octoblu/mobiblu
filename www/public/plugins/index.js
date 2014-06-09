@@ -52,7 +52,6 @@ window.octobluMobile = (function(global){
 
         if(found >= 0){
             plugins[x] = json;
-            if(obj.allPlugins[json.name]) obj.allPlugins[x] = obj.initPlugin(json);
         }else{
             json.enabled = true;
             plugins.push(json);
