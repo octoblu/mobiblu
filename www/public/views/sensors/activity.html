@@ -6,7 +6,7 @@
     <div class="content-padded" id="sensor-activity">
 
         <div ng-repeat="activity in activities track by $index">
-            <strong>Sensor:</strong><span> {{ activity.type }}</span>
+            <strong>Type:</strong><span> {{ activity.type }}</span>
             <div ng-show="activity.error">
                 <span ng-show="activity.error.code"><strong>Error Code:</strong> {{ activity.error.code }}</span>
                 <span ng-show="activity.error.message"><strong>Error Message:</strong> {{ activity.error.message }}</span>

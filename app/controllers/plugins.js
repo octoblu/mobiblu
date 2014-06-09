@@ -2,7 +2,7 @@
 
 var pluginsApp = angular.module('main.plugins', ['hmTouchevents', 'SkynetModel', 'SensorModel']);
 
-pluginsApp.controller('PluginCtrl', function ($scope, $routeParams) {
+pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location) {
 
     if(/\#\!\/plugins\/*$/.test(window.location.href)){
         $(document).trigger('togglebackbtn', false);
@@ -41,6 +41,17 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams) {
             function(err, data){
                 if(err) return console.log('Error enabling or disabling plugin', err);
                 console.log('Data after enable or disable', JSON.stringify(data));
+            }
+        );
+    };
+
+    $scope.removePlugin = function(){
+        window.octobluMobile.removePlugin(
+            $scope.plugin,
+            function(err){
+                if(err) return console.log('Error removing plugin', err);
+                console.log('Removed plugin');
+                $location.path('/plugins');
             }
         );
     };

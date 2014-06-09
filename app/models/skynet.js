@@ -170,21 +170,23 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             if(!obj.loaded){
 
                 obj.loaded = true;
+                
+                if(!obj.pushID){
+                    document.addEventListener('urbanairship.registration', function (event) {
+                        if (event.error) {
+                            console.log('Urbanairship Registration Error');
+                        } else {
+                            obj.pushID = event.pushID;
+                            window.localStorage.setItem('pushID', obj.pushID);
 
-                document.addEventListener('urbanairship.registration', function (event) {
-                    if (event.error) {
-                        console.log('Urbanairship Registration Error');
-                    } else {
-                        obj.pushID = event.pushID;
-                        window.localStorage.setItem('pushID', obj.pushID);
+                            steroids.addons.urbanairship.notifications.onValue(function(notification) {
+                                alert('Message: ' + notification.message);
+                            });
 
-                        steroids.addons.urbanairship.notifications.onValue(function(notification) {
-                            alert('Message: ' + notification.message);
-                        });
-
-                        obj.updateDeviceSetting({}, function () {});
-                    }
-                }, false);
+                            obj.updateDeviceSetting({}, function () {});
+                        }
+                    }, false);
+                }
 
                 obj.skynetSocket.on('message', function (channel, message) {
                     alert('Message received from ' + channel + ': ' + message);
@@ -457,6 +459,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             data.owner = obj.skynetuuid;
             data.pushID = obj.pushID;
             data.name = data.name || obj.devicename;
+            obj.type = 'octobluMobile';
 
             obj.skynetSocket.emit('update', data, function(res){
                 obj.logActivity({
