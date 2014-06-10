@@ -102,8 +102,9 @@ window.octobluMobile = (function(global){
         }
 
         if(found >= 0){
-            delete plugins[x];
+            plugins.slice(found, 1);
         }
+
         obj.pluginsJSON = plugins;
 
         global.localStorage.setItem('plugins', JSON.stringify(obj.pluginsJSON));
