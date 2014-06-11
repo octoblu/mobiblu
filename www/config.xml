@@ -10,6 +10,8 @@
     <access origin="*" />
     <plugin name="Device" value="org.apache.cordova.Device"/>
 
+    <plugin name="InAppBrowser" value="CDVInAppBrowser" />
+
     <feature name="http://appgyver.com/steroids/addons/urbanairship">
         <param name="enabled" value="true" />
     </feature>

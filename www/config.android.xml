@@ -13,4 +13,6 @@
     <preference name="com.urbanairship.in_production" value="true" />
     <preference name="com.urbanairship.gcm_sender" value="Android only: Your GCM sender id" />
 
+    <plugin name="InAppBrowser" value="org.apache.cordova.InAppBrowser" />
+
 </widget>

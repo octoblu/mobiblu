@@ -143,7 +143,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         };
 
         obj.login = function () {
-            window.location = 'http://octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html');
+            window.open('http://octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
         };
 
         obj.isAuthenticated = function () {
@@ -170,7 +170,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             if(!obj.loaded){
 
                 obj.loaded = true;
-                
+
                 if(!obj.pushID){
                     document.addEventListener('urbanairship.registration', function (event) {
                         if (event.error) {
