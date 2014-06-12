@@ -2,6 +2,6 @@
 
 $(document).ready(function(){
     $(document).on('octoblu-loaded', function(){
-        require('./index.js').init();
+        window.octobluMobile.init();
     });
 });

@@ -31,6 +31,29 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location) {
                 break;
             }
         }
+
+        $('#options-editor').jsoneditor({
+            schema: $scope.plugin.optionsSchema,
+            theme: 'html',
+            startval : $scope.plugin.options,
+            no_additional_properties: true,
+            iconlib: 'fontawesome4'
+        });
+    };
+
+    $scope.savePlugin = function(){
+        var errors = $('#options-editor').jsoneditor('validate');
+        if (errors.length) {
+            alert(errors);
+        } else {
+
+            var options = $('#options-editor').jsoneditor('value');
+
+            console.log('Options', JSON.stringify(options));
+
+            $scope.plugin.options = options;
+        }
+        window.octobluMobile.writePlugin($scope.plugin);
     };
 
     $scope.toggleEnabled = function () {

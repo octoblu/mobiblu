@@ -179,8 +179,12 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                             obj.pushID = event.pushID;
                             window.localStorage.setItem('pushID', obj.pushID);
 
-                            steroids.addons.urbanairship.notifications.onValue(function(notification) {
-                                alert('Message: ' + notification.message);
+                            steroids.addons.urbanairship
+                            .notifications.onValue(function(notification) {
+                                obj.logActivity({
+                                    type : 'PushNotification',
+                                    html : notification.message
+                                });
                             });
 
                             obj.updateDeviceSetting({}, function () {});
@@ -188,8 +192,12 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                     }, false);
                 }
 
-                obj.skynetSocket.on('message', function (channel, message) {
-                    alert('Message received from ' + channel + ': ' + message);
+                obj.skynetSocket.on('message', function (data) {
+                    obj.logActivity({
+                        type : 'SkynetMessage',
+                        html : 'From: ' + data.fromUuid +
+                             '<br>Message: ' + data.payload
+                    });
                 });
 
                 $(document).trigger('octoblu-loaded');
@@ -244,8 +252,8 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             }
             // GETS HERE
             obj.skynetClient = skynet({
-                'uuid': obj.skynetuuid,
-                'token': obj.skynettoken
+                'uuid': obj.mobileuuid || obj.skynetuuid,
+                'token': obj.mobiletoken || obj.skynettoken
             }, function (e, socket) {
                 // DOESN'T HIT THIS **
                 if (e) {

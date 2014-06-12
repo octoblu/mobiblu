@@ -1,33 +1,30 @@
-window.Messenger = (function(global){
-    //'use strict';
+'use strict';
 
-    var obj = this;
+var obj = {};
 
-    var Skynet = global.Skynet;
-    obj.skynetObj = {};
-    obj.socket = null;
+var Skynet = global.Skynet;
+obj.skynetObj = {};
+obj.socket = null;
 
-    // Called Every Time the Messenger is needed
-    obj.init = function(){
-        Skynet = global.Skynet;
-        obj.skynetObj = Skynet.getCurrentSettings();
-        obj.socket = obj.skynetObj.skynetSocket;
-        return obj;
-    };
+// Called Every Time the Messenger is needed
+obj.init = function () {
+    Skynet = global.Skynet;
+    obj.skynetObj = Skynet.getCurrentSettings();
+    obj.socket = obj.skynetObj.skynetSocket;
+    return obj;
+};
 
-    obj.send = function(data, callback){
-        if(obj.socket){
-            obj.socket.emit('message', data, callback);
-        }else{
-            callback(new Error('Socket not available'));
-        }
-    };
+obj.send = function (data, callback) {
+    if (obj.socket) {
+        obj.socket.emit('message', data, callback);
+    } else {
+        callback(new Error('Socket not available'));
+    }
+};
 
-    var Messenger = {
-        init : obj.init,
-        send : obj.send
-    };
+var Messenger = {
+    init: obj.init,
+    send: obj.send
+};
 
-    return Messenger;
-
-})(window);
+module.exports = Messenger;
