@@ -106,7 +106,7 @@ sensorsApp.controller('ActivityCtrl', function ($scope, $interval, $sce, Skynet)
     };
 
     $scope.init = function(){
-
+        Skynet.clearActivityCount();
     };
 
     Skynet.init(function () {

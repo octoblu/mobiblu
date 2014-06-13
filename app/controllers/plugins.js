@@ -34,10 +34,11 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location) {
 
         $('#options-editor').jsoneditor({
             schema: $scope.plugin.optionsSchema,
-            theme: 'html',
+            theme: 'bootstrap3',
             startval : $scope.plugin.options,
             no_additional_properties: true,
-            iconlib: 'fontawesome4'
+            iconlib: 'fontawesome4',
+            disable_collapse : true
         });
     };
 

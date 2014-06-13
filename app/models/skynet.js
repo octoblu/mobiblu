@@ -56,7 +56,8 @@ skynetModel.service('OctobluRest', function ($http) {
             .success(function (data) {
                 callback(data);
             })
-            .error(function () {
+            .error(function (error, status, headers, config) {
+                console.log('Error: ', error, status, headers, config);
                 callback({});
             });
     };
@@ -69,13 +70,14 @@ skynetModel.service('OctobluRest', function ($http) {
             params: {
                 devices: includeDevices
             }
-        }).success(function (data) {
+        })
+        .success(function (data) {
             callback(null, data);
         })
-            .error(function (error) {
-                console.log('Error: ' + error);
-                callback(error, null);
-            });
+        .error(function (error, status, headers, config) {
+            console.log('Error: ', error, status, headers, config);
+            callback(error, null);
+        });
 
     };
 
@@ -276,6 +278,12 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             return activity;
         };
 
+        obj.clearActivityCount = function(){
+            x = 0;
+            sensActBadge.text(x.toString());
+            sensActBadge.removeClass('badge-negative');
+        };
+
         obj.logActivity = function(data){
             if( !obj.skynetActivity ||
                 !_.isArray(obj.skynetActivity) )
@@ -381,7 +389,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         obj.startBG = function () {
             // If BG Updates is turned off
             Sensors.Geolocation(1000).start(function () {
-                obj.bgGeo = window.plugins.backgroundGeoLocation;
+                obj.bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
 
                 if (!obj.bgGeo) {
                     return;
@@ -479,8 +487,14 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         };
 
         obj.message = function (data, callback) {
-            data.uuid = obj.mobileuuid;
-            data.token = obj.mobiletoken;
+            if(!data.uuid) data.uuid = obj.mobileuuid;
+            if(!data.token) data.token = obj.mobiletoken;
+
+            obj.logActivity({
+                type : 'SentMessage',
+                html : 'Sending Message: ' + data.payload
+            });
+
             obj.skynetSocket.emit('message', data, callback);
         };
 
@@ -545,6 +559,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         login : Skynet.login,
         isAuthenticated : Skynet.isAuthenticated,
         logSensorData : Skynet.logSensorData,
+        clearActivityCount : Skynet.clearActivityCount,
         getCurrentSettings : function(){
             return {
                 skynetSocket : Skynet.skynetSocket,

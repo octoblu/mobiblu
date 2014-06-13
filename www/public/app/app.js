@@ -5,6 +5,7 @@ angular.module('main', [
     'main.home',
     'main.sensors',
     'main.plugins',
+    'main.flows',
     'main.messages',
     'main.setting'
 ]);
@@ -15,3 +16,4 @@ angular.module('main.messages', []);
 angular.module('main.setting', []);
 angular.module('main.sensors', ['ngSanitize']);
 angular.module('main.plugins', []);
+angular.module('main.flows', []);

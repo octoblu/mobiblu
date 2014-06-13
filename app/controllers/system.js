@@ -57,6 +57,20 @@ systemApp.controller('HeaderCtrl',
             window.open('http://octoblu.com/logout?referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_self', 'location=yes');
         };
 
+        $scope.settings = function(){
+            $location.path('/setting');
+        };
+
+        $scope.$on('$locationChangeSuccess', function() {
+            if(matchRoute('/setting')){
+                $scope.showLogout = true;
+            }else{
+                $scope.showLogout = false;
+            }
+        });
+
+        $scope.showLogout = false;
+
         $scope.loggedin = settings.loggedin;
 
         $scope.init = function(){

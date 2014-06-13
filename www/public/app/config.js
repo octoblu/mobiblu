@@ -30,6 +30,9 @@ angular.module('main').config(['$routeProvider',
             .when('/sensors', {
                 templateUrl: '/public/views/sensors/list.html'
             })
+            .when('/flows', {
+                templateUrl: '/public/views/flows/list.html'
+            })
             .when('/setting', {
                 templateUrl: '/public/views/setting/index.html'
             })

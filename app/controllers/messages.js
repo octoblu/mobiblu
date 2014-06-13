@@ -20,22 +20,23 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
     $scope.init = function () {
 
-        Skynet.init(function () {
+    };
 
-            var settings = Skynet.getCurrentSettings();
+    Skynet.init(function () {
 
-            $scope.loading = false;
+        var settings = Skynet.getCurrentSettings();
 
-            $scope.skynetuuid = settings.skynetuuid;
-            $scope.skynettoken = settings.skynettoken;
+        $scope.loading = false;
 
-            $scope.mobileuuid = settings.mobileuuid;
-            $scope.mobiletoken = settings.mobiletoken;
+        $scope.skynetuuid = settings.skynetuuid;
+        $scope.skynettoken = settings.skynettoken;
 
-        });
+        $scope.mobileuuid = settings.mobileuuid;
+        $scope.mobiletoken = settings.mobiletoken;
 
         $scope.getDevices();
-    };
+
+    });
 
     $scope.subdevices = [];
 
@@ -49,12 +50,11 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
     $scope.getDevices = function(){
         OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true, function(error, data) {
             if(error) {
-                console.log('Error' + error);
+                return console.log('Error' + error);
             }
+            console.log('Retrieved devices');
             if(data && data.gateways){
-                data.gateways.forEach(function(gateway){
-                    $scope.devices.push(gateway);
-                });
+                $scope.devices =  data.gateways;
             }
             for (var i in $scope.devices) {
                 if(!$scope.devices[i].name){
@@ -80,8 +80,9 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
             $('#device-msg-editor').jsoneditor({
                 schema: $scope.schema,
-                theme: 'html',
+                theme: 'bootstrap3',
                 no_additional_properties: true,
+                disable_collapse : true,
                 iconlib: 'fontawesome4'
             });
 
