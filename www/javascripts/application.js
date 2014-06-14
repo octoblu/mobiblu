@@ -20,7 +20,7 @@ function add_buttons(){
             rightButton.title = 'Login';
             rightButton.onTap = function () {
                 console.log('On tap login');
-                var webView = new steroids.views.WebView('http://octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'));
+                var webView = new steroids.views.WebView('http://app.octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'));
                 steroids.layers.push(webView);
             };
         }

@@ -23,7 +23,7 @@ var Octoblu = (function(){
         var skynetuuid = getCookie('skynetuuid');
         var skynettoken = getCookie('skynettoken');
         if(skynetuuid && skynettoken){
-            $.get('http://octoblu.com/api/user_api/' + skynetuuid + '/' +  skynettoken)
+            $.get('http://app.octoblu.com/api/user_api/' + skynetuuid + '/' +  skynettoken)
             .success(function(data){
                 if(data && data.user){
                     cb(data.user);

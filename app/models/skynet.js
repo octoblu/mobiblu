@@ -49,7 +49,7 @@ skynetModel.service('SkynetRest', function ($http) {
 skynetModel.service('OctobluRest', function ($http) {
 
     var obj = this,
-        baseURL = 'http://octoblu.com';
+        baseURL = 'http://app.octoblu.com';
 
     obj.getDevices = function (uuid, token, callback) {
         $http.get(baseURL + '/api/owner/devices/' + uuid + '/' + token)
@@ -145,7 +145,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         };
 
         obj.login = function () {
-            window.open('http://octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
+            window.open('http://app.octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
         };
 
         obj.isAuthenticated = function () {
