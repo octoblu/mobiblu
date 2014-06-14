@@ -26,8 +26,6 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
         var settings = Skynet.getCurrentSettings();
 
-        $scope.loading = false;
-
         $scope.skynetuuid = settings.skynetuuid;
         $scope.skynettoken = settings.skynettoken;
 
@@ -52,12 +50,13 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
     $scope.getDevices = function(){
         OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true, function(error, data) {
+            $scope.loading = false;
             if(error) {
                 return console.log('Error' + error);
             }
             console.log('Retrieved devices');
             if(data && data.gateways){
-                $scope.devices =  data.gateways;
+                $scope.devices =  $scope.devices.concat(data.gateways);
             }
             for (var i in $scope.devices) {
                 if(!$scope.devices[i].name){
@@ -123,15 +122,8 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
                 if (errors.length) {
                     alert(errors);
                 } else {
-                    // if ($scope.sendText != ''){
-                    //   message = $scope.sendText;
-                    //   if(typeof message == 'string'){
-                    //     message = JSON.parse($scope.sendText);
-                    //   }
-                    // } else {
                     message = $('#device-msg-editor').jsoneditor('value');
                     console.log('schema message', JSON.stringify(message));
-                    // }
 
                     $scope.subdevicename = $scope.subdevice.name;
                 }
@@ -163,5 +155,7 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
             });
             $scope.messageOutput = 'Message Sent: ' + JSON.stringify(message);
         }
+
+        $('body').css('height', '100%');
     };
 });

@@ -1,3 +1,7 @@
+html, body {
+    height: 100% !important;
+}
+
 .page-title {
     background-color: white;
     padding: 10px;
@@ -10,4 +14,34 @@
 
 input {
     background-color: white;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-left {
+    text-align: left;
+}
+
+#loading {
+    height: 100%;
+    width: 100%;
+}
+
+#loading .fa-spin {
+    margin: auto;
+    vertical-align: middle;
+}
+
+.content {
+    padding-bottom: 10px;
 }

@@ -55,6 +55,8 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location) {
             $scope.plugin.options = options;
         }
         window.octobluMobile.writePlugin($scope.plugin);
+
+        $('body').css('height', '100%');
     };
 
     $scope.toggleEnabled = function () {

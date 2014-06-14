@@ -7,9 +7,7 @@
 
         <form class="input-group" ng-init="init()">
             <label>Device Name</label>
-            <div class="input-row">
-                <input type="text" placeholder="Device Name" ng-model="devicename" ng-blur="update()">
-            </div>
+            <input type="text" placeholder="Device Name" ng-model="devicename" ng-blur="update()">
             <label>Background Updates</label>
             <div class="input-row">
                 <div ng-model="settings.bg_updates" class="toggle pull-right" ng-class="{ active : settings.bg_updates }" ng-click="toggleSwitch('bg_updates')">

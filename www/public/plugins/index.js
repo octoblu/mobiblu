@@ -156,11 +156,11 @@ obj.retrievePlugins = function (callback) {
         obj.mapPlugins(plugins);
 
         // Update Devices
-        //Skynet.updateDeviceSetting({
-        //    plugins : plugins
-        //}, function(){
-        //    console.log('Skynet Updated');
-        //});
+        obj.Skynet.updateDeviceSetting({
+            plugins : plugins
+        }, function(){
+            console.log('Skynet Updated');
+        });
 
         callback();
     });
@@ -173,7 +173,6 @@ obj.loadPluginScripts = function (callback) {
     var i = 0;
 
     var done = function () {
-        console.log('Done loading script', obj.pluginsJSON.length, i);
         if (obj.pluginsJSON.length === i) {
             callback();
         }
@@ -182,7 +181,6 @@ obj.loadPluginScripts = function (callback) {
     if (!obj.pluginsJSON || !obj.pluginsJSON.length) return done();
 
     obj.each(function (plugin) {
-        console.log('Loading plugin file');
         if (!plugin) return done();
         loadScript(
             obj.pluginsDir + plugin.name + '/index.js',

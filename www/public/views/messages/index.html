@@ -3,9 +3,14 @@
     <div ng-controller="MessageCtrl" ng-init="init()">
 
         <h3 class="page-title"><i class='fa fa-magic'></i> Message Devices</h3>
+        <span class="content-padding" style="color:green;">{{messageOutput}}</span>
+
         <br />
 
-        <div class="input-group">
+
+        <h1 class="text-center" ng-show="loading" id="loading"><i class="fa fa-spinner fa-spin" ></i></h1>
+
+        <div class="input-group" ng-hide="loading">
             Select Device or Enter UUID:
             <br />
             <br />
@@ -16,9 +21,7 @@
 
             </div>
             <div class="input-row">OR</div>
-            <div class="input-row">
-                <input size="40" ng-model="sendUuid" class="form-control" placeholder="UUID">
-            </div>
+            <input size="40" ng-model="sendUuid" class="form-control" placeholder="UUID">
             <br />
             <br />
 
@@ -35,11 +38,12 @@
                 <div id="device-msg-editor"></div>
             </div>
 
-            <div class="input-row">
-                <input type="text" placeholder="Message" ng-model="sendText">
-            </div>
+            <hr>
+
+            <input type="text" placeholder="Message" ng-model="sendText" >
+            <br>
+            <br>
             <button ng-click="sendMessage()" class="btn btn-primary btn-block">Send</button>
-            <span style="color:green;">{{messageOutput}}</span>
 
         </div>
 
