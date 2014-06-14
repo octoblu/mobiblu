@@ -2,13 +2,13 @@
 
 var obj = {};
 
-var Skynet = global.Skynet;
+var Skynet = null;
 obj.skynetObj = {};
 obj.socket = null;
 
 // Called Every Time the Messenger is needed
 obj.init = function () {
-    Skynet = global.Skynet;
+    Skynet = window.Skynet;
     obj.skynetObj = Skynet.getCurrentSettings();
     obj.socket = obj.skynetObj.skynetSocket;
     return obj;
@@ -16,7 +16,7 @@ obj.init = function () {
 
 obj.send = function (data, callback) {
     if (obj.socket) {
-        obj.socket.emit('message', data, callback);
+        Skynet.message(data, callback);
     } else {
         callback(new Error('Socket not available'));
     }

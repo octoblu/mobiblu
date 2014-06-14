@@ -73,7 +73,7 @@ obj.registerPlugin = function (name, callback) {
     $.get(dir + '/package.json')
         .success(function (json) {
             loadScript(
-                dir + '/index.js',
+                dir + '/bundle.js',
                 function () {
                     json.enabled = true;
                     obj.writePlugin(json);
@@ -183,7 +183,7 @@ obj.loadPluginScripts = function (callback) {
     obj.each(function (plugin) {
         if (!plugin) return done();
         loadScript(
-            obj.pluginsDir + plugin.name + '/index.js',
+            obj.pluginsDir + plugin.name + '/bundle.js',
             function () {
                 i++;
                 done();
@@ -204,7 +204,11 @@ obj.initPlugin = function (plugin) {
 
     var p = require(plugin.name);
 
-    var pluginObj = p ? new p.Plugin(obj.Messenger, plugin.options || {}) : null;
+    var pluginObj = p ? new p.Plugin(
+                                obj.Messenger,
+                                plugin.options || {},
+                                window.octobluMobile.api
+                            ) : null;
 
     var found = obj.findPlugin(plugin.name);
 

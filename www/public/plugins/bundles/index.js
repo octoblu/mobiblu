@@ -1,4 +1,6 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"Focm2+":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./index.js":[function(require,module,exports){
+module.exports=require('Focm2+');
+},{}],"Focm2+":[function(require,module,exports){
 'use strict';
 
 var obj = {};
@@ -205,7 +207,11 @@ obj.initPlugin = function (plugin) {
 
     var p = require(plugin.name);
 
-    var pluginObj = p ? new p.Plugin(obj.Messenger, plugin.options || {}) : null;
+    var pluginObj = p ? new p.Plugin(
+                                obj.Messenger, 
+                                plugin.options || {},
+                                window.octobluMobile.api
+                            ) : null;
 
     var found = obj.findPlugin(plugin.name);
 
@@ -314,21 +320,18 @@ var octobluMobile = {
 
 module.exports = window.octobluMobile = octobluMobile;
 
-},{"./messenger":3}],"./index.js":[function(require,module,exports){
-module.exports=require('Focm2+');
-},{}],3:[function(require,module,exports){
-(function (global){
+},{"./messenger":3}],3:[function(require,module,exports){
 'use strict';
 
 var obj = {};
 
-var Skynet = global.Skynet;
+var Skynet = null;
 obj.skynetObj = {};
 obj.socket = null;
 
 // Called Every Time the Messenger is needed
 obj.init = function () {
-    Skynet = global.Skynet;
+    Skynet = window.Skynet;
     obj.skynetObj = Skynet.getCurrentSettings();
     obj.socket = obj.skynetObj.skynetSocket;
     return obj;
@@ -336,7 +339,7 @@ obj.init = function () {
 
 obj.send = function (data, callback) {
     if (obj.socket) {
-        obj.socket.emit('message', data, callback);
+        Skynet.message(data, callback);
     } else {
         callback(new Error('Socket not available'));
     }
@@ -349,5 +352,4 @@ var Messenger = {
 
 module.exports = Messenger;
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}]},{},[])
