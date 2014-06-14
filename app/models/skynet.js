@@ -490,12 +490,13 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             if(!data.uuid) data.uuid = obj.mobileuuid;
             if(!data.token) data.token = obj.mobiletoken;
 
-            obj.logActivity({
-                type : 'SentMessage',
-                html : 'Sending Message: ' + data.payload
+            obj.skynetSocket.emit('message', data, function(d){
+                obj.logActivity({
+                    type : 'SentMessage',
+                    html : 'Sending Message: ' + JSON.stringify(data.payload)
+                });
+                callback(d);
             });
-
-            obj.skynetSocket.emit('message', data, callback);
         };
 
         obj.whoami = function (uuid, token, callback) {

@@ -42,8 +42,11 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
     $scope.getSubdevices = function (device) {
         if (device.type !== 'dummy' && device.type === 'gateway') {
+            $scope.device = device;
             $scope.subdevices = device.subdevices;
             $scope.subdevice = $scope.subdevices ? $scope.subdevices[0] : null;
+
+            $scope.getSchema();
         }
     };
 
@@ -65,7 +68,8 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
     };
 
     $scope.getSchema = function (device, subdevice) {
-
+        if(!device) device = $scope.device;
+        if(!subdevice) subdevice = $scope.subdevice;
         $('#device-msg-editor').jsoneditor('destroy');
 
         for (var i in device.plugins) {
@@ -126,7 +130,7 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
                     //   }
                     // } else {
                     message = $('#device-msg-editor').jsoneditor('value');
-                    console.log('schema message', message);
+                    console.log('schema message', JSON.stringify(message));
                     // }
 
                     $scope.subdevicename = $scope.subdevice.name;
@@ -135,7 +139,7 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
             } else {
                 message = $scope.sendText;
                 try {
-                    if (typeof message == 'string') {
+                    if (typeof message === 'string') {
                         message = JSON.parse($scope.sendText);
                     }
                     // message = message.message;
@@ -148,6 +152,8 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
                 }
 
             }
+
+            console.log('UUID and subdevicename ', uuid, $scope.subdevicename);
             Skynet.message({
                 'devices': uuid,
                 'subdevice': $scope.subdevicename,
@@ -158,10 +164,4 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
             $scope.messageOutput = 'Message Sent: ' + JSON.stringify(message);
         }
     };
-
-    // Get notified when an another webview modifies the data and reload
-    window.addEventListener('message', function (event) {
-        // reload data on message with reload status
-        if (event.data.status === 'reload') {}
-    });
 });
