@@ -21,7 +21,8 @@
     "angular-sanitize": "~1.2.16",
     "when": "~3.2.2",
     "jquery": "~2.1.1",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "json-editor": "~0.6.14"
   },
   "resolutions": {
     "lodash": "~2.4.1"
