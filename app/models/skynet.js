@@ -269,7 +269,10 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                 console.log('here', JSON.stringify(data));
                 if (e) {
                     console.log(e.toString());
-                    alert('Error connecting to Skynet');
+                    obj.logActivity({
+                        type : 'Skynet',
+                        error : e
+                    });
                     callback();
                 } else {
                     obj.skynetSocket = socket;
