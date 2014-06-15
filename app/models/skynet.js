@@ -14,7 +14,8 @@ skynetModel.service('SkynetRest', function ($http) {
             headers: {
                 skynet_auth_uuid: uuid,
                 skynet_auth_token: token
-            }
+            },
+            timeout : 5000
         }).success(function (data) {
             callback(null, data);
         })
@@ -32,7 +33,8 @@ skynetModel.service('SkynetRest', function ($http) {
             headers: {
                 skynet_auth_uuid: uuid,
                 skynet_auth_token: token
-            }
+            },
+            timeout : 5000
         }).success(function (data) {
             callback(null, data);
         })
@@ -52,24 +54,30 @@ skynetModel.service('OctobluRest', function ($http) {
         baseURL = 'http://app.octoblu.com';
 
     obj.getDevices = function (uuid, token, callback) {
-        $http.get(baseURL + '/api/owner/devices/' + uuid + '/' + token)
-            .success(function (data) {
-                callback(data);
-            })
-            .error(function (error, status, headers, config) {
-                console.log('Error: ', error, status, headers, config);
-                callback({});
-            });
+
+        $http({
+            url: baseURL + '/api/owner/devices/' + uuid + '/' + token,
+            method: 'GET',
+            timeout : 5000
+        }).success(function (data) {
+            callback(data);
+        })
+        .error(function (error, status, headers, config) {
+            console.log('Error: ', error, status, headers, config);
+            callback({});
+        });
+
     };
 
     obj.getGateways = function (uuid, token, includeDevices, callback) {
         // $http.get('/api/owner/gateways/' + uuid + '/' + token)
         $http({
             url: baseURL + '/api/owner/gateways/' + uuid + '/' + token,
-            method: 'get',
+            method: 'GET',
             params: {
                 devices: includeDevices
-            }
+            },
+            timeout : 5000
         })
         .success(function (data) {
             callback(null, data);
@@ -103,7 +111,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         };
 
         var sensActBadge = $('#sensor-activity-badge'),
-            x = 0;
+            x = window.localStorage.getItem('activitycount') || 0;
 
         obj.setData = function () {
             var devicename = window.localStorage.getItem('devicename');
@@ -253,13 +261,16 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                 return obj.getDeviceSetting(null, null, callback);
             }
             // GETS HERE
-            obj.skynetClient = skynet({
+            var data = {
                 'uuid': obj.mobileuuid || obj.skynetuuid,
                 'token': obj.mobiletoken || obj.skynettoken
-            }, function (e, socket) {
-                // DOESN'T HIT THIS **
+            };
+            obj.skynetClient = skynet(data, function (e, socket) {
+                console.log('here', JSON.stringify(data));
                 if (e) {
                     console.log(e.toString());
+                    alert('Error connecting to Skynet');
+                    callback();
                 } else {
                     obj.skynetSocket = socket;
                     obj.register(callback);
@@ -282,6 +293,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             x = 0;
             sensActBadge.text(x.toString());
             sensActBadge.removeClass('badge-negative');
+            window.localStorage.setItem('activitycount', x);
         };
 
         obj.logActivity = function(data){
@@ -307,6 +319,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             var string = JSON.stringify(obj.skynetActivity);
 
             window.localStorage.setItem('skynetactivity', string);
+            window.localStorage.setItem('activitycount', x);
             $(document).trigger('skynetactivity', true);
         };
 
@@ -421,7 +434,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
                         obj.logActivity({
                             type : 'BG_Geolocation',
-                            html : 'Successfully updated background location'
+                            html : 'Successfully updated background location <br> Response: ' + r.responseText
                         });
                     };
 

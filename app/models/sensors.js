@@ -66,7 +66,7 @@ sensorModel.factory('Sensors', function () {
 
             // Return HTML pretty print of data
             function prettify(heading) {
-                return 'Heading: ' + heading.magneticHeading;
+                return 'Heading: ' + heading.magneticHeading + '<br />';
             }
 
             return {

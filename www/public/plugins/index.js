@@ -109,6 +109,16 @@ obj.removePlugin = function (plugin, callback) {
     callback('Unable to trigger destroy');
 };
 
+obj.clearStorage = function(){
+    var plugins = [];
+
+    window.localStorage.setItem('plugins', JSON.stringify(plugins));
+
+    obj.pluginsJSON = [];
+
+    obj.allPlugins = {};
+};
+
 obj.retrieveFromStorage = function () {
 
     var plugins = [];
@@ -148,7 +158,8 @@ obj.retrievePlugins = function (callback) {
     // This is a fix for an incorrect plugin
     var found = obj.findPlugin('GreetingsPlugin');
     if (~found) {
-        window.localStorage.setItem('plugins', JSON.stringify([]));
+        obj.clearStorage();
+        plugins = [];
     }
 
     obj.loadPluginScripts(function () {

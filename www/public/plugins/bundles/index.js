@@ -76,7 +76,7 @@ obj.registerPlugin = function (name, callback) {
     $.get(dir + '/package.json')
         .success(function (json) {
             loadScript(
-                dir + '/index.js',
+                dir + '/bundle.js',
                 function () {
                     json.enabled = true;
                     obj.writePlugin(json);
@@ -110,6 +110,16 @@ obj.removePlugin = function (plugin, callback) {
         });
     }
     callback('Unable to trigger destroy');
+};
+
+obj.clearStorage = function(){
+    var plugins = [];
+
+    window.localStorage.setItem('plugins', JSON.stringify(plugins));
+
+    obj.pluginsJSON = [];
+
+    obj.allPlugins = {};
 };
 
 obj.retrieveFromStorage = function () {
@@ -151,7 +161,8 @@ obj.retrievePlugins = function (callback) {
     // This is a fix for an incorrect plugin
     var found = obj.findPlugin('GreetingsPlugin');
     if (~found) {
-        window.localStorage.setItem('plugins', JSON.stringify([]));
+        obj.clearStorage();
+        plugins = [];
     }
 
     obj.loadPluginScripts(function () {
@@ -186,7 +197,7 @@ obj.loadPluginScripts = function (callback) {
     obj.each(function (plugin) {
         if (!plugin) return done();
         loadScript(
-            obj.pluginsDir + plugin.name + '/index.js',
+            obj.pluginsDir + plugin.name + '/bundle.js',
             function () {
                 i++;
                 done();
@@ -208,7 +219,7 @@ obj.initPlugin = function (plugin) {
     var p = require(plugin.name);
 
     var pluginObj = p ? new p.Plugin(
-                                obj.Messenger, 
+                                obj.Messenger,
                                 plugin.options || {},
                                 window.octobluMobile.api
                             ) : null;
