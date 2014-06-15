@@ -434,7 +434,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
 
                         obj.logActivity({
                             type : 'BG_Geolocation',
-                            html : 'Successfully updated background location <br> Response: ' + r.responseText
+                            html : 'Successfully updated background location'
                         });
                     };
 
