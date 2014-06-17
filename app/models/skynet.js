@@ -15,14 +15,15 @@ skynetModel.service('SkynetRest', function ($http) {
                 skynet_auth_uuid: uuid,
                 skynet_auth_token: token
             },
-            timeout : 5000
-        }).success(function (data) {
+            timeout : 5 * 1000
+        })
+        .success(function (data) {
             callback(null, data);
         })
-            .error(function (data, status, headers, config) {
-                console.log('Error: ', data, status, headers, config);
-                callback(data);
-            });
+        .error(function (data, status, headers, config) {
+            console.log('Error: ', data, status, headers, config);
+            callback(data);
+        });
     };
 
     obj.sendData = function (uuid, token, data, callback) {
@@ -34,14 +35,15 @@ skynetModel.service('SkynetRest', function ($http) {
                 skynet_auth_uuid: uuid,
                 skynet_auth_token: token
             },
-            timeout : 5000
-        }).success(function (data) {
+            timeout : 5 * 1000
+        })
+        .success(function (data) {
             callback(null, data);
         })
-            .error(function (data, status, headers, config) {
-                console.log('Error: ', data, status, headers, config);
-                callback(data);
-            });
+        .error(function (data, status, headers, config) {
+            console.log('Error: ', data, status, headers, config);
+            callback(data);
+        });
     };
 
     return obj;
@@ -58,7 +60,7 @@ skynetModel.service('OctobluRest', function ($http) {
         $http({
             url: baseURL + '/api/owner/devices/' + uuid + '/' + token,
             method: 'GET',
-            timeout : 5000
+            timeout : 5 * 1000
         }).success(function (data) {
             callback(data);
         })
@@ -77,14 +79,35 @@ skynetModel.service('OctobluRest', function ($http) {
             params: {
                 devices: includeDevices
             },
-            timeout : 5000
+            timeout : 5 * 1000
         })
         .success(function (data) {
             callback(null, data);
         })
         .error(function (error, status, headers, config) {
             console.log('Error: ', error, status, headers, config);
-            callback(error, null);
+            callback(error);
+        });
+
+    };
+
+    obj.searchPlugins = function(term, callback){
+        // api/devices/plugins?keywords=skynet-plugin
+
+        $http({
+            url: baseURL + '/api/devices/plugins/',
+            method: 'GET',
+            params: {
+                keywords: term
+            },
+            timeout : 10 * 1000
+        })
+        .success(function (data) {
+            callback(null, data);
+        })
+        .error(function (error, status, headers, config) {
+            console.log('Error: ', error, status, headers, config);
+            callback(error);
         });
 
     };

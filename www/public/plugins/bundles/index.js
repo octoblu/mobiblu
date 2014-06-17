@@ -1,6 +1,4 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./index.js":[function(require,module,exports){
-module.exports=require('Focm2+');
-},{}],"Focm2+":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"Focm2+":[function(require,module,exports){
 'use strict';
 
 var obj = {};
@@ -54,6 +52,10 @@ obj.findPlugin = function(name){
 obj.writePlugin = function (json) {
     console.log('Writing Plugin', json.name);
 
+    if(!json._url){
+        json._url = obj.pluginsDir + name+ '/bundle.js';
+    }
+
     var found = obj.findPlugin(json.name);
 
     if (~found) {
@@ -72,22 +74,34 @@ obj.writePlugin = function (json) {
 };
 
 obj.registerPlugin = function (name, callback) {
+
+    var done = function(json){
+        console.log('About to load script');
+        loadScript(
+            json._url || dir + '/bundle.js',
+            function () {
+                json.enabled = true;
+                obj.writePlugin(json);
+                obj.triggerPluginEvent(json, 'onInstall', callback);
+            }
+        );
+
+    };
+
+    var found = obj.findPlugin(name);
+
+    if (~found) {
+        return done(obj.pluginsJSON[found]);
+    }
+
     var dir = obj.pluginsDir + name;
     $.get(dir + '/package.json')
-        .success(function (json) {
-            loadScript(
-                dir + '/bundle.js',
-                function () {
-                    json.enabled = true;
-                    obj.writePlugin(json);
-                    obj.triggerPluginEvent(json, 'onInstall', callback);
-                }
-            );
-        })
-        .error(function (err) {
-            console.log('Erroring getting package JSON', JSON.stringify(err));
-            callback();
-        });
+    .success(done)
+    .error(function (err) {
+        console.log('Erroring getting package JSON', JSON.stringify(err));
+        callback();
+    });
+
 };
 
 obj.removePlugin = function (plugin, callback) {
@@ -197,7 +211,7 @@ obj.loadPluginScripts = function (callback) {
     obj.each(function (plugin) {
         if (!plugin) return done();
         loadScript(
-            obj.pluginsDir + plugin.name + '/bundle.js',
+            plugin._url,
             function () {
                 i++;
                 done();
@@ -268,10 +282,18 @@ obj.getPlugins = function () {
     return obj.pluginsJSON || obj.retrieveFromStorage();
 };
 
-obj.loadPlugin = function (name, callback) {
-    var found = obj.findPlugin(name);
+obj.loadPlugin = function (data, callback) {
+    var name;
+    if(typeof data === 'string'){
+        name = data;
+    }else{
+        name = data.name;
+        obj.writePlugin(data);
+        console.log('Wrote plugin in load plugin');
 
-    if (!~found) {
+    }
+    var found = obj.findPlugin(name);
+    if (!~found || !obj.allPlugins[name]) {
         console.log('Installing Plugin', name);
         return obj.registerPlugin(name, function () {
             obj.retrievePlugins(callback);
@@ -326,12 +348,16 @@ var octobluMobile = {
     getPlugins: obj.getPlugins,
     triggerPluginEvent: obj.triggerPluginEvent,
     removePlugin: obj.removePlugin,
-    writePlugin : obj.writePlugin
+    writePlugin : obj.writePlugin,
+    loadPlugin : obj.loadPlugin,
+    pluginsDir : obj.pluginsDir
 };
 
 module.exports = window.octobluMobile = octobluMobile;
 
-},{"./messenger":3}],3:[function(require,module,exports){
+},{"./messenger":3}],"./index.js":[function(require,module,exports){
+module.exports=require('Focm2+');
+},{}],3:[function(require,module,exports){
 'use strict';
 
 var obj = {};

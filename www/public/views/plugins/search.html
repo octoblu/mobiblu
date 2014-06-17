@@ -1,10 +1,23 @@
 <div>
 
-    <div ng-controller="PluginCtrl" ng-init="init()">
+    <div ng-controller="PluginCtrl" ng-init="initSearch()">
 
         <form>
-            <input type="search" placeholder="Search">
+            <input ng-change="search()" ng-model="term" type="search" placeholder="Search">
         </form>
+
+        <h1 class="text-center" ng-show="loading" id="loading"><i class="fa fa-spinner fa-spin" ></i></h1>
+
+        <div ng-hide="loading">
+            <ul class="table-view" ng-show="results && results.length">
+                <li ng-repeat="plugin in results" class="table-view-cell">
+                    {{ plugin.name }}
+                    <button class="btn" ng-click="installPlugin(plugin)">Install</button>
+                </li>
+            </ul>
+            <div class="content-padding" ng-show="!results || !results.length">No Results</div>
+        </div>
+
 
     </div>
 
