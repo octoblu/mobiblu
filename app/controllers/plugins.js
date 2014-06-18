@@ -2,7 +2,7 @@
 
 var pluginsApp = angular.module('main.plugins', ['hmTouchevents', 'SkynetModel', 'SensorModel']);
 
-pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, OctobluRest) {
+pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, OctobluRest, $http) {
 
     if (/\#\!\/plugins\/*$/.test(window.location.href)) {
         $(document).trigger('togglebackbtn', false);
@@ -28,16 +28,16 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
     $scope.results = [];
     $scope.allResults = [];
 
-    var addToResults = function (results) {
-        if (!results || !results.length) return;
-        for (var x in results) {
-            var plugin = results[x];
-            if (!~$scope.pluginNames.indexOf(plugin.name)) {
-                $scope.results.push(plugin);
-            }
-        }
-        $scope.allResults = $scope.results;
-    };
+    // var addToResults = function (results) {
+    //     if (!results || !results.length) return;
+    //     for (var x in results) {
+    //         var plugin = results[x];
+    //         if (!~$scope.pluginNames.indexOf(plugin.name)) {
+    //             $scope.results.push(plugin);
+    //         }
+    //     }
+    //     $scope.allResults = $scope.results;
+    // };
 
     var handleSearchResults = function (err, res) {
         $scope.loading = false;
@@ -46,7 +46,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
             return console.log('Error searching', err);
         }
 
-        addToResults(res.results);
+        $scope.results = $scope.results.concat(res.results || []);
     };
 
     $scope.search = function () {
@@ -62,60 +62,15 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
 
     $scope.installPlugin = function (plugin) {
         $scope.loading = true;
-        var fileTransfer = new FileTransfer();
-        var uri = encodeURI('https://raw.githubusercontent.com/monteslu/skynet-plugin-bundles/master/bundles/skynet-hue.js');
 
-        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, null);
+        $http.get('https://raw.githubusercontent.com/monteslu/skynet-plugin-bundles/master/bundles/skynet-hue.js')
+        .then(function(data){
+            plugin.raw = data;
+            window.octobluMobile.loadPlugin(plugin, function(){
+                $location.path('/plugins/' + plugin.name);
+            });
+        });
 
-        var entry;
-
-        function end(){
-            $scope.loading = false;
-        }
-
-        function onRequestFileSystemSuccess(fileSystem) {
-            entry = fileSystem.root;
-            entry.getDirectory('plugins', {
-                create: true,
-                exclusive: false
-            }, createPluginDir, onGetDirectoryFail);
-        }
-
-        function createPluginDir(dir){
-            entry.getDirectory('plugins/' + plugin.name, {
-                create: true,
-                exclusive: false
-            }, onGetDirectorySuccess, onGetDirectoryFail);
-        }
-
-        function onGetDirectorySuccess(dir) {
-            console.log('Created dir ' + dir.name);
-            var file = '/bundle.js';
-            fileTransfer.download(
-                uri,
-                dir.fullPath + file,
-                function (entry) {
-                    end();
-                    console.log('download complete: ' + entry.toURL());
-                    plugin._url = entry.toURL();
-                    window.octobluMobile.loadPlugin(plugin, function () {
-                        $location.path('/plugins/' + plugin.name);
-                    });
-                },
-                function (error) {
-                    end();
-                    console.log('download error source ' + error.source);
-                    console.log('download error target ' + error.target);
-                    console.log('upload error code' + error.code);
-                },
-                false
-            );
-        }
-
-        function onGetDirectoryFail(error) {
-            end();
-            console.log('Error creating directory ' + error.code);
-        }
     };
 
     $scope.getPlugins = function () {

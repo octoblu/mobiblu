@@ -1,4 +1,6 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"Focm2+":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./index.js":[function(require,module,exports){
+module.exports=require('Focm2+');
+},{}],"Focm2+":[function(require,module,exports){
 'use strict';
 
 var obj = {};
@@ -28,6 +30,15 @@ function loadScript(url, callback) {
     head.appendChild(script);
 }
 
+function loadScriptUnsafe(raw, callback){
+    try{
+        eval(raw);
+    }catch(e){
+        console.log('Error parsing JS');
+    }
+    callback();
+}
+
 // Utilities
 obj.each = function (cb) {
     obj.pluginsJSON.forEach(cb);
@@ -49,7 +60,8 @@ obj.findPlugin = function(name){
     return found;
 };
 
-obj.writePlugin = function (json) {
+obj.writePlugin = function (json, init) {
+    if(typeof init === 'undefined') init = true;
     console.log('Writing Plugin', json.name);
 
     if(!json._url){
@@ -68,7 +80,7 @@ obj.writePlugin = function (json) {
 
     console.log('Wrote Plugins', JSON.stringify(obj.pluginsJSON));
 
-    obj.allPlugins[json.name] = obj.initPlugin(json);
+    if(init) obj.allPlugins[json.name] = obj.initPlugin(json);
 
     return obj.pluginsJSON;
 };
@@ -77,15 +89,7 @@ obj.registerPlugin = function (name, callback) {
 
     var done = function(json){
         console.log('About to load script');
-        loadScript(
-            json._url || dir + '/bundle.js',
-            function () {
-                json.enabled = true;
-                obj.writePlugin(json);
-                obj.triggerPluginEvent(json, 'onInstall', callback);
-            }
-        );
-
+        callback();
     };
 
     var found = obj.findPlugin(name);
@@ -102,6 +106,15 @@ obj.registerPlugin = function (name, callback) {
         callback();
     });
 
+};
+
+obj.loadScript = function(json, callback){
+    var path = obj.pluginsDir + json.name + '/bundle.js';
+    if(json.raw){
+        loadScriptUnsafe(json.raw, callback);
+    }else{
+        loadScript(path, callback);
+    }
 };
 
 obj.removePlugin = function (plugin, callback) {
@@ -210,14 +223,12 @@ obj.loadPluginScripts = function (callback) {
 
     obj.each(function (plugin) {
         if (!plugin) return done();
-        loadScript(
-            plugin._url,
-            function () {
-                i++;
-                done();
-            }
-        );
+        obj.loadScript(plugin, function () {
+            i++;
+            done();
+        });
     });
+
 };
 
 obj.mapPlugins = function () {
@@ -288,9 +299,8 @@ obj.loadPlugin = function (data, callback) {
         name = data;
     }else{
         name = data.name;
-        obj.writePlugin(data);
+        obj.writePlugin(data, false);
         console.log('Wrote plugin in load plugin');
-
     }
     var found = obj.findPlugin(name);
     if (!~found || !obj.allPlugins[name]) {
@@ -355,9 +365,7 @@ var octobluMobile = {
 
 module.exports = window.octobluMobile = octobluMobile;
 
-},{"./messenger":3}],"./index.js":[function(require,module,exports){
-module.exports=require('Focm2+');
-},{}],3:[function(require,module,exports){
+},{"./messenger":3}],3:[function(require,module,exports){
 'use strict';
 
 var obj = {};
