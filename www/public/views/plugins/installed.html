@@ -5,8 +5,8 @@
         <p class="content-padded">Downloaded plugins.</p>
         <div class="card">
             <ul class="table-view">
-                <li class="table-view-cell">
-                    <a ng-href="index.html#!/plugins/{{ plugin.name }}" ng-repeat="plugin in plugins" class="navigate-right">
+                <li class="table-view-cell" ng-repeat="plugin in plugins">
+                    <a ng-href="index.html#!/plugins/{{ plugin.name }}"  class="navigate-right">
                         <span>
                             {{ plugin.name }}
                         </span>

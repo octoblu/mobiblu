@@ -59,8 +59,6 @@ obj.writePlugin = function (json, init) {
 
     var found = obj.findPlugin(json.name);
 
-    console.log('Pre-write plugins', found, JSON.stringify(obj.plugins));
-
     if (~found) {
         obj.plugins[found] = json;
     } else {
@@ -68,8 +66,6 @@ obj.writePlugin = function (json, init) {
     }
 
     window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
-
-    console.log('Wrote Plugins', JSON.stringify(obj.plugins));
 
     if(init) obj.instances[json.name] = obj.initPlugin(json);
 

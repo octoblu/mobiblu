@@ -12,7 +12,13 @@
             <ul class="table-view" ng-show="results && results.length">
                 <li ng-repeat="plugin in results" class="table-view-cell">
                     {{ plugin.name }}
-                    <button class="btn" ng-click="installPlugin(plugin)">Install</button>
+                    <button class="btn" ng-show="plugin.name === 'skynet-hue'" ng-click="installPlugin(plugin)">
+                        <span ng-hide="pluginNames.indexOf(plugin.name)">Install</span>
+                        <span ng-show="pluginNames.indexOf(plugin.name)">Installed</span>
+                    </button>
+                    <button class="btn" ng-show="plugin.name !== 'skynet-hue'">
+                        No Bundle
+                    </button>
                 </li>
             </ul>
             <div class="content-padding" ng-show="!results || !results.length">No Results</div>

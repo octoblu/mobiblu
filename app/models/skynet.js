@@ -555,7 +555,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                 token || obj.mobiletoken,
                 function (err, data) {
                     var device;
-                    if (data.devices.length === 1) {
+                    if (data.devices && data.devices.length) {
                         device = data.devices[0];
                     } else {
                         device = data;
