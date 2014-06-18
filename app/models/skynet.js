@@ -517,10 +517,10 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             obj.type = 'octobluMobile';
 
             obj.skynetSocket.emit('update', data, function(res){
-                obj.logActivity({
-                    type : 'UpdateDevice',
-                    html : 'Successfully updated device'
-                });
+                // obj.logActivity({
+                //     type : 'UpdateDevice',
+                //     html : 'Successfully updated device'
+                // });
                 callback(res);
             });
         };

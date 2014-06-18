@@ -1,6 +1,4 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./index.js":[function(require,module,exports){
-module.exports=require('Focm2+');
-},{}],"Focm2+":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"Focm2+":[function(require,module,exports){
 'use strict';
 
 var obj = {};
@@ -8,9 +6,9 @@ var obj = {};
 obj.Skynet = window.Skynet;
 obj.Messenger = window.Messenger;
 
-obj.allPlugins = {};
+obj.instances = {};
 
-obj.pluginsJSON = false;
+obj.plugins = false;
 
 obj.pluginsDir = '/public/plugins/modules/';
 
@@ -30,18 +28,9 @@ function loadScript(url, callback) {
     head.appendChild(script);
 }
 
-function loadScriptUnsafe(raw, callback){
-    try{
-        eval(raw);
-    }catch(e){
-        console.log('Error parsing JS');
-    }
-    callback();
-}
-
 // Utilities
 obj.each = function (cb) {
-    obj.pluginsJSON.forEach(cb);
+    obj.plugins.forEach(cb);
 };
 
 obj.findPlugin = function(name){
@@ -64,30 +53,32 @@ obj.writePlugin = function (json, init) {
     if(typeof init === 'undefined') init = true;
     console.log('Writing Plugin', json.name);
 
-    if(!json._url){
-        json._url = obj.pluginsDir + name+ '/bundle.js';
+    if(!json._path){
+        json._path = obj.pluginsDir + json.name + '/bundle.js';
     }
 
     var found = obj.findPlugin(json.name);
 
+    console.log('Pre-write plugins', found, JSON.stringify(obj.plugins));
+
     if (~found) {
-        obj.pluginsJSON[found] = json;
+        obj.plugins[found] = json;
     } else {
-        obj.pluginsJSON.push(json);
+        obj.plugins.push(json);
     }
 
-    window.localStorage.setItem('plugins', JSON.stringify(obj.pluginsJSON));
+    window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
 
-    console.log('Wrote Plugins', JSON.stringify(obj.pluginsJSON));
+    console.log('Wrote Plugins', JSON.stringify(obj.plugins));
 
-    if(init) obj.allPlugins[json.name] = obj.initPlugin(json);
+    if(init) obj.instances[json.name] = obj.initPlugin(json);
 
-    return obj.pluginsJSON;
+    return obj.plugins;
 };
 
 obj.registerPlugin = function (name, callback) {
 
-    var done = function(json){
+    var done = function(){
         console.log('About to load script');
         callback();
     };
@@ -95,12 +86,15 @@ obj.registerPlugin = function (name, callback) {
     var found = obj.findPlugin(name);
 
     if (~found) {
-        return done(obj.pluginsJSON[found]);
+        return done(obj.plugins[found]);
     }
 
     var dir = obj.pluginsDir + name;
     $.get(dir + '/package.json')
-    .success(done)
+    .success(function(json){
+        obj.writePlugin(json, false);
+        done();
+    })
     .error(function (err) {
         console.log('Erroring getting package JSON', JSON.stringify(err));
         callback();
@@ -109,12 +103,8 @@ obj.registerPlugin = function (name, callback) {
 };
 
 obj.loadScript = function(json, callback){
-    var path = obj.pluginsDir + json.name + '/bundle.js';
-    if(json.raw){
-        loadScriptUnsafe(json.raw, callback);
-    }else{
-        loadScript(path, callback);
-    }
+    var path = json._path || obj.pluginsDir + json.name + '/bundle.js';
+    loadScript(path, callback);
 };
 
 obj.removePlugin = function (plugin, callback) {
@@ -122,17 +112,17 @@ obj.removePlugin = function (plugin, callback) {
 
     var found = obj.findPlugin(plugin.name);
 
-    if (found >= 0) {
+    if (~found) {
         plugins.slice(found, 1);
     }
 
-    obj.pluginsJSON = plugins;
+    obj.plugins = plugins;
 
-    window.localStorage.setItem('plugins', JSON.stringify(obj.pluginsJSON));
+    window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
 
-    if (obj.allPlugins[plugin.name]) {
+    if (obj.instances[plugin.name]) {
         return obj.triggerPluginEvent(plugin.name, 'destroy', function () {
-            delete obj.allPlugins[plugin.name];
+            delete obj.instances[plugin.name];
             callback();
         });
     }
@@ -144,9 +134,9 @@ obj.clearStorage = function(){
 
     window.localStorage.setItem('plugins', JSON.stringify(plugins));
 
-    obj.pluginsJSON = [];
+    obj.plugins = [];
 
-    obj.allPlugins = {};
+    obj.instances = {};
 };
 
 obj.retrieveFromStorage = function () {
@@ -174,7 +164,7 @@ obj.retrieveFromStorage = function () {
         }
     });
 
-    obj.pluginsJSON = plugins;
+    obj.plugins = plugins;
 
     return plugins;
 };
@@ -214,15 +204,19 @@ obj.loadPluginScripts = function (callback) {
     var i = 0;
 
     var done = function () {
-        if (obj.pluginsJSON.length === i) {
+        if (obj.plugins.length === i) {
             callback();
         }
     };
 
-    if (!obj.pluginsJSON || !obj.pluginsJSON.length) return done();
+    if (!obj.plugins || !obj.plugins.length) return done();
 
     obj.each(function (plugin) {
         if (!plugin) return done();
+        if (obj.instances[plugin.name]){
+            i++;
+            return done();
+        }
         obj.loadScript(plugin, function () {
             i++;
             done();
@@ -234,7 +228,7 @@ obj.loadPluginScripts = function (callback) {
 obj.mapPlugins = function () {
     obj.each(function (plugin) {
         if (!plugin) return;
-        obj.allPlugins[plugin.name] = obj.initPlugin(plugin);
+        obj.instances[plugin.name] = obj.initPlugin(plugin);
     });
 };
 
@@ -252,15 +246,15 @@ obj.initPlugin = function (plugin) {
     var found = obj.findPlugin(plugin.name);
 
     if(~found){
-        obj.pluginsJSON[found].optionsSchema = p.optionsSchema;
-        obj.pluginsJSON[found].messageSchema = p.messageSchema;
+        obj.plugins[found].optionsSchema = p.optionsSchema;
+        obj.plugins[found].messageSchema = p.messageSchema;
     }
 
     return pluginObj;
 };
 
 obj.triggerPluginEvent = function (plugin, event, callback) {
-    if (obj.allPlugins[plugin.name]) {
+    if (obj.instances[plugin.name]) {
 
         switch (event) {
         case 'onEnable':
@@ -279,8 +273,8 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
             return callback('Not a valid event');
         }
 
-        if (typeof obj.allPlugins[plugin.name][event] === 'function') {
-            return obj.allPlugins[plugin.name][event](callback);
+        if (typeof obj.instances[plugin.name][event] === 'function') {
+            return obj.instances[plugin.name][event](callback);
         } else {
             return callback('No event found for plugin');
         }
@@ -290,7 +284,7 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
 };
 
 obj.getPlugins = function () {
-    return obj.pluginsJSON || obj.retrieveFromStorage();
+    return obj.plugins || obj.retrieveFromStorage();
 };
 
 obj.loadPlugin = function (data, callback) {
@@ -303,7 +297,7 @@ obj.loadPlugin = function (data, callback) {
         console.log('Wrote plugin in load plugin');
     }
     var found = obj.findPlugin(name);
-    if (!~found || !obj.allPlugins[name]) {
+    if (!~found || !obj.instances[name]) {
         console.log('Installing Plugin', name);
         return obj.registerPlugin(name, function () {
             obj.retrievePlugins(callback);
@@ -315,7 +309,7 @@ obj.loadPlugin = function (data, callback) {
 obj.startListen = function(){
     obj.socket.on('message', function(data, fn){
         console.log('On Message', JSON.stringify(data));
-        _.forEach(obj.allPlugins, function(plugin){
+        _.forEach(obj.instances, function(plugin){
             console.log('Sending to plugin');
             plugin.onMessage(data, fn);
         });
@@ -365,7 +359,9 @@ var octobluMobile = {
 
 module.exports = window.octobluMobile = octobluMobile;
 
-},{"./messenger":3}],3:[function(require,module,exports){
+},{"./messenger":3}],"./index.js":[function(require,module,exports){
+module.exports=require('Focm2+');
+},{}],3:[function(require,module,exports){
 'use strict';
 
 var obj = {};

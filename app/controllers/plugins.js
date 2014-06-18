@@ -2,7 +2,7 @@
 
 var pluginsApp = angular.module('main.plugins', ['hmTouchevents', 'SkynetModel', 'SensorModel']);
 
-pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, OctobluRest, $http) {
+pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, OctobluRest) {
 
     if (/\#\!\/plugins\/*$/.test(window.location.href)) {
         $(document).trigger('togglebackbtn', false);
@@ -63,13 +63,67 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
     $scope.installPlugin = function (plugin) {
         $scope.loading = true;
 
-        $http.get('https://raw.githubusercontent.com/monteslu/skynet-plugin-bundles/master/bundles/skynet-hue.js')
-        .then(function(data){
-            plugin.raw = data;
-            window.octobluMobile.loadPlugin(plugin, function(){
-                $location.path('/plugins/' + plugin.name);
-            });
-        });
+        var entry;
+
+        function onError(error) {
+            end();
+            console.log('Error creating directory ' + error.code);
+        }
+
+        function gotFS() {
+            entry.getDirectory('plugins', {
+                create: true,
+                exclusive: false
+            }, createPluginDir, onError);
+        }
+
+        var fileTransfer = new FileTransfer();
+        var uri = encodeURI('https://raw.githubusercontent.com/monteslu/skynet-plugin-bundles/master/bundles/skynet-hue.js');
+
+        if(window.FSRoot){
+            entry = window.FSRoot;
+            gotFS();
+        }else{
+            onError(new Error('No FS Loaded'));
+        }
+
+        function end(){
+            $scope.loading = false;
+        }
+
+        function createPluginDir(){
+            entry.getDirectory('plugins/' + plugin.name, {
+                create: true,
+                exclusive: false
+            }, onGetDirectorySuccess, onError);
+        }
+
+        function onGetDirectorySuccess(dir) {
+            console.log('Created dir ' + dir.name);
+            var file = '/bundle.js';
+            fileTransfer.download(
+                uri,
+                dir.fullPath + file,
+                function (entry) {
+                    end();
+                    console.log('download complete: ' + entry.toURL());
+                    plugin._url = entry.toURL();
+                    plugin._path = '/plugins/' + plugin.name + file;
+                    $scope.loading = false;
+                    window.octobluMobile.loadPlugin(plugin, function () {
+                        console.log('Plugin loaded');
+                        window.location.href = 'index.html#!/plugins/' + plugin.name;
+                    });
+                },
+                function (error) {
+                    end();
+                    console.log('download error source ' + error.source);
+                    console.log('download error target ' + error.target);
+                    console.log('upload error code' + error.code);
+                },
+                false
+            );
+        }
 
     };
 
