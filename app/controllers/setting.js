@@ -60,8 +60,10 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
     };
 
     $scope.clearPlugins = function(){
-        window.octobluMobile.clearStorage();
-        window.location = 'index.html';
+        if(confirm('Are you sure you want to clear the plugins?')){
+            window.octobluMobile.clearStorage();
+            window.location = 'index.html';
+        }
     };
 
     $scope.revealMobileToken = function () {

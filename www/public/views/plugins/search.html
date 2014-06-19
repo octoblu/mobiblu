@@ -13,8 +13,8 @@
                 <li ng-repeat="plugin in results" class="table-view-cell">
                     {{ plugin.name }}
                     <button class="btn" ng-show="plugin.name === 'skynet-hue'" ng-click="installPlugin(plugin)">
-                        <span ng-hide="pluginNames.indexOf(plugin.name)">Install</span>
-                        <span ng-show="pluginNames.indexOf(plugin.name)">Installed</span>
+                        <span ng-hide="pluginNames.indexOf(plugin.name) > -1">Install</span>
+                        <span ng-show="pluginNames.indexOf(plugin.name) > -1">Re-download</span>
                     </button>
                     <button class="btn" ng-show="plugin.name !== 'skynet-hue'">
                         No Bundle
