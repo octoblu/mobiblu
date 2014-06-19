@@ -32,6 +32,10 @@ var messageSchema = {
     }
 };
 
+var getDefaultOptions = function(callback){
+    callback(null, { greetingPrefix : 'Im Awesome' });
+};
+
 Plugin.prototype.onMessage = function (message, fn) {
     var data = message.message || message.payload;
     console.log(this.options.greetingPrefix + ', ' + message.fromUuid);
@@ -89,14 +93,8 @@ Plugin.prototype.destroy = function () {
 module.exports = {
     Plugin: Plugin, // Required
     optionsSchema: optionsSchema, // Optional
-    messageSchema: messageSchema // Optional
-};
-
-
-module.exports = {
-  Plugin: Plugin,
-  optionsSchema: optionsSchema,
-  messageSchema: messageSchema
+    messageSchema: messageSchema, // Optional
+    getDefaultOptions: getDefaultOptions
 };
 
 },{}],"skynet-greeting":[function(require,module,exports){

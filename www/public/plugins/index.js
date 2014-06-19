@@ -271,6 +271,10 @@ obj.initPlugin = function (plugin) {
         pluginObj = null;
     }
 
+    if(p && p.getDefaultOptions){
+        pluginObj.getDefaultOptions = p.getDefaultOptions;
+    }
+
     return pluginObj;
 
 };
@@ -289,6 +293,7 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
                 break;
             case 'onInstall':
             case 'onMessage':
+            case 'getDefaultOptions':
             case 'destroy':
                 break;
             default:

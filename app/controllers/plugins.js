@@ -137,6 +137,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
 
     $scope.findOne = function () {
         $scope.getPlugins();
+
         for (var x in $scope.plugins) {
             var plugin = $scope.plugins[x];
             if (plugin.name === $routeParams.pluginName) {
@@ -145,14 +146,25 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
             }
         }
 
-        $('#options-editor').jsoneditor({
-            schema: $scope.plugin.optionsSchema,
-            theme: 'bootstrap3',
-            startval: $scope.plugin.options,
-            no_additional_properties: true,
-            iconlib: 'fontawesome4',
-            disable_collapse: true
+        var options = $scope.plugin.options || {};
+
+        window.octobluMobile.triggerPluginEvent(plugin, 'getDefaultOptions', function(err, defaultOptions){
+
+            if(!err && defaultOptions){
+                options = _.extend(options, defaultOptions);
+            }
+
+            $('#options-editor').jsoneditor({
+                schema: $scope.plugin.optionsSchema,
+                theme: 'bootstrap3',
+                startval: options,
+                no_additional_properties: true,
+                iconlib: 'fontawesome4',
+                disable_collapse: true
+            });
         });
+
+
     };
 
     $scope.savePlugin = function () {
