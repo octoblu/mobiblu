@@ -55,7 +55,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
         if (term && term.length) {
             var searchRegex = new RegExp(term, 'i');
             $scope.results = _.filter($scope.allResults, function(plugin){
-                return searchRegex.test(plugin.name) || searchRegex.test(plugin.name);
+                return searchRegex.test(plugin.name) || searchRegex.test(plugin.description);
             });
         }
     };
@@ -66,15 +66,19 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
         var entry,
             fileTransfer = new FileTransfer(),
             // Removed Fixed After
-            uri = encodeURI('https://raw.githubusercontent.com/monteslu/skynet-plugin-bundles/master/bundles/skynet-hue.js');
+            uri = encodeURI(plugin.bundle);
 
         function end(){
             $scope.loading = false;
+            console.log('Ending');
         }
 
         function onError(error) {
             console.log('Error ', error);
-            end();
+            $scope.$apply(function(){
+                end();
+                $scope.errorMsg = error.toString();
+            });
         }
 
         function gotFS() {
@@ -91,19 +95,12 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
             }, onGetDirectorySuccess, onError);
         }
 
-        if(window.FSRoot){
-            entry = window.FSRoot;
-            gotFS();
-        }else{
-            onError(new Error('No FS Loaded'));
-        }
-
         function onGetDirectorySuccess(dir) {
             console.log('Created dir ' + dir.name);
             var file = '/bundle.js';
             fileTransfer.download(
                 uri,
-                dir.fullPath + file,
+                    dir.fullPath + file,
                 function (entry) {
                     console.log('download complete: ' + entry.toURL());
                     plugin._url = entry.toURL();
@@ -117,6 +114,17 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
                 onError,
                 false
             );
+        }
+
+        try{
+            if(window.FSRoot){
+                entry = window.FSRoot;
+                gotFS();
+            }else{
+                onError(new Error('Error no access to file system.'));
+            }
+        }catch(e) {
+            onError(new Error('No Error Installing Plugin'));
         }
 
     };
@@ -148,21 +156,24 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
 
         var options = $scope.plugin.options || {};
 
-        window.octobluMobile.triggerPluginEvent(plugin, 'getDefaultOptions', function(err, defaultOptions){
+            window.octobluMobile.triggerPluginEvent(
+                plugin,
+                'getDefaultOptions',
+                function(err, defaultOptions){
 
-            if(!err && defaultOptions){
-                options = _.extend(options, defaultOptions);
-            }
+                    if(!err && defaultOptions){
+                        options = _.extend(options, defaultOptions);
+                    }
 
-            $('#options-editor').jsoneditor({
-                schema: $scope.plugin.optionsSchema,
-                theme: 'bootstrap3',
-                startval: options,
-                no_additional_properties: true,
-                iconlib: 'fontawesome4',
-                disable_collapse: true
-            });
-        });
+                    $('#options-editor').jsoneditor({
+                        schema: $scope.plugin.optionsSchema,
+                        theme: 'bootstrap3',
+                        startval: options,
+                        no_additional_properties: true,
+                        iconlib: 'fontawesome4',
+                        disable_collapse: true
+                    });
+                });
 
 
     };

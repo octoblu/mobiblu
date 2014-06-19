@@ -7,17 +7,15 @@
         </form>
 
         <h1 class="text-center" ng-show="loading" id="loading"><i class="fa fa-spinner fa-spin" ></i></h1>
+        <h4 ng-show="errorMsg">{{ errorMsg }}</h4>
 
         <div ng-hide="loading">
             <ul class="table-view" ng-show="results && results.length">
                 <li ng-repeat="plugin in results" class="table-view-cell">
                     {{ plugin.name }}
-                    <button class="btn" ng-show="plugin.name === 'skynet-hue'" ng-click="installPlugin(plugin)">
+                    <button class="btn" ng-click="installPlugin(plugin)">
                         <span ng-hide="pluginNames.indexOf(plugin.name) > -1">Install</span>
-                        <span ng-show="pluginNames.indexOf(plugin.name) > -1">Re-download</span>
-                    </button>
-                    <button class="btn" ng-show="plugin.name !== 'skynet-hue'">
-                        No Bundle
+                        <span ng-show="pluginNames.indexOf(plugin.name) > -1">Upgrade</span>
                     </button>
                 </li>
             </ul>
