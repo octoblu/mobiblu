@@ -11,20 +11,16 @@ obj.plugins = false;
 
 obj.pluginsDir = '/public/plugins/modules/';
 
-function loadScript(url, callback) {
-    // Adding the script tag to the head as suggested before
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-
-    // Then bind the event to the callback function.
-    // There are several events for cross browser compatibility.
-    script.onreadystatechange = callback;
-    script.onload = callback;
-
-    // Fire the loading
-    head.appendChild(script);
+function loadScript(path, callback) {
+    $.getScript( 'http://localhost' + path )
+    .done(function( script, textStatus ) {
+        console.log('Script loaded: ' + textStatus);
+        callback();
+    })
+    .fail(function( jqxhr, settings, exception ){
+        console.log('Script Failed to load');
+        callback();
+    });
 }
 
 // Utilities
@@ -169,7 +165,7 @@ obj.retrievePlugins = function (callback) {
     console.log('Retrieving plugins');
 
     var plugins = obj.retrieveFromStorage();
-
+    console.log('Plugins from storage', JSON.stringify(plugins));
     // This is a fix for an incorrect plugin
     var found = obj.findPlugin('GreetingsPlugin');
     if (~found) {
@@ -212,7 +208,9 @@ obj.loadPluginScripts = function (callback) {
             i++;
             return done();
         }
+        console.log('About to load script');
         obj.loadScript(plugin, function () {
+            console.log('Loaded script ' + plugin.name);
             i++;
             done();
         });
@@ -230,19 +228,27 @@ obj.mapPlugins = function () {
 // Individual Plugin Object
 obj.initPlugin = function (plugin) {
 
-    var p = require(plugin.name);
+    var pluginObj;
 
-    var pluginObj = p ? new p.Plugin(
-                                obj.Messenger,
-                                plugin.options || {},
-                                window.octobluMobile.api
-                            ) : null;
+    try {
 
-    var found = obj.findPlugin(plugin.name);
+        var p = require(plugin.name);
 
-    if(~found){
-        obj.plugins[found].optionsSchema = p.optionsSchema;
-        obj.plugins[found].messageSchema = p.messageSchema;
+        pluginObj = p ? new p.Plugin(
+            obj.Messenger,
+                plugin.options || {},
+            window.octobluMobile.api
+        ) : null;
+
+        var found = obj.findPlugin(plugin.name);
+
+        if (~found) {
+            obj.plugins[found].optionsSchema = p.optionsSchema;
+            obj.plugins[found].messageSchema = p.messageSchema;
+        }
+
+    }catch(e){
+        pluginObj = null;
     }
 
     return pluginObj;

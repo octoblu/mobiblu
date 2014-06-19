@@ -63,11 +63,18 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
     $scope.installPlugin = function (plugin) {
         $scope.loading = true;
 
-        var entry;
+        var entry,
+            fileTransfer = new FileTransfer(),
+            // Removed Fixed After
+            uri = encodeURI('https://raw.githubusercontent.com/monteslu/skynet-plugin-bundles/master/bundles/skynet-hue.js');
+
+        function end(){
+            $scope.loading = false;
+        }
 
         function onError(error) {
+            console.log('Error ', error);
             end();
-            console.log('Error creating directory ' + error.code);
         }
 
         function gotFS() {
@@ -77,25 +84,18 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
             }, createPluginDir, onError);
         }
 
-        var fileTransfer = new FileTransfer();
-        var uri = encodeURI('https://raw.githubusercontent.com/monteslu/skynet-plugin-bundles/master/bundles/skynet-hue.js');
+        function createPluginDir() {
+            entry.getDirectory('plugins/' + plugin.name, {
+                create: true,
+                exclusive: false
+            }, onGetDirectorySuccess, onError);
+        }
 
         if(window.FSRoot){
             entry = window.FSRoot;
             gotFS();
         }else{
             onError(new Error('No FS Loaded'));
-        }
-
-        function end(){
-            $scope.loading = false;
-        }
-
-        function createPluginDir(){
-            entry.getDirectory('plugins/' + plugin.name, {
-                create: true,
-                exclusive: false
-            }, onGetDirectorySuccess, onError);
         }
 
         function onGetDirectorySuccess(dir) {
@@ -105,7 +105,6 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
                 uri,
                 dir.fullPath + file,
                 function (entry) {
-                    end();
                     console.log('download complete: ' + entry.toURL());
                     plugin._url = entry.toURL();
                     plugin._path = '/plugins/' + plugin.name + file;
@@ -115,12 +114,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
                         window.location.href = 'index.html#!/plugins/' + plugin.name;
                     });
                 },
-                function (error) {
-                    end();
-                    console.log('download error source ' + error.source);
-                    console.log('download error target ' + error.target);
-                    console.log('upload error code' + error.code);
-                },
+                onError,
                 false
             );
         }

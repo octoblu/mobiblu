@@ -173,10 +173,12 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             window.localStorage.removeItem('skynetactivity');
 
             obj.setData();
+
+            window.open('http://app.octoblu.com/logout?js=1&referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_self', 'location=yes');
         };
 
         obj.login = function () {
-            window.open('http://app.octoblu.com/login?referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
+            window.open('http://app.octoblu.com/login?js=1&referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
         };
 
         obj.isAuthenticated = function () {

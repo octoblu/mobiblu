@@ -1,6 +1,6 @@
 {
   "name": "octoblu-mobile",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "authors": [],
   "ignore": [
     "**/.*",
@@ -19,7 +19,6 @@
     "angular-route": "~1.2.16",
     "angular-ui-utils": "~0.1.1",
     "angular-sanitize": "~1.2.16",
-    "when": "~3.2.2",
     "jquery": "~2.1.1",
     "lodash": "~2.4.1",
     "json-editor": "~0.6.14"

@@ -50,11 +50,8 @@ systemApp.controller('HeaderCtrl',
         };
 
         $scope.logout = function(){
-            Skynet.logout();
-
             $scope.loggedin = settings.loggedin;
-
-            window.open('http://app.octoblu.com/logout?referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_self', 'location=yes');
+            Skynet.logout();
         };
 
         $scope.settings = function(){
