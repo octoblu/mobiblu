@@ -7,9 +7,9 @@
         </form>
 
         <h1 class="text-center" ng-show="loading" id="loading"><i class="fa fa-spinner fa-spin" ></i></h1>
-        <h4 ng-show="errorMsg">{{ errorMsg }}</h4>
+        <h4 ng-show="errorMsg">Error installing plugin. Try again later.</h4>
 
-        <div ng-hide="loading">
+        <div ng-hide="loading || errorMsg">
             <ul class="table-view" ng-show="results && results.length">
                 <li ng-repeat="plugin in results" class="table-view-cell">
                     {{ plugin.name }}
