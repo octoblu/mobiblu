@@ -17,7 +17,8 @@ obj.each = function (cb) {
 
 obj.findPlugin = function (name) {
     // If already cached
-    if (~obj.pluginsIndex[name]) return obj.pluginsIndex[name];
+    var index = obj.pluginsIndex[name];
+    if (index && ~index) return index;
 
     var plugins = obj.getPlugins();
 
@@ -199,19 +200,20 @@ obj.registerPlugin = function (name, callback) {
     };
 
     var found = obj.findPlugin(name);
-
-    if (~found) {
+    console.log('Found', found);
+    if (found && ~found) {
         return done(obj.plugins[found]);
     }
 
     var dir = obj.pluginsDir + name;
     $.get(dir + '/package.json')
         .success(function (json) {
+            console.log('Got package JSON');
             obj.writePlugin(json, false);
             done();
         })
         .error(function (err) {
-            console.log('Erroring getting package JSON', JSON.stringify(err));
+            console.log('Error getting package JSON', JSON.stringify(err));
             callback();
         });
 
@@ -238,7 +240,7 @@ obj.loadPlugin = function (data, callback) {
 
 obj.mapPlugins = function () {
     obj.each(function (plugin) {
-        if (!plugin || obj.instances[plugin.name]) return;
+        if (!plugin) return;
         obj.instances[plugin.name] = obj.initPlugin(plugin);
     });
 };

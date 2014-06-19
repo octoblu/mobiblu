@@ -130,7 +130,8 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             accelerometer: true,
             geolocation: true,
             update_interval: 1,
-            bg_updates: true
+            bg_updates: true,
+            developer_mode: false
         };
 
         var sensActBadge = $('#sensor-activity-badge'),

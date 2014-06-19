@@ -26,6 +26,7 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
         $scope.mobiletoken_dummy = tokenmask;
 
         $scope.loggedin = Skynet.loggedin;
+
         Skynet.init(function () {
             var settings = Skynet.getCurrentSettings();
             $scope.skynetuuid = settings.skynetuuid;
@@ -36,8 +37,12 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
 
             $scope.devicename = settings.devicename;
             $scope.settings = settings.settings;
-            console.log('Settings', JSON.stringify($scope.settings));
+
+            $scope.loading = false;
+            //console.log('Settings', JSON.stringify($scope.settings));
+
         });
+
     };
 
     $scope.update = function () {
@@ -52,6 +57,11 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
         Skynet.updateDeviceSetting(data, function () {
             Skynet.logSensorData();
         });
+    };
+
+    $scope.clearPlugins = function(){
+        window.octobluMobile.clearStorage();
+        window.location = 'index.html';
     };
 
     $scope.revealMobileToken = function () {

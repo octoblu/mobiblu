@@ -1,40 +1,53 @@
 <div ng-app="settingApp">
 
     <div ng-controller="SettingCtrl">
-        <div class="spinner" ng-show="loading"></div>
+        <h1 class="text-center" ng-show="loading" id="loading"><i class="fa fa-spinner fa-spin" ></i></h1>
 
+        <div ng-hide="loading">
 
-
-        <form class="input-group" ng-init="init()">
-            <label>Device Name</label>
-            <input type="text" placeholder="Device Name" ng-model="devicename" ng-blur="update()">
-            <label>Background Updates</label>
-            <div class="input-row">
-                <div ng-model="settings.bg_updates" class="toggle pull-right" ng-class="{ active : settings.bg_updates }" ng-click="toggleSwitch('bg_updates')">
-                    <div class="toggle-handle"></div>
+            <form class="input-group" ng-init="init()">
+                <label>Device Name</label>
+                <input type="text" placeholder="Device Name" ng-model="devicename" ng-blur="update()">
+                <label>Background Updates</label>
+                <div class="input-row">
+                    <div ng-model="settings.bg_updates" class="toggle pull-right" ng-class="{ active : settings.bg_updates }" ng-click="toggleSwitch('bg_updates')">
+                        <div class="toggle-handle"></div>
+                    </div>
+                 </div>
+                <label>Update Frequency (minutes)</label>
+                <div class="input-row">
+                    <select ng-model="settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
                 </div>
-             </div>
-            <label>Update Frequency (minutes)</label>
-            <div class="input-row">
-                <select ng-model="settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
+
+                <div class="input-row">
+                    <div ng-model="settings.developer_mode" class="toggle pull-right" ng-class="{ active : settings.developer_mode }" ng-click="toggleSwitch('developer_mode')">
+                        <div class="toggle-handle"></div>
+                    </div>
+                </div>
+                <div ng-show="settings.developer_mode">
+                    <hr>
+                    <div class="content-padded">This mode enables you to clear all installed plugins and to bypass our plugin whitelist.</div>
+                    <button class="btn btn-negative btn-block btn-outlined" ng-click="clearPlugins()">Clear Plugins</button>
+                </div>
+
+        <!--             <button class="btn btn-primary btn-block" hm-tap="update()">Save</button> -->
+            </form>
+
+            <div class="card">
+                <ul class="table-view">
+                    <li class="table-view-cell">
+                        <strong>UUID:</strong>
+                        <br>
+                        <span>{{ mobileuuid }}</span>
+                    </li>
+                    <li class="table-view-cell" hm-tap="revealMobileToken()">
+                        <strong>Token:</strong>
+                        <br>
+                        <span>{{ mobiletoken_dummy }}</span>
+                    </li>
+                </ul>
             </div>
 
-<!--             <button class="btn btn-primary btn-block" hm-tap="update()">Save</button> -->
-        </form>
-
-        <div class="card">
-            <ul class="table-view">
-                <li class="table-view-cell">
-                    <strong>UUID:</strong>
-                    <br>
-                    <span>{{ mobileuuid }}</span>
-                </li>
-                <li class="table-view-cell" hm-tap="revealMobileToken()">
-                    <strong>Token:</strong>
-                    <br>
-                    <span>{{ mobiletoken_dummy }}</span>
-                </li>
-            </ul>
         </div>
 
     </div>
