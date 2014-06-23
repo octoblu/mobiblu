@@ -7,6 +7,8 @@ obj.instances = {};
 
 obj.plugins = false;
 
+obj.subdevices = [];
+
 obj.pluginsIndex = {};
 
 obj.pluginsDir = '/public/plugins/modules/';
@@ -56,7 +58,7 @@ obj.writePlugin = function (json, init) {
         obj.plugins.push(json);
     }
 
-    window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
+    obj.writePluginsToStorage();
 
     if (init) obj.instances[json.name] = obj.initPlugin(json);
 
@@ -74,7 +76,7 @@ obj.removePlugin = function (plugin, callback) {
 
     obj.plugins = plugins;
 
-    window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
+    obj.writePluginsToStorage();
 
     if (obj.instances[plugin.name]) {
         return obj.triggerPluginEvent(plugin.name, 'destroy', function () {
@@ -85,13 +87,22 @@ obj.removePlugin = function (plugin, callback) {
     callback('Unable to trigger destroy');
 };
 
-obj.clearStorage = function () {
+obj.writePluginsToStorage = function(){
+    var subdevices = [];
+    for(var x in obj.plugins){
+        subdevices = subdevices.concat(obj.plugins[x].subdevices || []);
+    }
+    window.localStorage.setItem('subdevices', JSON.stringify(subdevices));
+    window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
+};
 
-    window.localStorage.setItem('plugins', '[]');
+obj.clearStorage = function () {
 
     obj.plugins = [];
 
     obj.instances = {};
+
+    obj.writePluginsToStorage();
 
 };
 
@@ -107,6 +118,10 @@ obj.retrieveFromStorage = function () {
         if (pluginsJSON && pluginsJSON.length) {
             plugins = JSON.parse(pluginsJSON);
         }
+
+        var subdevices = window.localStorage.getItem('plugins');
+
+        obj.subdevices = JSON.parse(subdevices) || [];
 
     } catch (e) {
         alert('Error Reading Plugins');
@@ -140,7 +155,8 @@ obj.retrievePlugins = function (callback) {
 
         // Update Devices
         obj.Skynet.updateDeviceSetting({
-            plugins : obj.plugins
+            plugins : obj.plugins,
+            subdevices : obj.subdevices
         }, function () {
             console.log('Skynet Updated');
         });

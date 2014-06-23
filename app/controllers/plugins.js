@@ -154,28 +154,51 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
             }
         }
 
-        var options = $scope.plugin.options || {};
+        if(!$scope.plugin.subdevices){
+            $scope.plugin.subdevices = [];
+        }
 
-            window.octobluMobile.triggerPluginEvent(
-                plugin,
-                'getDefaultOptions',
-                function(err, defaultOptions){
+        if(!$scope.plugin.subdevices.length){
+            $scope.addSubdevice();
+        }
 
-                    if(!err && defaultOptions){
-                        options = _.extend(options, defaultOptions);
-                    }
+    };
 
-                    $('#options-editor').jsoneditor({
-                        schema: $scope.plugin.optionsSchema,
-                        theme: 'bootstrap3',
-                        startval: options,
-                        no_additional_properties: true,
-                        iconlib: 'fontawesome4',
-                        disable_collapse: true
-                    });
+    $scope.addSubdevice = function(){
+        var subdevice = {
+            _id : Math.random().toString(36).substring(7),
+            name : '',
+            type : $scope.plugin.name,
+            options : {
+
+            }
+        };
+        $scope.plugin.subdevices.push(subdevice);
+        $scope.selectSubdevice(subdevice);
+    };
+
+    $scope.selectSubdevice = function(subdevice){
+        $scope.subdevice = subdevice;
+        var options = subdevice.options || {};
+
+        window.octobluMobile.triggerPluginEvent(
+            $scope.plugin,
+            'getDefaultOptions',
+            function(err, defaultOptions){
+
+                if(!err && defaultOptions){
+                    options = _.extend(options, defaultOptions);
+                }
+
+                $('#options-editor').jsoneditor({
+                    schema: $scope.plugin.optionsSchema,
+                    theme: 'bootstrap3',
+                    startval: options,
+                    no_additional_properties: true,
+                    iconlib: 'fontawesome4',
+                    disable_collapse: true
                 });
-
-
+            });
     };
 
     $scope.savePlugin = function () {
@@ -188,7 +211,17 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
 
             console.log('Options', JSON.stringify(options));
 
-            $scope.plugin.options = options;
+            $scope.plugin.options = null;
+
+            $scope.subdevice.options = options;
+
+            for(var x in $scope.plugin.subdevices){
+                var device = $scope.plugin.subdevices[x];
+                if(device._id === $scope.subdevice._id){
+                    $scope.plugin.subdevices[x] = $scope.subdevice;
+                    break;
+                }
+            }
         }
         window.octobluMobile.writePlugin($scope.plugin);
 

@@ -11,9 +11,25 @@
                     <div class="toggle-handle"></div>
                 </div>
             </div>
-            <div id="options-editor">
+
+            <div ng-show="subdevice">
+                <input type="text" placeholder="Device Name" ng-model="subdevice.name">
+                <div id="options-editor">
+                </div>
+                <button class="btn btn-success btn-block" ng-click="savePlugin()">Save</button>
             </div>
-            <button class="btn btn-success btn-block btn-outlined" ng-click="savePlugin()">Save</button>
+
+            <div class="card">
+                <ul class="table-view">
+                    <li class="table-view-cell" ng-repeat="device in plugin.subdevices" ng-show="device.name.length" ng-click="selectSubdevice(device)">
+                        <span>
+                            {{ device.name }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
+            <button class="btn btn-success btn-block btn-outlined" ng-click="addSubdevice()">Add Device</button>
 
             <button class="btn btn-negative btn-block btn-outlined" ng-click="removePlugin()">Remove Plugin</button>
         </form>
