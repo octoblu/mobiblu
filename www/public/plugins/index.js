@@ -139,7 +139,7 @@ obj.retrievePlugins = function (callback) {
 
         // Update Devices
         obj.Skynet.updateDeviceSetting({
-            plugins: plugins
+            plugins : obj.plugins
         }, function () {
             console.log('Skynet Updated');
         });
@@ -250,9 +250,13 @@ obj.initPlugin = function (plugin) {
 
     var pluginObj;
 
+    var globalPlugins = window.skynetPlugins;
+
+    var camelName = plugin.name.toCamel();
+
     try {
 
-        var p = require(plugin.name);
+        var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : require(plugin.name);
 
         pluginObj = p ? new p.Plugin(
             obj.Messenger,
@@ -273,6 +277,7 @@ obj.initPlugin = function (plugin) {
 
     if(p && p.getDefaultOptions){
         pluginObj.getDefaultOptions = p.getDefaultOptions;
+        obj.plugins[found].messageSchema = p.messageSchema;
     }
 
     return pluginObj;
@@ -334,7 +339,7 @@ obj.init = function () {
     obj.retrievePlugins(function () {
         console.log('Loaded plugins');
 
-        obj.loadPlugin('skynet-greeting', function () {
+        obj.loadPlugin('skynet-mobile-plugin-greeting', function () {
             console.log('After Greetings Install');
 
             obj.startListen();

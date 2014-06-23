@@ -333,7 +333,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
             if( !obj.skynetActivity ||
                 !_.isArray(obj.skynetActivity) )
                     obj.skynetActivity = [];
-            obj.skynetActivity = obj.skynetActivity.slice(0, 25);
+            obj.skynetActivity = obj.skynetActivity.slice(0, 50);
 
             if(obj.skynetActivity.length)
                 obj.skynetActivity.unshift(data);
