@@ -247,6 +247,7 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
         obj.register = function (callback) {
             obj.isRegistered(function (registered) {
                 if (registered) {
+
                     // Already Registered & Update the device
                     obj.updateDeviceSetting({
                         'type': 'octobluMobile'
@@ -254,14 +255,17 @@ skynetModel.factory('Skynet', function ($rootScope, Sensors, SkynetRest) {
                         callback(data);
                         obj.startProcesses();
                     });
+
                 } else {
                     var regData = {
                         'name': obj.devicename,
                         'owner': obj.skynetuuid,
                         'type': 'octobluMobile',
-                        'online': true,
-                        'pushID': obj.pushID || undefined
+                        'online': true
                     };
+
+                    if(obj.pushID) regData.pushID = obj.pushID;
+
                     obj.skynetSocket.emit('register', regData, function (data) {
 
                         data.mobileuuid = data.uuid;

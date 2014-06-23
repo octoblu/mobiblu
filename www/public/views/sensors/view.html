@@ -1,17 +1,23 @@
 <div>
 
     <div ng-controller="SensorCtrl" ng-init="init()">
-        <h3 class="page-title content-padded"><span class="pull-left icon {{ sensor.icon }}"></span>{{ sensor.label }}</h3>
-        <form class="input-group">
-            <label>Enable Background Tracking</label>
-            <div class="input-row">
-                <div ng-model="setting" class="toggle pull-right" ng-class="{ active : setting }" ng-click="toggleSwitch()">
-                    <div class="toggle-handle"></div>
+        <h1 class="text-center" ng-show="loading" id="loading"><i class="fa fa-spinner fa-spin" ></i></h1>
+
+        <div ng-hide="loading">
+
+            <h3 class="page-title content-padded"><span class="pull-left icon {{ sensor.icon }}"></span>{{ sensor.label }}</h3>
+            <form class="input-group">
+                <label>Enable Background Tracking</label>
+                <div class="input-row">
+                    <div ng-model="setting" class="toggle pull-right" ng-class="{ active : setting }" ng-click="toggleSwitch()">
+                        <div class="toggle-handle"></div>
+                    </div>
                 </div>
-            </div>
-            <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
-            <div id="sensorData"></div>
-        </form>
+                <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
+                <div id="sensorData"></div>
+            </form>
+
+        </div>
 
     </div>
 

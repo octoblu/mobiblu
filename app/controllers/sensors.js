@@ -4,6 +4,8 @@ var sensorsApp = angular.module('main.sensors', ['hmTouchevents', 'SkynetModel',
 
 sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Skynet, Sensors) {
 
+    $scope.loading = true;
+
     $scope.sensorTypes = [
         {
             type : 'accelerometer',
@@ -41,6 +43,7 @@ sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Sky
     $scope.init = function(){
         Skynet.init(function () {
             var settings = Skynet.getCurrentSettings();
+            $scope.loading = false;
             $scope.settings = settings.settings;
             $scope.setting = settings.settings[$scope.sensor.type];
         });
