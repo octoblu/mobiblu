@@ -1,6 +1,6 @@
 'use strict';
 
-document.getElementById('ag-cordova-loader').src = 'http://localhost/cordova.js';
+//document.getElementById('ag-cordova-loader').src = 'http://localhost/cordova.js';
 
 var ratchet = document.getElementById('ratchet-theme');
 
