@@ -342,6 +342,41 @@ obj.startListen = function () {
     });
 };
 
+obj.loadLocalPlugins = function(callback){
+    var count = 0, total = 0;
+
+    function done(){
+        if(count === total){
+            callback();
+        }
+    }
+
+    $.getJSON('/data/local_plugins.json')
+        .success(function (json) {
+
+            if(json){
+                total = json.length;
+                json.forEach(function(plugin){
+
+                    obj.loadPlugin(plugin, function () {
+                        count++;
+                        console.log('After install of ' + plugin);
+                        done();
+                    });
+
+                });
+
+            }else{
+                done();
+            }
+
+        })
+        .error(function (err) {
+            console.log('Error JSON', JSON.stringify(err));
+            done();
+        });
+};
+
 // Called Every Time the App is loaded
 obj.init = function () {
     obj.Skynet = window.Skynet;
@@ -356,9 +391,7 @@ obj.init = function () {
     obj.retrievePlugins(function () {
         console.log('Loaded plugins');
 
-        obj.loadPlugin('skynet-mobile-plugin-greeting', function () {
-            console.log('After Greetings Install');
-
+        obj.loadLocalPlugins(function(){
             obj.startListen();
         });
     });
