@@ -1,4 +1,4 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"Focm2+":[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.octobluMobile=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
 var obj = {};
@@ -129,9 +129,11 @@ obj.retrieveFromStorage = function () {
     }
 
     plugins.forEach(function (plugin, i) {
+
         if (!plugin || !plugin.name) {
-            console.log('Invalid plugin found in storage');
+            console.log('Invalid plugin found in storage' + JSON.stringify(plugin));
             plugins.splice(i, 1);
+            return;
         }
 
         obj.pluginsIndex[plugin.name] = i;
@@ -147,7 +149,7 @@ obj.retrievePlugins = function (callback) {
     console.log('Retrieving plugins');
 
     var plugins = obj.retrieveFromStorage();
-    console.log('Plugins from storage', JSON.stringify(plugins));
+    console.log('Plugins from storage' + JSON.stringify(plugins));
 
     obj.loadPluginScripts(function () {
         console.log('Loaded Plugin Scripts');
@@ -230,7 +232,7 @@ obj.registerPlugin = function (name, callback) {
             done();
         })
         .error(function (err) {
-            console.log('Error getting package JSON', JSON.stringify(err));
+            console.log('Error getting package JSON' + JSON.stringify(err));
             callback();
         });
 
@@ -273,7 +275,7 @@ obj.initPlugin = function (plugin) {
 
     try {
 
-        var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : require(plugin.name);
+        var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : _dereq_(plugin.name);
 
         pluginObj = p ? new p.Plugin(
             obj.Messenger,
@@ -334,7 +336,7 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
 
 obj.startListen = function () {
     obj.socket.on('message', function (data, fn) {
-        console.log('On Message', JSON.stringify(data));
+        console.log('On Message' + JSON.stringify(data));
         _.forEach(obj.instances, function (plugin) {
             console.log('Sending to plugin');
             plugin.onMessage(data, fn);
@@ -372,7 +374,7 @@ obj.loadLocalPlugins = function(callback){
 
         })
         .error(function (err) {
-            console.log('Error JSON', JSON.stringify(err));
+            console.log('Error JSON' + JSON.stringify(err));
             done();
         });
 };
@@ -382,7 +384,7 @@ obj.init = function () {
     obj.Skynet = window.Skynet;
     obj.skynetObj = obj.Skynet.getCurrentSettings();
     obj.socket = obj.skynetObj.skynetSocket;
-    obj.Messenger = require('./messenger').init();
+    obj.Messenger = _dereq_('./messenger').init();
 
     window.octobluMobile.api.logActivity = obj.Skynet.logActivity;
 
@@ -400,7 +402,7 @@ obj.init = function () {
 
 var api = {
     logActivity: function (data) {
-        console.log('Dummy Skynet Activity', JSON.stringify(data));
+        console.log('Dummy Skynet Activity' + JSON.stringify(data));
     }
 };
 
@@ -416,11 +418,9 @@ var octobluMobile = {
     clearStorage: obj.clearStorage
 };
 
-module.exports = window.octobluMobile = octobluMobile;
+module.exports = octobluMobile;
 
-},{"./messenger":3}],"./index.js":[function(require,module,exports){
-module.exports=require('Focm2+');
-},{}],3:[function(require,module,exports){
+},{"./messenger":2}],2:[function(_dereq_,module,exports){
 'use strict';
 
 var obj = {};
@@ -452,4 +452,6 @@ var Messenger = {
 
 module.exports = Messenger;
 
-},{}]},{},[])
+},{}]},{},[1])
+(1)
+});

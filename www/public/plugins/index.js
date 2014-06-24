@@ -128,9 +128,11 @@ obj.retrieveFromStorage = function () {
     }
 
     plugins.forEach(function (plugin, i) {
+
         if (!plugin || !plugin.name) {
-            console.log('Invalid plugin found in storage');
+            console.log('Invalid plugin found in storage' + JSON.stringify(plugin));
             plugins.splice(i, 1);
+            return;
         }
 
         obj.pluginsIndex[plugin.name] = i;
@@ -146,7 +148,7 @@ obj.retrievePlugins = function (callback) {
     console.log('Retrieving plugins');
 
     var plugins = obj.retrieveFromStorage();
-    console.log('Plugins from storage', JSON.stringify(plugins));
+    console.log('Plugins from storage' + JSON.stringify(plugins));
 
     obj.loadPluginScripts(function () {
         console.log('Loaded Plugin Scripts');
@@ -229,7 +231,7 @@ obj.registerPlugin = function (name, callback) {
             done();
         })
         .error(function (err) {
-            console.log('Error getting package JSON', JSON.stringify(err));
+            console.log('Error getting package JSON' + JSON.stringify(err));
             callback();
         });
 
@@ -333,7 +335,7 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
 
 obj.startListen = function () {
     obj.socket.on('message', function (data, fn) {
-        console.log('On Message', JSON.stringify(data));
+        console.log('On Message' + JSON.stringify(data));
         _.forEach(obj.instances, function (plugin) {
             console.log('Sending to plugin');
             plugin.onMessage(data, fn);
@@ -371,7 +373,7 @@ obj.loadLocalPlugins = function(callback){
 
         })
         .error(function (err) {
-            console.log('Error JSON', JSON.stringify(err));
+            console.log('Error JSON' + JSON.stringify(err));
             done();
         });
 };
@@ -399,7 +401,7 @@ obj.init = function () {
 
 var api = {
     logActivity: function (data) {
-        console.log('Dummy Skynet Activity', JSON.stringify(data));
+        console.log('Dummy Skynet Activity' + JSON.stringify(data));
     }
 };
 
@@ -415,4 +417,4 @@ var octobluMobile = {
     clearStorage: obj.clearStorage
 };
 
-module.exports = window.octobluMobile = octobluMobile;
+module.exports = octobluMobile;
