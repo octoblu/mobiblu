@@ -130,7 +130,8 @@ obj.retrieveFromStorage = function () {
 
     plugins.forEach(function (plugin, i) {
 
-        if (!plugin || !plugin.name) {
+        if ((!plugin && !plugin.length) ||
+            (!plugin.name && !plugin.name.length)) {
             console.log('Invalid plugin found in storage' + JSON.stringify(plugin));
             plugins.splice(i, 1);
             return;
@@ -388,7 +389,9 @@ obj.init = function () {
 
     window.octobluMobile.api.logActivity = obj.Skynet.logActivity;
 
-    console.log('Init', obj.Skynet);
+    console.log('Init');
+
+    console.log('Steroids User Path :: ' + steroids.getAbsoluteUserFilesPath);
 
     obj.retrievePlugins(function () {
         console.log('Loaded plugins');
