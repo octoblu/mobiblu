@@ -18,9 +18,11 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
         $scope.loading = true;
 
         $scope.getPlugins();
-
-        OctobluRest.searchPlugins('skynet-plugin', handleSearchResults);
         OctobluRest.searchPlugins('skynet-mobile-plugin', handleSearchResults);
+        setTimeout(function(){
+            OctobluRest.searchPlugins('skynet-plugin', handleSearchResults);
+        }, 100);
+
     };
 
     $scope.loading = false;
@@ -47,6 +49,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
         }
 
         $scope.results = $scope.results.concat(res.results || []);
+        $scope.allResults = $scope.results;
     };
 
     $scope.search = function () {
