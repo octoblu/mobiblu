@@ -193,6 +193,8 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
                     options = _.extend(options, defaultOptions);
                 }
 
+                console.log('Options' + JSON.stringify($scope.plugin.optionsSchema));
+
                 $('#options-editor').jsoneditor({
                     schema: $scope.plugin.optionsSchema,
                     theme: 'bootstrap3',

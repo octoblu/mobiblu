@@ -7,10 +7,27 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
-  grunt.loadNpmTasks("grunt-steroids");
+    grunt.loadNpmTasks('grunt-steroids');
 
-  grunt.registerTask("default", ["steroids-make", "steroids-compile-sass"]);
+
+    grunt.initConfig({
+        browserify: {
+            plugins: {
+                src: ['./www/public/plugins/index.js'],
+                dest: './www/public/plugins/bundles/index.js',
+                options: {
+                    bundleOptions: {
+                        standalone : 'octobluMobile',
+                    }
+                }
+            }
+        }
+    });
+
+    grunt.loadNpmTasks('grunt-browserify');
+
+    grunt.registerTask('default', ['steroids-make', 'steroids-compile-sass', 'browserify']);
 
 };

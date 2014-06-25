@@ -31,13 +31,4 @@ In the plugin directory, compile `bundle.js` with `browserify  index.js -s 'skyn
     - Create Directory if needed.
     
     
-## Additional
-
-Temporarily we need to compile the plugins controller with browserify.
-
-First change to the `./www/public/plugins` directory.
-
-Then run `browserify index.js -s 'octobluMobile' > ./bundles/index.js`
-
-
 **After every change to the app files you'll have to recompile by pressing enter in the steroids prompt.**
