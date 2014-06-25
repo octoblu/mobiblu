@@ -176,7 +176,7 @@ obj.loadScript = function (json, callback) {
             callback();
         })
         .fail(function (jqxhr, settings, exception) {
-            console.log('Script Failed to load');
+            console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status );
             callback();
         });
 };
