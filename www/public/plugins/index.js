@@ -129,8 +129,7 @@ obj.retrieveFromStorage = function () {
 
     plugins.forEach(function (plugin, i) {
 
-        if ((!plugin && !plugin.length) ||
-            (!plugin.name && !plugin.name.length)) {
+        if (!plugin || !plugin.name) {
             console.log('Invalid plugin found in storage' + JSON.stringify(plugin));
             plugins.splice(i, 1);
             return;
@@ -225,7 +224,7 @@ obj.registerPlugin = function (name, callback) {
     }
 
     var dir = obj.pluginsDir + name;
-    $.get(dir + '/package.json')
+    $.getJSON(dir + '/package.json')
         .success(function (json) {
             console.log('Got package JSON');
             obj.writePlugin(json, false);
