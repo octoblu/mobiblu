@@ -389,7 +389,7 @@ obj.init = function () {
 
     console.log('Init');
 
-    console.log('Steroids User Path :: ' + steroids.getAbsoluteUserFilesPath);
+    console.log('Steroids User Path :: ' + steroids.app.absoluteUserFilesPath);
 
     obj.retrievePlugins(function () {
         console.log('Loaded plugins');
