@@ -27,8 +27,6 @@ angular.module('main', [
             return false;
         };
 
-
-
         var skynetLoad = function(cb){
             $(document).on('skynet-loaded', function(){
                 loaded = true;
@@ -36,8 +34,6 @@ angular.module('main', [
                 if(cb) cb();
             });
         };
-
-        skynetLoad();
 
         $rootScope.ready = function(cb){
             if(loaded) cb();
@@ -49,8 +45,6 @@ angular.module('main', [
 
             $rootScope.loggedin = $rootScope.settings.loggedin;
         };
-
-        $rootScope.setSettings();
 
         $rootScope.isAuthenticated = function(){
             if(!$rootScope.loggedin){
@@ -79,9 +73,11 @@ angular.module('main', [
 
         });
 
+        skynetLoad();
+
+        $rootScope.setSettings();
+
         $rootScope.isAuthenticated();
-
-
 
     });
 

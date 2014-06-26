@@ -2,6 +2,8 @@
 
     <div ng-controller="HomeCtrl" ng-init="init()">
 
+        <div ng-include src="'/public/views/system/loading.html'"></div>
+
         <p class="content-padded">You are not logged into Octoblu. Use the the link below</p>
 
         <a ng-click="login()" class="btn btn-positive btn-block">Authenticate with Octoblu</a>

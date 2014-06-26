@@ -11,7 +11,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     }
 
     $scope.init = function () {
-
+        $rootScope.loading = false;
     };
 
     $scope.initSearch = function () {
@@ -142,6 +142,8 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     $scope.installed = function () {
         $rootScope.ready(function(){
             $scope.getPlugins();
+            $rootScope.loading = false;
+
         });
     };
 
@@ -164,6 +166,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             if (!$scope.plugin.subdevices.length) {
                 $scope.addSubdevice();
             }
+            $rootScope.loading = false;
         });
     };
 
