@@ -7354,7 +7354,7 @@ function $RouteProvider(){
           }
         };
 
-    $rootScope.$on('$locationChangeSuccess', updateRoute);
+    $rootScope.$emit('$locationChangeSuccess', updateRoute);
 
     return $route;
 

@@ -27,7 +27,7 @@ In the plugin directory, compile `bundle.js` with `browserify  index.js -s 'skyn
 **or** use gulp like in this example [skynet-mobile-plugin-greeting](https://github.com/skynetim/skynet-mobile-plugin-greeting)
 
 1. Add name of plugin to array in `./www/data/local_plugins.json`
-2. Add `bundle.js` and `package.json` to `./www/public/plugins/modules/[:plugin name]`
+2. Add `bundle.js` and `package.json` to `./www/public/plugins/local_plugins/[:plugin name]`
     - Create Directory if needed.
     
     

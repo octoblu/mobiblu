@@ -10,7 +10,7 @@ obj.subdevices = [];
 
 obj.pluginsIndex = {};
 
-obj.pluginsDir = '/public/plugins/modules/';
+obj.pluginsDir = '/public/plugins/local_plugins/';
 
 // Utilities
 obj.each = function (cb) {
@@ -219,7 +219,7 @@ obj.registerPlugin = function (name, callback) {
 
     var found = obj.findPlugin(name);
     console.log('Found', found);
-    if (found && ~found) {
+    if (~found) {
         return done(obj.plugins[found]);
     }
 
@@ -258,6 +258,7 @@ obj.loadPlugin = function (data, callback) {
 
 obj.mapPlugins = function () {
     obj.each(function (plugin) {
+        console.log('Maping Plugin :: ' + plugin.name);
         if (!plugin) return;
         obj.instances[plugin.name] = obj.initPlugin(plugin);
     });
@@ -278,24 +279,23 @@ obj.initPlugin = function (plugin) {
 
         pluginObj = p ? new p.Plugin(
             obj.Messenger,
-                plugin.options || {},
+            plugin.options || {},
             window.octobluMobile.api
         ) : null;
 
         var found = obj.findPlugin(plugin.name);
-
         if (~found) {
             obj.plugins[found].optionsSchema = p.optionsSchema;
             obj.plugins[found].messageSchema = p.messageSchema;
         }
 
     } catch (e) {
+        console.log(e);
         pluginObj = null;
     }
 
     if(p && p.getDefaultOptions){
         pluginObj.getDefaultOptions = p.getDefaultOptions;
-        obj.plugins[found].messageSchema = p.messageSchema;
     }
 
     return pluginObj;

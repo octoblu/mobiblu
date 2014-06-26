@@ -1,13 +1,16 @@
 'use strict';
 
-var homeApp = angular.module('main.home', ['hmTouchevents', 'SkynetModel', 'SensorModel']);
+var homeApp = angular.module('main.home', ['hmTouchevents', 'SkynetModel']);
 
-homeApp.controller('HomeCtrl', function ($scope, $filter, Skynet) {
+homeApp.controller('HomeCtrl', function ($rootScope, $scope) {
+    $rootScope.$emit('togglebackbtn', false);
+    $rootScope.$emit('toggleerrors', true);
 
-    $(document).trigger('togglebackbtn', false);
-    $(document).trigger('toggleerrors', true);
+    $scope.init = function(){
+        $rootScope.ready(function(){
+            $scope.login = $rootScope.Skynet.login;
+        });
+    };
 
-    Skynet.init(function () {});
 
-    $scope.login = Skynet.login;
 });

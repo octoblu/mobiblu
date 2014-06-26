@@ -47,12 +47,6 @@
     <script src="/components/angular-ui-utils/ui-utils.min.js"></script>
     <script src="/components/restangular/dist/restangular.min.js"></script>
 
-    <!--
-    <script src="/vendor/persistencejs/persistence.js"></script>
-    <script src="/vendor/persistencejs/persistence.store.sql.js"></script>
-    <script src="/vendor/persistencejs/persistence.store.websql.js"></script>
-    -->
-
     <script src="/vendor/hammerjs/hammer.min.js"></script>
     <script src="/vendor/angular-hammer/angular-hammer.js"></script>
 
@@ -60,11 +54,9 @@
 
     <script src="/javascripts/octoblu.js"></script>
 
-<!-- <script src="/javascripts/application.js"></script> -->
+    <script src="/public/skynet/bundle.js"></script>
 
     <script src="/models/models.js"></script>
-
-<!-- <script src="/controllers/<%= yield.controller %>.js"></script> -->
 
     <script src="/public/app/app.js"></script>
     <script src="/public/app/config.js"></script>
@@ -80,7 +72,7 @@
     <script src="/public/app/init.js"></script>
 
     <!-- Plugins -->
-    <script src="/public/plugins/bundles/index.js"></script>
+    <script src="/public/plugins/bundle.js"></script>
     <script src="/public/plugins/init.js"></script>
 </head>
 
@@ -104,8 +96,7 @@
         </a>
     </div>
     <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
-    <div class="content" data-ng-view>
-    </div>
+    <div class="content" data-ng-view></div>
 
     <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-hide="disabled">
         <a class="tab-item" href="index.html#!/" ng-class="{active: isActive('/')}" data-ignore="push">

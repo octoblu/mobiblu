@@ -4,37 +4,30 @@ var messagesApp = angular.module('main.messages', ['hmTouchevents', 'SkynetModel
 
 // Index: http://localhost/views/messages/index.html
 
-messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
+messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest) {
 
-    $(document).trigger('togglebackbtn', false);
+    $rootScope.$emit('togglebackbtn', false);
     // This will be populated with Restangula
     $scope.messagess = {};
-
-    $scope.loading = true;
 
     $scope.devices = [{
         name : 'Select Device',
         type : 'dummy'
     }];
-    $scope.device = $scope.devices[0];
+    $scope.device = $scope.devices[0] || null;
 
     $scope.init = function () {
+        $rootScope.ready(function(){
+            $rootScope.loading = true;
+            $scope.skynetuuid = $rootScope.settings.skynetuuid;
+            $scope.skynettoken = $rootScope.settings.skynettoken;
 
+            $scope.mobileuuid = $rootScope.settings.mobileuuid;
+            $scope.mobiletoken = $rootScope.settings.mobiletoken;
+            $scope.getDevices();
+        });
     };
 
-    Skynet.init(function () {
-
-        var settings = Skynet.getCurrentSettings();
-
-        $scope.skynetuuid = settings.skynetuuid;
-        $scope.skynettoken = settings.skynettoken;
-
-        $scope.mobileuuid = settings.mobileuuid;
-        $scope.mobiletoken = settings.mobiletoken;
-
-        $scope.getDevices();
-
-    });
 
     $scope.subdevices = [];
 
@@ -50,7 +43,7 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
     $scope.getDevices = function(){
         OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true, function(error, data) {
-            $scope.loading = false;
+            $rootScope.loading = false;
             if(error) {
                 return console.log('Error' + error);
             }
@@ -91,8 +84,6 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
 
         }
     };
-
-
 
     $scope.sendMessage = function () {
         /*
@@ -146,7 +137,7 @@ messagesApp.controller('MessageCtrl', function ($scope, Skynet, OctobluRest) {
             }
 
             console.log('UUID and subdevicename ', uuid, $scope.subdevicename);
-            Skynet.message({
+            $rootScope.Skynet.message({
                 'devices': uuid,
                 'subdevice': $scope.subdevicename,
                 'payload': message
