@@ -8,7 +8,9 @@ document.addEventListener('deviceready', function(){
     angular.bootstrap(document, ['main']);
 
     window.FSRoot = null;
+
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
         window.FSRoot = fileSystem.root;
     }, null);
+
 }, false);

@@ -4,15 +4,15 @@ var settingApp = angular.module('main.setting', ['hmTouchevents', 'SkynetModel']
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('SettingCtrl', function ($scope, Skynet) {
+settingApp.controller('SettingCtrl', function ($rootScope, $scope) {
 
-    $(document).trigger('togglebackbtn', false);
+    $rootScope.$on('togglebackbtn', false);
 
     // This will be populated with Restangula
     $scope.settings = {};
 
     var tokenmask = '*************************';
-    $scope.loading = true;
+    $rootScope.loading = true;
 
     // Set up minutes
     $scope.minutes = [];
@@ -21,14 +21,13 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
     }
 
     $scope.init = function () {
+        $rootScope.ready(function(){
+            $scope.skynettoken_dummy = tokenmask;
+            $scope.mobiletoken_dummy = tokenmask;
 
-        $scope.skynettoken_dummy = tokenmask;
-        $scope.mobiletoken_dummy = tokenmask;
-
-        $scope.loggedin = Skynet.loggedin;
-
-        Skynet.init(function () {
-            var settings = Skynet.getCurrentSettings();
+            var settings = $rootScope.settings;
+            console.log('Settings ' + JSON.stringify(settings.settings));
+            $scope.loggedin = settings.loggedin;
             $scope.skynetuuid = settings.skynetuuid;
             $scope.skynettoken = settings.skynettoken;
 
@@ -38,11 +37,8 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
             $scope.devicename = settings.devicename;
             $scope.settings = settings.settings;
 
-            $scope.loading = false;
-            //console.log('Settings', JSON.stringify($scope.settings));
-
+            $rootScope.loading = false;
         });
-
     };
 
     $scope.update = function () {
@@ -50,12 +46,11 @@ settingApp.controller('SettingCtrl', function ($scope, Skynet) {
             name: $scope.devicename,
             setting: $scope.settings
         };
-        Skynet.settings = data.setting;
 
-        window.localStorage.setItem('devicename', data.name);
+        console.log('Settings ' + JSON.stringify(data));
 
-        Skynet.updateDeviceSetting(data, function () {
-            Skynet.logSensorData();
+        $rootScope.Skynet.updateDeviceSetting(data, function () {
+            $rootScope.Skynet.logSensorData();
         });
     };
 

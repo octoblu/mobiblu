@@ -1,122 +1,121 @@
 'use strict';
 
-var sensorsApp = angular.module('main.sensors', ['hmTouchevents', 'SkynetModel', 'SensorModel', 'ngSanitize']);
+var SensorsApp = angular.module('main.sensors', ['hmTouchevents', 'SkynetModel', 'ngSanitize']);
 
-sensorsApp.controller('SensorCtrl', function ($scope, $filter, $routeParams, Skynet, Sensors) {
+SensorsApp.controller('SensorCtrl',
+    function ($rootScope, $scope, $filter, $routeParams) {
 
-    $scope.loading = true;
+        $rootScope.loading = true;
 
-    $scope.sensorTypes = [
-        {
-            type : 'accelerometer',
-            label : 'Accelerometer',
-            icon : 'fa fa-rss'
-        },
-        {
-            type : 'compass',
-            label : 'Compass',
-            icon : 'fa fa-compass'
-        },
-        {
-            type : 'geolocation',
-            label : 'Geolocation',
-            icon : 'fa fa-crosshairs'
-        }
-    ];
+        $scope.sensorTypes = [
+            {
+                type: 'accelerometer',
+                label: 'Accelerometer',
+                icon: 'fa fa-rss'
+            },
+            {
+                type: 'compass',
+                label: 'Compass',
+                icon: 'fa fa-compass'
+            },
+            {
+                type: 'geolocation',
+                label: 'Geolocation',
+                icon: 'fa fa-crosshairs'
+            }
+        ];
 
-    $scope.sensor = null;
+        $scope.sensor = null;
 
-    if($routeParams.sensorType){
-        for(var x in $scope.sensorTypes){
-            if($scope.sensorTypes[x].type === $routeParams.sensorType){
-                $scope.sensor = $scope.sensorTypes[x];
+        if ($routeParams.sensorType) {
+            for (var x in $scope.sensorTypes) {
+                if ($scope.sensorTypes[x].type === $routeParams.sensorType) {
+                    $scope.sensor = $scope.sensorTypes[x];
+                }
             }
         }
-    }
 
-    if($scope.sensor){
-        $(document).trigger('togglebackbtn', true);
-    }else{
-        $(document).trigger('togglebackbtn', false);
-    }
-
-    $scope.init = function(){
-        Skynet.init(function () {
-            var settings = Skynet.getCurrentSettings();
-            $scope.loading = false;
-            $scope.settings = settings.settings;
-            $scope.setting = settings.settings[$scope.sensor.type];
-        });
-    };
-
-    $scope.update = function(){
-        var data = {
-            name: Skynet.devicename,
-            setting: $scope.settings
-        };
-        Skynet.updateDeviceSetting(data, function () {
-            Skynet.logSensorData();
-        });
-    };
-
-    $scope.sendTracking = function () {
-        if ($scope.sensor && typeof Sensors[$scope.sensor.label] === 'function') {
-            var sensorObj = Sensors[$scope.sensor.label](3000);
-            sensorObj.start(function (sensorData) {
-                var el = document.getElementById('sensorData');
-                if (el) {
-                    var html = sensorObj.prettify(sensorData);
-                    el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
-
-                    Skynet.getCurrentSettings().skynetSocket.emit('data', {
-                        'uuid': Skynet.mobileuuid,
-                        'token': Skynet.mobiletoken,
-                        'sensorData': {
-                            'type': $scope.sensor.label,
-                            'data': sensorData
-                        }
-                    }, function () {
-                        el.innerHTML = html + '<strong>Skynet Updated</strong><hr>';
-                    });
-                }
-            },
-            function (err) {
-                alert('Error: ' + err.code);
-            });
+        if ($scope.sensor) {
+            $rootScope.$emit('togglebackbtn', true);
+        } else {
+            $rootScope.$emit('togglebackbtn', false);
         }
-    };
 
-    $scope.toggleSwitch = function () {
-        var setting = $scope.sensor.type;
-        $scope.settings[setting] = !$scope.settings[setting];
-        $scope.update();
-    };
+        $scope.init = function () {
+            $rootScope.ready(function(){
+                var settings = $rootScope.settings;
+                $rootScope.loading = false;
+                $scope.settings = settings.settings;
+                $scope.setting = settings.settings[$scope.sensor.type];
+            });
+        };
 
-});
+        $scope.update = function () {
+            var data = {
+                name: $rootScope.settings.devicename,
+                setting: $scope.settings
+            };
+            $rootScope.Skynet.updateDeviceSetting(data, function () {
+                $rootScope.Skynet.logSensorData();
+            });
+        };
 
-sensorsApp.controller('ActivityCtrl', function ($scope, $interval, $sce, Skynet) {
+        $scope.sendTracking = function () {
+            if ($scope.sensor && typeof $rootScope.Sensors[$scope.sensor.label] === 'function') {
+                var sensorObj = $rootScope.Sensors[$scope.sensor.label](3000);
+                sensorObj.start(function (sensorData) {
+                        var el = document.getElementById('sensorData');
+                        if (el) {
+                            var html = sensorObj.prettify(sensorData);
+                            el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
+
+                            Skynet.getCurrentSettings().skynetSocket.emit('data', {
+                                'uuid': Skynet.mobileuuid,
+                                'token': Skynet.mobiletoken,
+                                'sensorData': {
+                                    'type': $scope.sensor.label,
+                                    'data': sensorData
+                                }
+                            }, function () {
+                                el.innerHTML = html + '<strong>Skynet Updated</strong><hr>';
+                            });
+                        }
+                    },
+                    function (err) {
+                        alert('Error: ' + err.code);
+                    });
+            }
+        };
+
+        $scope.toggleSwitch = function () {
+            var setting = $scope.sensor.type;
+            $scope.settings[setting] = !$scope.settings[setting];
+            $scope.update();
+        };
+
+    });
+SensorsApp.controller('ActivityCtrl', function ($rootScope, $scope) {
 
     $scope.errors = [];
 
-    $(document).trigger('togglebackbtn', true);
+    $rootScope.$emit('togglebackbtn', true);
 
     $scope.activities = [];
 
-    var setActivity = function(){
-        $scope.$apply(function(){
-            $scope.activities = Skynet.getActivity();
+    var setActivity = function () {
+        $scope.$apply(function () {
+            $scope.activities = $rootScope.Skynet.getActivity();
         });
     };
 
-    $scope.init = function(){
-        Skynet.clearActivityCount();
-    };
-
-    Skynet.init(function () {
-        $scope.activities = Skynet.getActivity();
-        $(document).on('skynetactivity', function(){
-            setActivity();
+    $scope.init = function () {
+        $rootScope.ready(function(){
+            $rootScope.Skynet.clearActivityCount();
+            $scope.activities = $rootScope.Skynet.getActivity();
+            $(document).on('skynetactivity', function () {
+                setActivity();
+            });
         });
-    });
+    };
 
 });

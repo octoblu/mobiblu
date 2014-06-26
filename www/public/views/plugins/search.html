@@ -6,7 +6,8 @@
             <input ng-change="search()" ng-model="term" type="search" placeholder="Search">
         </form>
 
-        <h1 class="text-center" ng-show="loading" id="loading"><i class="fa fa-spinner fa-spin" ></i></h1>
+        <div ng-include src="'/public/views/system/loading.html'"></div>
+
         <h4 ng-show="errorMsg">Error installing plugin. Try again later.</h4>
 
         <div ng-hide="loading || errorMsg">

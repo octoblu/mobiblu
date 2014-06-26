@@ -1,16 +1,18 @@
 'use strict';
 
-var flowsApp = angular.module('main.flows', ['hmTouchevents', 'SkynetModel', 'SensorModel']);
+var flowsApp = angular.module('main.flows', ['hmTouchevents', 'SkynetModel']);
 
-flowsApp.controller('FlowCtrl', function ($scope, $routeParams, $location) {
+flowsApp.controller('FlowCtrl', function ($rootScope, $scope) {
 
     if(/\#\!\/flows\/*$/.test(window.location.href)){
-        $(document).trigger('togglebackbtn', false);
+        $rootScope.$emit('togglebackbtn', false);
     }else{
-        $(document).trigger('togglebackbtn', true);
+        $rootScope.$emit('togglebackbtn', true);
     }
 
     $scope.init = function(){
 
     };
+
+
 });

@@ -1,16 +1,17 @@
 {
   "name": "octoblu-mobile",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "description": "Octoblu Mobile Hub",
   "repository": "https://github.com/skynetim/mobile",
-  "readme":"https://github.com/skynetim/mobile/README.md",
+  "readme": "https://github.com/skynetim/mobile/README.md",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "devDependencies": {
-    "grunt-steroids": "0.x"
+    "grunt-steroids": "0.x",
+    "grunt-browserify": "~2.1.1"
   },
   "license": "none",
   "engines": {

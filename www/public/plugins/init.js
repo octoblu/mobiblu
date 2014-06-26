@@ -1,7 +1,7 @@
 'use strict';
 
 $(document).ready(function(){
-    $(document).on('octoblu-loaded', function(){
-        require('./index.js').init();
+    $(document).on('skynet-loaded', function(){
+        window.octobluMobile.init();
     });
 });

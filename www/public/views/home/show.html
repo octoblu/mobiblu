@@ -1,20 +1,23 @@
 <div ng-app="homeApp">
 
-  <div ng-controller="ShowCtrl">
-    <div class="content-padded">
-        <p>{{home.description}}</p>
-        <ul class="table-view" ng-show="home.steps">
-            <li class="table-view-cell media" ng-repeat="step in home.steps">
-                <div class="media-body">
-                    {{step.name}}
-                    <p>{{step.description}}</p>
-                </div>
-            </li>
-        </ul>
-        <button class="btn btn-block" ng-show="home.sensorType" ng-click="startTracking(home.sensorType)">Track {{home.sensorType}}</button>
-        <div id="sensorData"></div>
-    </div>
+    <div ng-controller="ShowCtrl">
+        <div ng-include src="'/public/views/system/loading.html'"></div>
+        <div class="content-padded">
+            <p>{{home.description}}</p>
+            <ul class="table-view" ng-show="home.steps">
+                <li class="table-view-cell media" ng-repeat="step in home.steps">
+                    <div class="media-body">
+                        {{step.name}}
+                        <p>{{step.description}}</p>
+                    </div>
+                </li>
+            </ul>
+            <button class="btn btn-block" ng-show="home.sensorType" ng-click="startTracking(home.sensorType)">Track
+                {{home.sensorType}}
+            </button>
+            <div id="sensorData"></div>
+        </div>
 
-  </div>
+    </div>
 
 </div>

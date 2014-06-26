@@ -1,13 +1,13 @@
 'use strict';
 
-var pluginsApp = angular.module('main.plugins', ['hmTouchevents', 'SkynetModel', 'SensorModel']);
+var pluginsApp = angular.module('main.plugins', ['hmTouchevents', 'SkynetModel']);
 
-pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, OctobluRest) {
+pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, $location, OctobluRest) {
 
     if (/\#\!\/plugins\/*$/.test(window.location.href)) {
-        $(document).trigger('togglebackbtn', false);
+        $rootScope.$emit('togglebackbtn', false);
     } else {
-        $(document).trigger('togglebackbtn', true);
+        $rootScope.$emit('togglebackbtn', true);
     }
 
     $scope.init = function () {
@@ -15,15 +15,14 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
     };
 
     $scope.initSearch = function () {
-        $scope.loading = true;
+        $rootScope.ready(function(){
+            $rootScope.loading = true;
 
-        $scope.getPlugins();
-
-        OctobluRest.searchPlugins('skynet-plugin', handleSearchResults);
-        OctobluRest.searchPlugins('skynet-mobile-plugin', handleSearchResults);
+            $scope.getPlugins();
+            OctobluRest.searchPlugins('skynet-mobile-plugin', handleSearchResults);
+            OctobluRest.searchPlugins('skynet-plugin', handleSearchResults);
+        });
     };
-
-    $scope.loading = false;
 
     $scope.results = [];
     $scope.allResults = [];
@@ -40,13 +39,14 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
     // };
 
     var handleSearchResults = function (err, res) {
-        $scope.loading = false;
+        $rootScope.loading = false;
 
         if (err) {
             return console.log('Error searching', err);
         }
 
         $scope.results = $scope.results.concat(res.results || []);
+        $scope.allResults = $scope.results;
     };
 
     $scope.search = function () {
@@ -61,7 +61,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
     };
 
     $scope.installPlugin = function (plugin) {
-        $scope.loading = true;
+        $rootScope.loading = true;
 
         var entry,
             fileTransfer = new FileTransfer(),
@@ -69,7 +69,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
             uri = encodeURI(plugin.bundle);
 
         function end(){
-            $scope.loading = false;
+            $rootScope.loading = false;
             console.log('Ending');
         }
 
@@ -105,7 +105,7 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
                     console.log('download complete: ' + entry.toURL());
                     plugin._url = entry.toURL();
                     plugin._path = '/plugins/' + plugin.name + file;
-                    $scope.loading = false;
+                    $rootScope.loading = false;
                     window.octobluMobile.loadPlugin(plugin, function () {
                         console.log('Plugin loaded');
                         window.location.href = 'index.html#!/plugins/' + plugin.name;
@@ -140,28 +140,31 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
     };
 
     $scope.installed = function () {
-        $scope.getPlugins();
+        $rootScope.ready(function(){
+            $scope.getPlugins();
+        });
     };
 
     $scope.findOne = function () {
-        $scope.getPlugins();
+        $rootScope.ready(function() {
+            $scope.getPlugins();
 
-        for (var x in $scope.plugins) {
-            var plugin = $scope.plugins[x];
-            if (plugin.name === $routeParams.pluginName) {
-                $scope.plugin = plugin;
-                break;
+            for (var x in $scope.plugins) {
+                var plugin = $scope.plugins[x];
+                if (plugin.name === $routeParams.pluginName) {
+                    $scope.plugin = plugin;
+                    break;
+                }
             }
-        }
 
-        if(!$scope.plugin.subdevices){
-            $scope.plugin.subdevices = [];
-        }
+            if (!$scope.plugin.subdevices) {
+                $scope.plugin.subdevices = [];
+            }
 
-        if(!$scope.plugin.subdevices.length){
-            $scope.addSubdevice();
-        }
-
+            if (!$scope.plugin.subdevices.length) {
+                $scope.addSubdevice();
+            }
+        });
     };
 
     $scope.addSubdevice = function(){
@@ -189,6 +192,8 @@ pluginsApp.controller('PluginCtrl', function ($scope, $routeParams, $location, O
                 if(!err && defaultOptions){
                     options = _.extend(options, defaultOptions);
                 }
+
+                console.log('Options' + JSON.stringify($scope.plugin.optionsSchema));
 
                 $('#options-editor').jsoneditor({
                     schema: $scope.plugin.optionsSchema,

@@ -10,7 +10,7 @@ obj.subdevices = [];
 
 obj.pluginsIndex = {};
 
-obj.pluginsDir = '/public/plugins/modules/';
+obj.pluginsDir = '/public/plugins/local_plugins/';
 
 // Utilities
 obj.each = function (cb) {
@@ -128,9 +128,11 @@ obj.retrieveFromStorage = function () {
     }
 
     plugins.forEach(function (plugin, i) {
+
         if (!plugin || !plugin.name) {
-            console.log('Invalid plugin found in storage');
+            console.log('Invalid plugin found in storage' + JSON.stringify(plugin));
             plugins.splice(i, 1);
+            return;
         }
 
         obj.pluginsIndex[plugin.name] = i;
@@ -146,7 +148,7 @@ obj.retrievePlugins = function (callback) {
     console.log('Retrieving plugins');
 
     var plugins = obj.retrieveFromStorage();
-    console.log('Plugins from storage', JSON.stringify(plugins));
+    console.log('Plugins from storage' + JSON.stringify(plugins));
 
     obj.loadPluginScripts(function () {
         console.log('Loaded Plugin Scripts');
@@ -174,7 +176,7 @@ obj.loadScript = function (json, callback) {
             callback();
         })
         .fail(function (jqxhr, settings, exception) {
-            console.log('Script Failed to load');
+            console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status + ' Settings : ' + JSON.stringify(settings) + ' Exception : ' + exception.toString());
             callback();
         });
 };
@@ -217,19 +219,19 @@ obj.registerPlugin = function (name, callback) {
 
     var found = obj.findPlugin(name);
     console.log('Found', found);
-    if (found && ~found) {
+    if (~found) {
         return done(obj.plugins[found]);
     }
 
     var dir = obj.pluginsDir + name;
-    $.get(dir + '/package.json')
+    $.getJSON(dir + '/package.json')
         .success(function (json) {
             console.log('Got package JSON');
             obj.writePlugin(json, false);
             done();
         })
         .error(function (err) {
-            console.log('Error getting package JSON', JSON.stringify(err));
+            console.log('Error getting package JSON' + JSON.stringify(err));
             callback();
         });
 
@@ -256,6 +258,7 @@ obj.loadPlugin = function (data, callback) {
 
 obj.mapPlugins = function () {
     obj.each(function (plugin) {
+        console.log('Maping Plugin :: ' + plugin.name);
         if (!plugin) return;
         obj.instances[plugin.name] = obj.initPlugin(plugin);
     });
@@ -276,24 +279,23 @@ obj.initPlugin = function (plugin) {
 
         pluginObj = p ? new p.Plugin(
             obj.Messenger,
-                plugin.options || {},
+            plugin.options || {},
             window.octobluMobile.api
         ) : null;
 
         var found = obj.findPlugin(plugin.name);
-
         if (~found) {
             obj.plugins[found].optionsSchema = p.optionsSchema;
             obj.plugins[found].messageSchema = p.messageSchema;
         }
 
     } catch (e) {
+        console.log(e);
         pluginObj = null;
     }
 
     if(p && p.getDefaultOptions){
         pluginObj.getDefaultOptions = p.getDefaultOptions;
-        obj.plugins[found].messageSchema = p.messageSchema;
     }
 
     return pluginObj;
@@ -333,7 +335,7 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
 
 obj.startListen = function () {
     obj.socket.on('message', function (data, fn) {
-        console.log('On Message', JSON.stringify(data));
+        console.log('On Message' + JSON.stringify(data));
         _.forEach(obj.instances, function (plugin) {
             console.log('Sending to plugin');
             plugin.onMessage(data, fn);
@@ -371,7 +373,7 @@ obj.loadLocalPlugins = function(callback){
 
         })
         .error(function (err) {
-            console.log('Error JSON', JSON.stringify(err));
+            console.log('Error JSON' + JSON.stringify(err));
             done();
         });
 };
@@ -385,7 +387,9 @@ obj.init = function () {
 
     window.octobluMobile.api.logActivity = obj.Skynet.logActivity;
 
-    console.log('Init', obj.Skynet);
+    console.log('Init');
+
+    console.log('Steroids User Path :: ' + steroids.app.absoluteUserFilesPath);
 
     obj.retrievePlugins(function () {
         console.log('Loaded plugins');
@@ -399,7 +403,7 @@ obj.init = function () {
 
 var api = {
     logActivity: function (data) {
-        console.log('Dummy Skynet Activity', JSON.stringify(data));
+        console.log('Dummy Skynet Activity' + JSON.stringify(data));
     }
 };
 
@@ -415,4 +419,4 @@ var octobluMobile = {
     clearStorage: obj.clearStorage
 };
 
-module.exports = window.octobluMobile = octobluMobile;
+module.exports = octobluMobile;

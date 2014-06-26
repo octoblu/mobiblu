@@ -2,26 +2,17 @@
 
 var systemApp = angular.module('main.system', ['SkynetModel']);
 
-var matchRoute = function(route){
-    var regex = new RegExp('\\#\\!' + route);
-    if(window.location.href.match(regex)){
-        return true;
-    }
-    return false;
-};
-
 systemApp.controller('SubHeaderCtrl',
-    function ($scope) {
-
+    function ($rootScope, $scope) {
         $scope.activity = true;
 
-        $scope.showActivity = function(){
+        $scope.showActivity = function () {
             var excludes = [
                 '/login$'
             ];
-            for(var x in excludes){
+            for (var x in excludes) {
                 var exclude = excludes[x];
-                if(matchRoute(exclude)) {
+                if ($rootScope.matchRoute(exclude)) {
                     $scope.activity = false;
                     return false;
                 }
@@ -32,65 +23,81 @@ systemApp.controller('SubHeaderCtrl',
         };
 
         $scope.showActivity();
-});
+
+    });
 
 systemApp.controller('HeaderCtrl',
-    function ($scope, Skynet, $location) {
+    function ($rootScope, $scope, $location) {
+        $rootScope.ready(function(){
+            // TODO improve this functionality for multiple levels
+            $scope.backbtn = false;
 
-        var settings = Skynet.getCurrentSettings();
-        // TODO improve this functionality for multiple levels
-        $scope.backbtn = false;
+            $rootScope.$on('togglebackbtn', function (e, val) {
+                $scope.backbtn = val;
+            });
 
-        $(document).on('togglebackbtn', function(e, val){
-            $scope.backbtn = val;
+            $scope.goBack = function () {
+                window.history.back();
+            };
+
+            $scope.logout = function () {
+                var settings = $rootScope.settings;
+                $scope.loggedin = settings.loggedin;
+                $rootScope.Skynet.logout();
+            };
+
+            $scope.settings = function () {
+                $location.path('/setting');
+            };
+
+            $scope.$on('$locationChangeSuccess', function () {
+                if ($rootScope.matchRoute('/setting')) {
+                    $scope.showLogout = true;
+                } else {
+                    $scope.showLogout = false;
+                }
+            });
+
+            $scope.showLogout = false;
+
         });
 
-        $scope.goBack = function(){
-            window.history.back();
+        $scope.init = function () {
+            $rootScope.ready(function() {
+                var settings = $rootScope.settings;
+
+                $scope.$apply(function(){
+                    $scope.loggedin = settings.loggedin;
+                });
+
+                console.log('Logged In :: ' + JSON.stringify($scope.loggedin));
+
+                if (!$rootScope.isAuthenticated()) {
+                    $location.path('/login');
+                    return;
+                }
+            });
         };
 
-        $scope.logout = function(){
-            $scope.loggedin = settings.loggedin;
-            Skynet.logout();
+    });
+
+
+systemApp.controller('FooterCtrl',
+    function ($rootScope, $scope) {
+        $scope.init = function () {
+            $rootScope.ready(function(){
+                if (!$rootScope.isAuthenticated()) {
+                    $scope.disabled = true;
+                    return;
+                }
+            });
         };
 
-        $scope.settings = function(){
-            $location.path('/setting');
-        };
-
-        $scope.$on('$locationChangeSuccess', function() {
-            if(matchRoute('/setting')){
-                $scope.showLogout = true;
-            }else{
-                $scope.showLogout = false;
+        $scope.isActive = function (route) {
+            if (route === '/') {
+                route += '$'; // Make sure regex finds the end
             }
-        });
-
-        $scope.showLogout = false;
-
-        $scope.loggedin = settings.loggedin;
-
-        $scope.init = function(){
-            if(!Skynet.isAuthenticated()){
-                $location.path('login');
-                return;
-            }
+            return $rootScope.matchRoute(route);
         };
-});
 
-
-systemApp.controller('FooterCtrl', function ($scope, Skynet) {
-    $scope.isActive = function(route){
-        if(route === '/'){
-            route += '$'; // Make sure regex finds the end
-        }
-        return matchRoute(route);
-    };
-
-    $scope.init = function(){
-        if(!Skynet.isAuthenticated()){
-            $scope.disabled = true;
-            return;
-        }
-    };
-});
+    });
