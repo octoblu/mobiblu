@@ -21,9 +21,7 @@ angular.module('main').config(['$routeProvider',
             .when('/plugins/:pluginName', {
                 templateUrl: '/public/views/plugins/view.html'
             })
-            .when('/sensors/activity', {
-                templateUrl: '/public/views/sensors/activity.html'
-            })
+
             .when('/sensors/:sensorType', {
                 templateUrl: '/public/views/sensors/view.html'
             })
@@ -38,6 +36,12 @@ angular.module('main').config(['$routeProvider',
             })
             .when('/messages', {
                 templateUrl: '/public/views/messages/index.html'
+            })
+            .when('/error', {
+                templateUrl: '/public/views/system/error.html'
+            })
+            .when('/activity', {
+                templateUrl: '/public/views/system/activity.html'
             })
             .otherwise({
                 redirectTo: '/'

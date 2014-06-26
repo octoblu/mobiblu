@@ -77,7 +77,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             console.log('Error ', error);
             $scope.$apply(function(){
                 end();
-                $scope.errorMsg = error.toString();
+                $rootScope.redirectToError("Unable to install that plugin");
             });
         }
 

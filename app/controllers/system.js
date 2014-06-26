@@ -68,7 +68,7 @@ systemApp.controller('HeaderCtrl',
 systemApp.controller('FooterCtrl',
     function ($rootScope, $scope) {
         $scope.init = function () {
-            $rootScope.ready(function(){
+            $rootScope.ready(function () {
                 if (!$rootScope.isAuthenticated()) {
                     $scope.disabled = true;
                     return;
@@ -81,6 +81,42 @@ systemApp.controller('FooterCtrl',
                 route += '$'; // Make sure regex finds the end
             }
             return $rootScope.matchRoute(route);
+        };
+
+    });
+
+systemApp.controller('ActivityCtrl',
+    function ($rootScope, $scope) {
+
+        $scope.errors = [];
+
+        $rootScope.$emit('togglebackbtn', true);
+
+        $scope.activities = [];
+
+        var setActivity = function () {
+            $scope.$apply(function () {
+                $scope.activities = $rootScope.Skynet.getActivity();
+            });
+        };
+
+        $scope.init = function () {
+            $rootScope.ready(function () {
+                $rootScope.Skynet.clearActivityCount();
+                $scope.activities = $rootScope.Skynet.getActivity();
+                $(document).on('skynetactivity', function () {
+                    setActivity();
+                });
+            });
+        };
+
+    });
+
+systemApp.controller('ErrorCtrl',
+    function ($rootScope, $scope) {
+
+        $scope.init = function () {
+
         };
 
     });

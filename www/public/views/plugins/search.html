@@ -8,8 +8,6 @@
 
         <div ng-include src="'/public/views/system/loading.html'"></div>
 
-        <h4 ng-show="errorMsg">Error installing plugin. Try again later.</h4>
-
         <div ng-hide="loading || errorMsg">
             <ul class="table-view" ng-show="results && results.length">
                 <li ng-repeat="plugin in results" class="table-view-cell">

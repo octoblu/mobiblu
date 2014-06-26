@@ -94,28 +94,4 @@ SensorsApp.controller('SensorCtrl',
         };
 
     });
-SensorsApp.controller('ActivityCtrl', function ($rootScope, $scope) {
 
-    $scope.errors = [];
-
-    $rootScope.$emit('togglebackbtn', true);
-
-    $scope.activities = [];
-
-    var setActivity = function () {
-        $scope.$apply(function () {
-            $scope.activities = $rootScope.Skynet.getActivity();
-        });
-    };
-
-    $scope.init = function () {
-        $rootScope.ready(function(){
-            $rootScope.Skynet.clearActivityCount();
-            $scope.activities = $rootScope.Skynet.getActivity();
-            $(document).on('skynetactivity', function () {
-                setActivity();
-            });
-        });
-    };
-
-});
