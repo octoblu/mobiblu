@@ -335,11 +335,50 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
 
 obj.startListen = function () {
     obj.socket.on('message', function (data, fn) {
+
         console.log('On Message' + JSON.stringify(data));
-        _.forEach(obj.instances, function (plugin) {
-            console.log('Sending to plugin');
-            plugin.onMessage(data, fn);
-        });
+
+        if(data.devices === obj.skynetObj.mobileuuid){
+
+            try{
+
+                if(typeof data === "string"){
+
+                    data = JSON.parse(data);
+
+                }
+
+                if(data.subdevice){
+
+                    var instance = obj.instances[data.subdevice];
+
+                    if(instance && instance.onMessage){
+
+                        console.log('Matching subdevice found:', data.subdevice);
+
+                        instance.onMessage(data, fn);
+
+                    }else{
+
+                        console.log('No matching subdevice:',data.subdevice);
+
+                    }
+
+                }else{
+                    if(fn){
+                        console.log('Responding');
+                        data.ack = true;
+                        fn(data);
+                    }
+                }
+
+            }catch(e){
+
+                console.log('Err dispatching message', e);
+
+            }
+
+        }
     });
 };
 

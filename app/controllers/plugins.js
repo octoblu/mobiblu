@@ -65,7 +65,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
 
         var entry,
             fileTransfer = new FileTransfer(),
-            // Removed Fixed After
+            directories = ['plugins', plugin.name],
             uri = encodeURI(plugin.bundle);
 
         function end(){
@@ -82,14 +82,14 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         }
 
         function gotFS() {
-            entry.getDirectory('plugins', {
+            entry.getDirectory(directories[0], {
                 create: true,
                 exclusive: false
             }, createPluginDir, onError);
         }
 
         function createPluginDir() {
-            entry.getDirectory('plugins/' + plugin.name, {
+            entry.getDirectory(directories.join('/'), {
                 create: true,
                 exclusive: false
             }, onGetDirectorySuccess, onError);
@@ -100,7 +100,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             var file = '/bundle.js';
             fileTransfer.download(
                 uri,
-                    dir.fullPath + file,
+                steroids.app.absoluteUserFilesPath + '/' + directories.join('/') + file,
                 function (entry) {
                     console.log('download complete: ' + entry.toURL());
                     plugin._url = entry.toURL();
