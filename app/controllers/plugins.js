@@ -15,13 +15,15 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.initSearch = function () {
-        var deferred = $q.deferred;
         $rootScope.ready(function(){
             $rootScope.loading = true;
 
             $scope.getPlugins();
-            OctobluRest.searchPlugins('skynet-mobile-plugin', handleSearchResults);
-            OctobluRest.searchPlugins('skynet-plugin', handleSearchResults);
+            var promise = OctobluRest.searchPlugins('skynet-mobile-plugin')
+                            .then(handleSearchResults, $rootScope.redirectToError);
+            var promise2 = OctobluRest.searchPlugins('skynet-plugin')
+                            .then(handleSearchResults, $rootScope.redirectToError);
+
         });
     };
 
@@ -39,15 +41,14 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     //     $scope.allResults = $scope.results;
     // };
 
-    var handleSearchResults = function (err, res) {
-        $rootScope.loading = false;
+    var handleSearchResults = function (res) {
 
-        if (err) {
-            return console.log('Error searching', err);
-        }
+        var data = res.data;
 
-        $scope.results = $scope.results.concat(res.results || []);
+        $scope.results = $scope.results.concat(data.results || []);
         $scope.allResults = $scope.results;
+
+        $rootScope.loading = false;
     };
 
     $scope.search = function () {

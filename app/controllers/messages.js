@@ -8,7 +8,7 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest)
 
     $rootScope.$emit('togglebackbtn', false);
     // This will be populated with Restangula
-    $scope.messagess = {};
+    $scope.messages = {};
 
     $scope.devices = [{
         name : 'Select Device',
@@ -28,7 +28,6 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest)
         });
     };
 
-
     $scope.subdevices = [];
 
     $scope.getSubdevices = function (device) {
@@ -42,11 +41,10 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest)
     };
 
     $scope.getDevices = function(){
-        OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true, function(error, data) {
-            $rootScope.loading = false;
-            if(error) {
-                return console.log('Error' + error);
-            }
+        var promise = OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true);
+
+        promise.then(function(res){
+            var data = res.data;
             console.log('Retrieved devices');
             if(data && data.gateways){
                 $scope.devices =  $scope.devices.concat(data.gateways);
@@ -56,7 +54,8 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest)
                     $scope.devices[i].name = '(Unkown)';
                 }
             }
-        });
+            $rootScope.loading = false;
+        }, $rootScope.redirectToError);
     };
 
     $scope.getSchema = function (device, subdevice) {
