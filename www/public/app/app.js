@@ -35,16 +35,21 @@ angular.module('main', [
     };
 
     var skynetLoad = function (cb) {
+        var deferred = $q.defer();
         $(document).on('skynet-loaded', function () {
             loaded = true;
             //console.log('SKYNET LOADED EVENT :: ' + JSON.stringify(loaded));
-            if (cb) cb();
+            deferred.resolve();
         });
+
+        setTimeout(deferred.reject, 1000 * 15);
+
+        return deferred.promise;
     };
 
     $rootScope.ready = function (cb) {
         if (loaded) cb();
-        else skynetLoad(cb);
+        else skynetLoad().then(cb, $rootScope.redirectToError);
     };
 
     $rootScope.setSettings = function () {
@@ -71,11 +76,7 @@ angular.module('main', [
             deferred.resolve();
         });
 
-
-        // Timeout after 15 seconds
-        setTimeout(function () {
-            deferred.reject('Unable to connect to skynet');
-        }, 1500 * 60);
+        setTimeout(deferred.reject, 1000 * 15);
 
         return deferred.promise;
 
@@ -84,23 +85,22 @@ angular.module('main', [
     var promise = skynetInit();
 
     promise.then(function () {
-        console.log('SKYNET LOADED');
+            console.log('SKYNET LOADED');
 
-        $rootScope.Sensors = $rootScope.Skynet.Sensors;
+            $rootScope.Sensors = $rootScope.Skynet.Sensors;
 
-        $rootScope.setSettings();
+            $rootScope.setSettings();
 
-        $rootScope.$on('$locationChangeSuccess', function () {
-            $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
-        });
+            $rootScope.$on('$locationChangeSuccess', function () {
+                $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
+            });
 
-        $rootScope.isAuthenticated();
+            $rootScope.isAuthenticated();
 
-        $rootScope.loading = false;
+            $rootScope.loading = false;
 
-    }, function (err) {
-        $rootScope.redirectToError(err);
-    });
+        },
+        $rootScope.redirectToError);
 
     skynetLoad();
 

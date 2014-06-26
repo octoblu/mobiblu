@@ -15,6 +15,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.initSearch = function () {
+        var deferred = $q.deferred;
         $rootScope.ready(function(){
             $rootScope.loading = true;
 

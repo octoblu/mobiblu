@@ -4,7 +4,7 @@ var settingApp = angular.module('main.setting', ['hmTouchevents', 'SkynetModel']
 
 // Index: http://localhost/views/setting/index.html
 
-settingApp.controller('SettingCtrl', function ($rootScope, $scope) {
+settingApp.controller('SettingCtrl', function ($rootScope, $scope, $q) {
 
     $rootScope.$on('togglebackbtn', false);
 
@@ -41,7 +41,9 @@ settingApp.controller('SettingCtrl', function ($rootScope, $scope) {
         });
     };
 
-    $scope.update = function () {
+    var update = function(){
+        var deferred = $q.defer();
+
         var data = {
             name: $scope.devicename,
             setting: $scope.settings
@@ -51,7 +53,16 @@ settingApp.controller('SettingCtrl', function ($rootScope, $scope) {
 
         $rootScope.Skynet.updateDeviceSetting(data, function () {
             $rootScope.Skynet.logSensorData();
+            deferred.resolve();
         });
+
+        setTimeout(deferred.reject, 1000 * 15);
+
+        return deferred.promise;
+    };
+
+    $scope.update = function () {
+        update.then(null, $rootScope.redirectToError);
     };
 
     $scope.clearPlugins = function(){
