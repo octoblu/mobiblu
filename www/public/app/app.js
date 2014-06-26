@@ -11,13 +11,23 @@ angular.module('main', [
     'main.messages',
     'main.setting'
 ])
-    .run(function ($rootScope) {
+    .run(function ($rootScope, $location) {
 
         var loaded = false;
 
         $rootScope.loading = true;
 
-        $rootScope.Skynet = null;
+        $rootScope.Skynet = window.Skynet;
+
+        $rootScope.matchRoute = function (route) {
+            var regex = new RegExp('\\#\\!' + route);
+            if (window.location.href.match(regex)) {
+                return true;
+            }
+            return false;
+        };
+
+
 
         var skynetLoad = function(cb){
             $(document).on('skynet-loaded', function(){
@@ -34,34 +44,44 @@ angular.module('main', [
             else skynetLoad(cb);
         };
 
-        window.Skynet.init(function () {
+        $rootScope.setSettings = function(){
+            $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
+
+            $rootScope.loggedin = $rootScope.settings.loggedin;
+        };
+
+        $rootScope.setSettings();
+
+        $rootScope.isAuthenticated = function(){
+            if(!$rootScope.loggedin){
+                if(!$rootScope.matchRoute('/login')) $location.path('/login');
+                return false;
+            }else{
+                return true;
+            }
+        };
+
+
+        $rootScope.Skynet.init(function () {
             console.log('SKYNET LOADED');
 
             $rootScope.loading = false;
 
-            $rootScope.Skynet = window.Skynet;
-
             $rootScope.Sensors = $rootScope.Skynet.Sensors;
 
-            $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
+            $rootScope.setSettings();
 
             $rootScope.$on('$locationChangeSuccess', function() {
                 $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
             });
 
+            $rootScope.isAuthenticated();
+
         });
 
-        $rootScope.matchRoute = function (route) {
-            var regex = new RegExp('\\#\\!' + route);
-            if (window.location.href.match(regex)) {
-                return true;
-            }
-            return false;
-        };
+        $rootScope.isAuthenticated();
 
-        $rootScope.isAuthenticated = function(){
-            return $rootScope.Skynet.isAuthenticated;
-        };
+
 
     });
 

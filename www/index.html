@@ -98,7 +98,7 @@
     <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
     <div class="content" data-ng-view></div>
 
-    <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-hide="disabled">
+    <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-show="loggedin">
         <a class="tab-item" href="index.html#!/" ng-class="{active: isActive('/')}" data-ignore="push">
             <span class="icon icon-home"></span>
             <span class="tab-label">Home</span>

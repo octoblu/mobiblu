@@ -28,55 +28,38 @@ systemApp.controller('SubHeaderCtrl',
 
 systemApp.controller('HeaderCtrl',
     function ($rootScope, $scope, $location) {
-        $rootScope.ready(function(){
-            // TODO improve this functionality for multiple levels
-            $scope.backbtn = false;
 
-            $rootScope.$on('togglebackbtn', function (e, val) {
-                $scope.backbtn = val;
-            });
+        // TODO improve this functionality for multiple levels
+        $scope.backbtn = false;
 
-            $scope.goBack = function () {
-                window.history.back();
-            };
-
-            $scope.logout = function () {
-                var settings = $rootScope.settings;
-                $scope.loggedin = settings.loggedin;
-                $rootScope.Skynet.logout();
-            };
-
-            $scope.settings = function () {
-                $location.path('/setting');
-            };
-
-            $scope.$on('$locationChangeSuccess', function () {
-                if ($rootScope.matchRoute('/setting')) {
-                    $scope.showLogout = true;
-                } else {
-                    $scope.showLogout = false;
-                }
-            });
-
-            $scope.showLogout = false;
-
+        $rootScope.$on('togglebackbtn', function (e, val) {
+            $scope.backbtn = val;
         });
 
+        $scope.goBack = function () {
+            window.history.back();
+        };
+
+        $scope.logout = function () {
+            var settings = $rootScope.settings;
+        };
+
+        $scope.settings = function () {
+            $location.path('/setting');
+        };
+
+        $scope.$on('$locationChangeSuccess', function () {
+            if ($rootScope.matchRoute('/setting')) {
+                $scope.showLogout = true;
+            } else {
+                $scope.showLogout = false;
+            }
+        });
+
+        $scope.showLogout = false;
+
         $scope.init = function () {
-            $rootScope.ready(function() {
-                var settings = $rootScope.settings;
 
-                $scope.$apply(function(){
-                    $scope.loggedin = settings.loggedin;
-                });
-
-                console.log('Logged In :: ' + JSON.stringify($scope.loggedin));
-
-                if (!$rootScope.isAuthenticated()) {
-                    $location.path('/login');
-                    return;
-                }
-            });
         };
 
     });

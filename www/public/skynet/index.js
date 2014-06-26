@@ -429,6 +429,8 @@ app.init = function (callback) {
     }
 };
 
+app.setData();
+
 var publicApi = {
     initilized : true,
     init : app.init,
