@@ -21,6 +21,8 @@
                 <button class="btn btn-success btn-block" ng-click="savePlugin()">Save</button>
             </div>
 
+            <p class="content-padded">Devices</p>
+
             <div class="card">
                 <ul class="table-view">
                     <li class="table-view-cell" ng-repeat="device in plugin.subdevices" ng-show="device.name.length" ng-click="selectSubdevice(device)">

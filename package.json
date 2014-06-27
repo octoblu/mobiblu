@@ -1,6 +1,6 @@
 {
   "name": "octoblu-mobile",
-  "version": "0.4.0",
+  "version": "0.4.6",
   "description": "Octoblu Mobile Hub",
   "repository": "https://github.com/skynetim/mobile",
   "readme": "https://github.com/skynetim/mobile/README.md",
@@ -16,5 +16,8 @@
   "license": "none",
   "engines": {
     "steroids": "3.1.9"
+  },
+  "dependencies": {
+    "q": "~1.0.1"
   }
 }

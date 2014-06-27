@@ -1,0 +1,18 @@
+<div>
+
+    <div ng-controller="ErrorCtrl" ng-init="init()" class="text-center">
+
+        <h3 class="content-padded">
+            <i class="fa fa-3x fa-times-circle-o"></i><br>
+            <span class="text-red">Uh Oh! An Error Occurred</span>
+        </h3>
+        <div class="content-padded">{{ errorMsg }}</div>
+        <br>
+        <br>
+        <div class="content-padded">
+            <p>If you are seeing repeated issues. Try logging out and back in.</p>
+            <a ng-click="logout()" class="btn btn-positive btn-block">Logout</a>
+        </div>
+    </div>
+
+</div>

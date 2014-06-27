@@ -28,55 +28,38 @@ systemApp.controller('SubHeaderCtrl',
 
 systemApp.controller('HeaderCtrl',
     function ($rootScope, $scope, $location) {
-        $rootScope.ready(function(){
-            // TODO improve this functionality for multiple levels
-            $scope.backbtn = false;
 
-            $rootScope.$on('togglebackbtn', function (e, val) {
-                $scope.backbtn = val;
-            });
+        // TODO improve this functionality for multiple levels
+        $scope.backbtn = false;
 
-            $scope.goBack = function () {
-                window.history.back();
-            };
-
-            $scope.logout = function () {
-                var settings = $rootScope.settings;
-                $scope.loggedin = settings.loggedin;
-                $rootScope.Skynet.logout();
-            };
-
-            $scope.settings = function () {
-                $location.path('/setting');
-            };
-
-            $scope.$on('$locationChangeSuccess', function () {
-                if ($rootScope.matchRoute('/setting')) {
-                    $scope.showLogout = true;
-                } else {
-                    $scope.showLogout = false;
-                }
-            });
-
-            $scope.showLogout = false;
-
+        $rootScope.$on('togglebackbtn', function (e, val) {
+            $scope.backbtn = val;
         });
 
+        $scope.goBack = function () {
+            window.history.back();
+        };
+
+        $scope.logout = function () {
+            $rootScope.Skynet.logout();
+        };
+
+        $scope.settings = function () {
+            $location.path('/setting');
+        };
+
+        $scope.$on('$locationChangeSuccess', function () {
+            if ($rootScope.matchRoute('/setting')) {
+                $scope.showLogout = true;
+            } else {
+                $scope.showLogout = false;
+            }
+        });
+
+        $scope.showLogout = false;
+
         $scope.init = function () {
-            $rootScope.ready(function() {
-                var settings = $rootScope.settings;
 
-                $scope.$apply(function(){
-                    $scope.loggedin = settings.loggedin;
-                });
-
-                console.log('Logged In :: ' + JSON.stringify($scope.loggedin));
-
-                if (!$rootScope.isAuthenticated()) {
-                    $location.path('/login');
-                    return;
-                }
-            });
         };
 
     });
@@ -85,7 +68,7 @@ systemApp.controller('HeaderCtrl',
 systemApp.controller('FooterCtrl',
     function ($rootScope, $scope) {
         $scope.init = function () {
-            $rootScope.ready(function(){
+            $rootScope.ready(function () {
                 if (!$rootScope.isAuthenticated()) {
                     $scope.disabled = true;
                     return;
@@ -98,6 +81,51 @@ systemApp.controller('FooterCtrl',
                 route += '$'; // Make sure regex finds the end
             }
             return $rootScope.matchRoute(route);
+        };
+
+    });
+
+systemApp.controller('ActivityCtrl',
+    function ($rootScope, $scope) {
+
+        $scope.errors = [];
+
+        $rootScope.$emit('togglebackbtn', true);
+
+        $scope.activities = [];
+
+        var setActivity = function () {
+            $scope.$apply(function () {
+                $scope.activities = $rootScope.Skynet.getActivity();
+            });
+        };
+
+        $scope.init = function () {
+            $rootScope.ready(function () {
+                $rootScope.Skynet.clearActivityCount();
+                $scope.activities = $rootScope.Skynet.getActivity();
+                $(document).on('skynetactivity', function () {
+                    setActivity();
+                });
+            });
+        };
+
+    });
+
+systemApp.controller('ErrorCtrl',
+    function ($rootScope, $scope) {
+
+        $scope.init = function () {
+            if(!$rootScope.errorMsg){
+                return $rootScope.errorMsg = '';
+            }
+            if(typeof $rootScope.errorMsg !== 'string'){
+                $rootScope.errorMsg = $rootScope.errorMsg.toString();
+            }
+        };
+
+        $scope.logout = function () {
+            $rootScope.Skynet.logout();
         };
 
     });

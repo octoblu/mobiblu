@@ -7,9 +7,7 @@ homeApp.controller('HomeCtrl', function ($rootScope, $scope) {
     $rootScope.$emit('toggleerrors', true);
 
     $scope.init = function(){
-        $rootScope.ready(function(){
-            $scope.login = $rootScope.Skynet.login;
-        });
+        $scope.login = $rootScope.Skynet.login;
     };
 
 

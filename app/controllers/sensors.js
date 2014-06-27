@@ -42,7 +42,7 @@ SensorsApp.controller('SensorCtrl',
         }
 
         $scope.init = function () {
-            $rootScope.ready(function(){
+            $rootScope.ready(function () {
                 var settings = $rootScope.settings;
                 $rootScope.loading = false;
                 $scope.settings = settings.settings;
@@ -55,9 +55,10 @@ SensorsApp.controller('SensorCtrl',
                 name: $rootScope.settings.devicename,
                 setting: $scope.settings
             };
-            $rootScope.Skynet.updateDeviceSetting(data, function () {
-                $rootScope.Skynet.logSensorData();
-            });
+            $rootScope.Skynet.updateDeviceSetting(data)
+                .then(function () {
+                    $rootScope.Skynet.logSensorData();
+                }, $rootScope.redirectToError);
         };
 
         $scope.sendTracking = function () {
@@ -94,28 +95,4 @@ SensorsApp.controller('SensorCtrl',
         };
 
     });
-SensorsApp.controller('ActivityCtrl', function ($rootScope, $scope) {
 
-    $scope.errors = [];
-
-    $rootScope.$emit('togglebackbtn', true);
-
-    $scope.activities = [];
-
-    var setActivity = function () {
-        $scope.$apply(function () {
-            $scope.activities = $rootScope.Skynet.getActivity();
-        });
-    };
-
-    $scope.init = function () {
-        $rootScope.ready(function(){
-            $rootScope.Skynet.clearActivityCount();
-            $scope.activities = $rootScope.Skynet.getActivity();
-            $(document).on('skynetactivity', function () {
-                setActivity();
-            });
-        });
-    };
-
-});

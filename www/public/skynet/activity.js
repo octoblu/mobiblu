@@ -2,6 +2,8 @@
 
 var obj = {};
 
+var limit = 100;
+
 obj.getActivity = function(){
     var activity = [];
     try{
@@ -24,7 +26,7 @@ obj.logActivity = function(data){
     if( !obj.skynetActivity ||
         !_.isArray(obj.skynetActivity) )
         obj.skynetActivity = [];
-    obj.skynetActivity = obj.skynetActivity.slice(0, 50);
+    obj.skynetActivity = obj.skynetActivity.slice(0, limit);
 
     if(obj.skynetActivity.length)
         obj.skynetActivity.unshift(data);

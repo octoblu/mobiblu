@@ -1,11 +1,13 @@
 <div>
 
-  <div ng-controller="HomeCtrl">
+    <div ng-controller="HomeCtrl" ng-init="init()">
 
-    <p class="content-padded">You are not logged into Octoblu. Use the the link below</p>
+        <div ng-include src="'/public/views/system/loading.html'"></div>
 
-    <a ng-click="login()" class="btn btn-positive btn-block">Authenticate with Octoblu</a>
+        <p class="content-padded">You are not logged into Octoblu. Use the the link below</p>
 
-  </div>
+        <a ng-click="login()" class="btn btn-positive btn-block">Authenticate with Octoblu</a>
+
+    </div>
 
 </div>
