@@ -1,5 +1,8 @@
 'use strict';
 
+
+var Q = require('Q');
+
 var obj = {};
 
 obj.instances = {};
@@ -64,7 +67,9 @@ obj.writePlugin = function (json, init) {
     return obj.plugins;
 };
 
-obj.removePlugin = function (plugin, callback) {
+obj.removePlugin = function (plugin) {
+    var deferred = Q.defer();
+
     var plugins = obj.getPlugins();
 
     var found = obj.findPlugin(plugin.name);
@@ -78,17 +83,21 @@ obj.removePlugin = function (plugin, callback) {
     obj.writePluginsToStorage();
 
     if (obj.instances[plugin.name]) {
-        return obj.triggerPluginEvent(plugin.name, 'destroy', function () {
-            delete obj.instances[plugin.name];
-            callback();
-        });
+        obj.triggerPluginEvent(plugin.name, 'destroy')
+            .then(function () {
+                delete obj.instances[plugin.name];
+                deferred.resolve();
+            }, deferred.reject);
+    } else {
+        deferred.reject('Unable to trigger destroy');
     }
-    callback('Unable to trigger destroy');
+
+    return deferred.promise;
 };
 
-obj.writePluginsToStorage = function(){
+obj.writePluginsToStorage = function () {
     var subdevices = [];
-    for(var x in obj.plugins){
+    for (var x in obj.plugins) {
         subdevices = subdevices.concat(obj.plugins[x].subdevices || []);
     }
     window.localStorage.setItem('subdevices', JSON.stringify(subdevices));
@@ -144,85 +153,90 @@ obj.retrieveFromStorage = function () {
 };
 
 // Retrieve Plugins from Storage
-obj.retrievePlugins = function (callback) {
+obj.retrievePlugins = function () {
+    var deferred = Q.defer();
+
     console.log('Retrieving plugins');
 
     var plugins = obj.retrieveFromStorage();
     console.log('Plugins from storage' + JSON.stringify(plugins));
 
-    obj.loadPluginScripts(function () {
-        console.log('Loaded Plugin Scripts');
-        obj.mapPlugins(plugins);
+    obj.loadPluginScripts()
+        .then(function () {
+            console.log('Loaded Plugin Scripts');
+            obj.mapPlugins(plugins);
 
-        // Update Devices
-        obj.Skynet.updateDeviceSetting({
-            plugins : obj.plugins,
-            subdevices : obj.subdevices
-        }).then(function () {
-            console.log('Skynet Updated');
-        }, function(){
-            console.log('Skynet Not Updated');
-        });
+            // Update Devices
+            obj.Skynet.updateDeviceSetting({
+                plugins: obj.plugins,
+                subdevices: obj.subdevices
+            }).then(function () {
+                console.log('Skynet Updated');
+            }, function () {
+                console.log('Skynet Not Updated');
+            });
 
-        callback();
-    });
+            deferred.resolve();
+        }, deferred.reject);
 
-    return plugins;
+    return deferred.promise;
 };
 
-obj.loadScript = function (json, callback) {
+obj.loadScript = function (json) {
+    var deferred = Q.defer();
+
     var path = json._path || obj.pluginsDir + json.name + '/bundle.js';
     $.getScript(path)
         .done(function (script, textStatus) {
             console.log('Script loaded: ' + textStatus);
-            callback();
+            deferred.resolve();
         })
         .fail(function (jqxhr, settings, exception) {
             console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status + ' Settings : ' + JSON.stringify(settings) + ' Exception : ' + exception.toString());
-            callback();
+            deferred.reject();
         });
+
+    return deferred.promise;
 };
 
 
-obj.loadPluginScripts = function (callback) {
+obj.loadPluginScripts = function () {
 
-    var i = 0;
+    var deferred = Q.defer();
 
-    var done = function () {
-        if (obj.plugins.length === i) {
-            callback();
+    if (!obj.plugins || !obj.plugins.length) {
+        deferred.resolve();
+    } else {
+        var promises = [];
+
+        for (var x in obj.plugins) {
+            var plugin = obj.plugins[x];
+
+            if (!plugin) continue;
+            if (obj.instances[plugin.name]) {
+                continue;
+            }
+
+            console.log('About to load script for ' + plugin.name);
+            promises.push(obj.loadScript(plugin));
         }
-    };
 
-    if (!obj.plugins || !obj.plugins.length) return done();
 
-    obj.each(function (plugin) {
-        if (!plugin) return done();
-        if (obj.instances[plugin.name]) {
-            i++;
-            return done();
-        }
-        console.log('About to load script');
-        obj.loadScript(plugin, function () {
-            console.log('Loaded script ' + plugin.name);
-            i++;
-            done();
-        });
-    });
+        Q.all(promises).done(deferred.resolve, deferred.reject);
+
+    }
+    return deferred.promise;
 
 };
 
-obj.registerPlugin = function (name, callback) {
+obj.registerPlugin = function (name) {
 
-    var done = function () {
-        console.log('About to load script');
-        callback();
-    };
+    var deferred = Q.defer();
 
     var found = obj.findPlugin(name);
-    console.log('Found', found);
+
     if (~found) {
-        return done(obj.plugins[found]);
+        deferred.resolve();
     }
 
     var dir = obj.pluginsDir + name;
@@ -230,16 +244,18 @@ obj.registerPlugin = function (name, callback) {
         .success(function (json) {
             console.log('Got package JSON');
             obj.writePlugin(json, false);
-            done();
+            deferred.resolve();
         })
         .error(function (err) {
             console.log('Error getting package JSON' + JSON.stringify(err));
-            callback();
+            deferred.reject();
         });
 
+    return deferred.promise;
 };
 
-obj.loadPlugin = function (data, callback) {
+obj.loadPlugin = function (data) {
+    var deferred = Q.defer();
     var name;
     if (typeof data === 'string') {
         name = data;
@@ -252,10 +268,14 @@ obj.loadPlugin = function (data, callback) {
     if (!~found || !obj.instances[name]) {
         console.log('Installing Plugin', name);
         return obj.registerPlugin(name, function () {
-            obj.retrievePlugins(callback);
+            obj.retrievePlugins().then(deferred.resolve, deferred.reject);
         });
+    }else{
+        obj.instances[name] = obj.initPlugin(obj.plugins[found]);
+        deferred.resolve();
     }
-    callback();
+
+    return deferred.promise;
 };
 
 obj.mapPlugins = function () {
@@ -281,7 +301,7 @@ obj.initPlugin = function (plugin) {
 
         pluginObj = p ? new p.Plugin(
             obj.Messenger,
-            plugin.options || {},
+                plugin.options || {},
             window.octobluMobile.api
         ) : null;
 
@@ -296,7 +316,7 @@ obj.initPlugin = function (plugin) {
         pluginObj = null;
     }
 
-    if(p && p.getDefaultOptions){
+    if (p && p.getDefaultOptions) {
         pluginObj.getDefaultOptions = p.getDefaultOptions;
     }
 
@@ -304,7 +324,8 @@ obj.initPlugin = function (plugin) {
 
 };
 
-obj.triggerPluginEvent = function (plugin, event, callback) {
+obj.triggerPluginEvent = function (plugin, event) {
+    var deferred = Q.defer();
     if (obj.instances[plugin.name]) {
 
         switch (event) {
@@ -322,17 +343,19 @@ obj.triggerPluginEvent = function (plugin, event, callback) {
             case 'destroy':
                 break;
             default:
-                return callback('Not a valid event');
+                return deferred.reject('Not a valid event');
         }
 
-        if (typeof obj.instances[plugin.name][event] === 'function') {
-            return obj.instances[plugin.name][event](callback);
+        var pluginEvent = obj.instances[plugin.name][event];
+
+        if (typeof pluginEvent === 'function') {
+            pluginEvent(deferred.resolve);
         } else {
-            return callback('No event found for plugin');
+            deferred.resolve('No event found for plugin');
         }
 
     }
-    return callback('No plugin found');
+    return deferred.promise;
 };
 
 obj.startListen = function () {
@@ -340,41 +363,41 @@ obj.startListen = function () {
 
         console.log('On Message' + JSON.stringify(data));
 
-        if(data.devices === obj.skynetObj.mobileuuid){
+        if (data.devices === obj.skynetObj.mobileuuid) {
 
-            try{
+            try {
 
-                if(typeof data === "string"){
+                if (typeof data === "string") {
 
                     data = JSON.parse(data);
 
                 }
 
-                if(data.subdevice){
+                if (data.subdevice) {
 
                     var instance = obj.instances[data.subdevice];
 
-                    if(instance && instance.onMessage){
+                    if (instance && instance.onMessage) {
 
                         console.log('Matching subdevice found:', data.subdevice);
 
                         instance.onMessage(data, fn);
 
-                    }else{
+                    } else {
 
-                        console.log('No matching subdevice:',data.subdevice);
+                        console.log('No matching subdevice:', data.subdevice);
 
                     }
 
-                }else{
-                    if(fn){
+                } else {
+                    if (fn) {
                         console.log('Responding');
                         data.ack = true;
                         fn(data);
                     }
                 }
 
-            }catch(e){
+            } catch (e) {
 
                 console.log('Err dispatching message', e);
 
@@ -384,43 +407,35 @@ obj.startListen = function () {
     });
 };
 
-obj.loadLocalPlugins = function(callback){
-    var count = 0, total = 0;
-
-    function done(){
-        if(count === total){
-            callback();
-        }
-    }
+obj.loadLocalPlugins = function () {
+    var deferred = Q.defer();
 
     $.getJSON('/data/local_plugins.json')
         .success(function (json) {
 
-            if(json){
-                total = json.length;
-                json.forEach(function(plugin){
+            if (json) {
 
-                    obj.loadPlugin(plugin, function () {
-                        count++;
-                        console.log('After install of ' + plugin);
-                        done();
-                    });
+                var promises = [];
+                for (var x in json) {
+                    promises.push(obj.loadPlugin(plugin));
+                }
+                Q.all(promises).done(deferred.resolve, deferred.reject);
 
-                });
-
-            }else{
-                done();
+            } else {
+                deferred.resolve();
             }
-
         })
         .error(function (err) {
             console.log('Error JSON' + JSON.stringify(err));
-            done();
+            deferred.reject();
         });
+    return deferred.promise;
 };
 
 // Called Every Time the App is loaded
 obj.init = function () {
+    var deferred = Q.defer();
+
     obj.Skynet = window.Skynet;
     obj.skynetObj = obj.Skynet.getCurrentSettings();
     obj.socket = obj.skynetObj.skynetSocket;
@@ -428,17 +443,22 @@ obj.init = function () {
 
     window.octobluMobile.api.logActivity = obj.Skynet.logActivity;
 
-    console.log('Init');
+    console.log('Init Plugins');
 
-    console.log('Steroids User Path :: ' + steroids.app.absoluteUserFilesPath);
+    Q.all([
 
-    obj.retrievePlugins(function () {
-        console.log('Loaded plugins');
+        obj.retrievePlugins(),
 
-        obj.loadLocalPlugins(function(){
-            obj.startListen();
-        });
-    });
+        obj.loadLocalPlugins()
+
+    ]).done(function () {
+
+        obj.startListen();
+        deferred.resolve();
+
+    }, deferred.reject);
+
+    return deferred.promise;
 
 };
 

@@ -38,11 +38,9 @@ angular.module('main', [
         var deferred = $q.defer();
         $(document).on('skynet-loaded', function () {
             loaded = true;
-            //console.log('SKYNET LOADED EVENT :: ' + JSON.stringify(loaded));
+            console.log('SKYNET LOADED EVENT :: ' + JSON.stringify(loaded));
             deferred.resolve();
         });
-
-        setTimeout(deferred.reject, 1000 * 15);
 
         return deferred.promise;
     };
@@ -71,21 +69,16 @@ angular.module('main', [
     var skynetInit = function () {
         var deferred = $q.defer();
 
-        $rootScope.Skynet.init()
+        $rootScope.Skynet.init().timeout(1000 * 15)
             .then(function () {
                 console.log('SKYNET INIT\'d');
                 deferred.resolve();
             }, $rootScope.redirectToError);
 
-        setTimeout(deferred.reject, 1000 * 15);
-
         return deferred.promise;
-
     };
 
-    var promise = skynetInit();
-
-    promise.then(function () {
+    skynetInit().then(function () {
             console.log('SKYNET LOADED');
 
             $rootScope.Sensors = $rootScope.Skynet.Sensors;

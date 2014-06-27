@@ -15,31 +15,22 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.initSearch = function () {
-        $rootScope.ready(function(){
+        $rootScope.ready(function () {
             $rootScope.loading = true;
 
             $scope.getPlugins();
-            var promise = OctobluRest.searchPlugins('skynet-mobile-plugin')
-                            .then(handleSearchResults, $rootScope.redirectToError);
-            var promise2 = OctobluRest.searchPlugins('skynet-plugin')
-                            .then(handleSearchResults, $rootScope.redirectToError);
+
+            OctobluRest.searchPlugins('skynet-mobile-plugin')
+                .then(handleSearchResults, $rootScope.redirectToError);
+
+            OctobluRest.searchPlugins('skynet-plugin')
+                .then(handleSearchResults, $rootScope.redirectToError);
 
         });
     };
 
     $scope.results = [];
     $scope.allResults = [];
-
-    // var addToResults = function (results) {
-    //     if (!results || !results.length) return;
-    //     for (var x in results) {
-    //         var plugin = results[x];
-    //         if (!~$scope.pluginNames.indexOf(plugin.name)) {
-    //             $scope.results.push(plugin);
-    //         }
-    //     }
-    //     $scope.allResults = $scope.results;
-    // };
 
     var handleSearchResults = function (res) {
 
@@ -56,7 +47,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         var term = $scope.term;
         if (term && term.length) {
             var searchRegex = new RegExp(term, 'i');
-            $scope.results = _.filter($scope.allResults, function(plugin){
+            $scope.results = _.filter($scope.allResults, function (plugin) {
                 return searchRegex.test(plugin.name) || searchRegex.test(plugin.description);
             });
         }
@@ -70,14 +61,14 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             directories = ['plugins', plugin.name],
             uri = encodeURI(plugin.bundle);
 
-        function end(){
+        function end() {
             $rootScope.loading = false;
             console.log('Ending');
         }
 
         function onError(error) {
             console.log('Error ', error);
-            $scope.$apply(function(){
+            $scope.$apply(function () {
                 end();
                 $rootScope.redirectToError("Unable to install that plugin");
             });
@@ -108,24 +99,25 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     plugin._url = entry.toURL();
                     plugin._path = '/plugins/' + plugin.name + file;
                     $rootScope.loading = false;
-                    window.octobluMobile.loadPlugin(plugin, function () {
-                        console.log('Plugin loaded');
-                        window.location.href = 'index.html#!/plugins/' + plugin.name;
-                    });
+                    window.octobluMobile.loadPlugin(plugin)
+                        .done(function () {
+                            console.log('Plugin loaded');
+                            window.location.href = 'index.html#!/plugins/' + plugin.name;
+                        }, $rootScope.redirectToError);
                 },
                 onError,
                 false
             );
         }
 
-        try{
-            if(window.FSRoot){
+        try {
+            if (window.FSRoot) {
                 entry = window.FSRoot;
                 gotFS();
-            }else{
+            } else {
                 onError(new Error('Error no access to file system.'));
             }
-        }catch(e) {
+        } catch (e) {
             onError(new Error('No Error Installing Plugin'));
         }
 
@@ -142,14 +134,14 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.installed = function () {
-        $rootScope.ready(function(){
+        $rootScope.ready(function () {
             $scope.getPlugins();
             $rootScope.loading = false;
         });
     };
 
     $scope.findOne = function () {
-        $rootScope.ready(function() {
+        $rootScope.ready(function () {
             $scope.getPlugins();
 
             for (var x in $scope.plugins) {
@@ -171,12 +163,12 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         });
     };
 
-    $scope.addSubdevice = function(){
+    $scope.addSubdevice = function () {
         var subdevice = {
-            _id : Math.random().toString(36).substring(7),
-            name : '',
-            type : $scope.plugin.name,
-            options : {
+            _id: Math.random().toString(36).substring(7),
+            name: '',
+            type: $scope.plugin.name,
+            options: {
 
             }
         };
@@ -184,20 +176,20 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         $scope.selectSubdevice(subdevice);
     };
 
-    $scope.selectSubdevice = function(subdevice){
+    $scope.selectSubdevice = function (subdevice) {
         $scope.subdevice = subdevice;
         var options = subdevice.options || {};
 
         window.octobluMobile.triggerPluginEvent(
             $scope.plugin,
-            'getDefaultOptions',
-            function(err, defaultOptions){
+            'getDefaultOptions')
+            .then(function (err, defaultOptions) {
 
-                if(!err && defaultOptions){
+                if (!err && defaultOptions) {
                     options = _.extend(options, defaultOptions);
                 }
 
-                console.log('Options' + JSON.stringify($scope.plugin.optionsSchema));
+                console.log('Options :: ' + JSON.stringify($scope.plugin.optionsSchema));
 
                 $('#options-editor').jsoneditor({
                     schema: $scope.plugin.optionsSchema,
@@ -207,7 +199,8 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     iconlib: 'fontawesome4',
                     disable_collapse: true
                 });
-            });
+
+            }, $rootScope.redirectToError);
     };
 
     $scope.savePlugin = function () {
@@ -224,9 +217,9 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
 
             $scope.subdevice.options = options;
 
-            for(var x in $scope.plugin.subdevices){
+            for (var x in $scope.plugin.subdevices) {
                 var device = $scope.plugin.subdevices[x];
-                if(device._id === $scope.subdevice._id){
+                if (device._id === $scope.subdevice._id) {
                     $scope.plugin.subdevices[x] = $scope.subdevice;
                     break;
                 }
@@ -241,22 +234,20 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         $scope.plugin.enabled = !$scope.plugin.enabled;
         window.octobluMobile.triggerPluginEvent(
             $scope.plugin,
-            $scope.plugin.enabled ? 'onEnable' : 'onDisable',
-            function (err, data) {
+            $scope.plugin.enabled ? 'onEnable' : 'onDisable'
+        ).then(function (err, data) {
                 if (err) return console.log('Error enabling or disabling plugin', err);
                 console.log('Data after enable or disable', JSON.stringify(data));
-            }
-        );
+            }, $rootScope.redirectToError);
     };
 
     $scope.removePlugin = function () {
         window.octobluMobile.removePlugin(
-            $scope.plugin,
-            function (err) {
+            $scope.plugin
+        ).then(function (err) {
                 if (err) console.log('Error removing plugin', err);
                 console.log('Removed plugin');
                 $location.path('/plugins');
-            }
-        );
+            }, $rootScope.redirectToError);
     };
 });

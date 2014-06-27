@@ -2170,7 +2170,11 @@ app.startProcesses = function () {
 
         app.loaded = true;
 
-        app.registerPushID();
+        app.registerPushID().then(function(){
+            console.log('Push ID Registered');
+        }, function(err){
+            console.log(err);
+        });
 
         app.skynetSocket.on('message', function (data) {
             activity.logActivity({
@@ -2199,7 +2203,7 @@ app.registerDevice = function () {
         'online': true
     };
 
-    if(app.mobileuuid && app.mobiletoken){
+    if (app.mobileuuid && app.mobiletoken) {
         regData.uuid = app.mobileuuid;
         regData.token = app.mobiletoken;
     }
@@ -2233,13 +2237,17 @@ app.register = function (registered) {
 
     if (registered) {
 
+        console.log('Updating');
+
         // Already Registered & Update the device
-        app.updateDeviceSetting({}).then(deferred.resolve, deferred.reject);
+        app.updateDeviceSetting({})
+            .done(deferred.resolve, deferred.resolve);
 
     } else {
 
         // Register new Device
-        app.registerDevice().then(deferred.resolve, deferred.reject);
+        app.registerDevice()
+            .done(deferred.resolve, deferred.reject);
 
     }
 
@@ -2247,13 +2255,13 @@ app.register = function (registered) {
 
 };
 
-app.connect = function(data) {
+app.connect = function (data) {
 
     console.log('Connecting to skynet...');
 
     var deferred = Q.defer();
 
-    if(!data){
+    if (!data) {
         data = {
             'uuid': app.mobileuuid || app.skynetuuid,
             'token': app.mobiletoken || app.skynettoken
@@ -2272,11 +2280,17 @@ app.connect = function(data) {
             console.log(e.toString());
             registered = false;
         }
-        if(socket){
+        if (socket) {
             app.skynetSocket = socket;
             app.register(registered)
-                .then(deferred.resolve, deferred.reject);
-        }else{
+                .then(function () {
+                    console.log('Registered!');
+                    deferred.resolve();
+                }, function () {
+                    console.log('Error on Skynet Register');
+                    deferred.reject();
+                });
+        } else {
             deferred.reject('Error Authenticating with Skynet');
         }
     });
@@ -2360,7 +2374,7 @@ app.logSensorData = function () {
                 }
             });
         });
-    };
+};
 
 app.startBG = function () {
     // If BG Updates is turned off
@@ -2448,7 +2462,7 @@ app.updateDeviceSetting = function (data) {
     data.owner = app.skynetuuid;
     data.pushID = app.pushID;
     data.name = data.name || app.devicename;
-    app.type = 'octobluMobile';
+    data.type = 'octobluMobile';
 
     if (data.setting) app.settings = data.setting;
 
@@ -2517,7 +2531,7 @@ app.getDeviceSetting = function (uuid, token) {
             }
 
             deferred.resolve(device);
-        }, function(err){
+        }, function (err) {
             console.log(err);
             deferred.reject('Unable to Retrieve Device');
         });
@@ -2530,18 +2544,17 @@ app.init = function () {
 
     activity.init();
 
-    if (app.isAuthenticated()) {
-        app.connect()
-            .then(deferred.resolve, deferred.reject);
-    } else {
-        deferred.reject('Unauthenticated');
-    }
-
-    return deferred.promise.timeout(1000 * 5)
+    app.connect()
         .then(function () {
+
             app.startProcesses();
             $(document).trigger('skynet-loaded');
-        });
+            console.log('Connected');
+            deferred.resolve();
+
+        }, deferred.reject);
+
+    return deferred.promise;
 };
 
 app.setData();

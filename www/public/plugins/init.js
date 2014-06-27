@@ -2,6 +2,14 @@
 
 $(document).ready(function(){
     $(document).on('skynet-loaded', function(){
-        window.octobluMobile.init();
+        if(window.octobluMobile){
+            window.octobluMobile.init()
+                .then(function(){
+                    console.log('Plugins Loaded');
+                    $(document).trigger('plugins-loaded');
+                }, function(){
+                    console.log('Error Initializing Plugins');
+                });
+        }
     });
 });
