@@ -71,7 +71,7 @@ obj.removePlugin = function (plugin, callback) {
     var found = obj.findPlugin(plugin.name);
 
     if (~found) {
-        plugins.slice(found, 1);
+        plugins.splice(found, 1);
     }
 
     obj.plugins = plugins;
@@ -159,8 +159,10 @@ obj.retrievePlugins = function (callback) {
         obj.Skynet.updateDeviceSetting({
             plugins : obj.plugins,
             subdevices : obj.subdevices
-        }, function () {
+        }).then(function () {
             console.log('Skynet Updated');
+        }, function(){
+            console.log('Skynet Not Updated');
         });
 
         callback();
@@ -480,7 +482,9 @@ obj.init = function () {
 
 obj.send = function (data, callback) {
     if (obj.socket) {
-        Skynet.message(data, callback);
+        Skynet.message(data).then(callback, function(){
+            console.log('Error Sending Message');
+        });
     } else {
         callback(new Error('Socket not available'));
     }

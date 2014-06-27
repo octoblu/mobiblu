@@ -140,9 +140,9 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest)
                 'devices': uuid,
                 'subdevice': $scope.subdevicename,
                 'payload': message
-            }, function (data) {
+            }).then(function (data) {
                 console.log(data);
-            });
+            }, $rootScope.redirectToError);
             $scope.messageOutput = 'Message Sent: ' + JSON.stringify(message);
         }
 

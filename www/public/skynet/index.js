@@ -3,6 +3,7 @@
 var Sensors = require('./sensors.js');
 var activity = require('./activity.js');
 var SkynetRest = require('./skynet.js');
+var Q = require('Q');
 
 var app = {};
 
@@ -27,7 +28,7 @@ app.setData = function () {
     //Push ID
     app.pushID = window.localStorage.getItem('pushID');
     // Logged In
-    app.loggedin = !! window.localStorage.getItem('loggedin');
+    app.loggedin = !!window.localStorage.getItem('loggedin');
     // Mobile App Data
     app.mobileuuid = window.localStorage.getItem('mobileuuid');
     app.mobiletoken = window.localStorage.getItem('mobiletoken');
@@ -66,54 +67,83 @@ app.isAuthenticated = function () {
     return !!(app.loggedin && app.skynetuuid && app.skynettoken);
 };
 
-app.isRegistered = function (callback) {
-    app.whoami(null, null, function (data) {
-        if (data.uuid === app.mobileuuid) {
-            callback(true);
-        } else {
-            callback(false);
-        }
-    });
+app.isRegistered = function () {
+    var deferred = Q.defer();
+
+    app.whoami(null, null)
+        .timeout(1000 * 5)
+        .then(function (data) {
+            if (data.uuid === app.mobileuuid) {
+                deferred.resolve(true);
+            } else {
+                deferred.resolve(false);
+            }
+        }, function () {
+            activity.logActivity({
+                type: 'Skynet',
+                error: new Error('Error Checking Skynet')
+            });
+            deferred.reject('Error Checking Skynet');
+        });
+
+    return deferred.promise;
 };
 
-app.isRegisteredOld = function () {
-    return !!(app.mobileuuid && app.mobiletoken);
-};
+app.registerPushID = function () {
+    var deferred = Q.defer();
 
-app.startProcesses = function () {
-
-    if(!app.loaded){
-
-        app.loaded = true;
-
-        document.addEventListener('urbanairship.registration', function (event) {
+    document.addEventListener('urbanairship.registration',
+        function (event) {
             if (event.error) {
                 console.log('Urbanairship Registration Error');
+                deferred.reject('Urbanairship Registration Error');
             } else {
                 app.pushID = event.pushID;
                 window.localStorage.setItem('pushID', app.pushID);
 
                 steroids.addons.urbanairship
-                    .notifications.onValue(function(notification) {
+                    .notifications.onValue(function (notification) {
                         activity.logActivity({
-                            type : 'PushNotification',
-                            html : notification.message
+                            type: 'PushNotification',
+                            html: notification.message
                         });
                     });
 
-                app.updateDeviceSetting({}, function () {});
+                app.updateDeviceSetting({})
+                    .then(function () {
+                        activity.logActivity({
+                            type: 'PushNotification',
+                            html: 'Push ID Registered'
+                        });
+                        deferred.resolve();
+                    }, function () {
+                        activity.logActivity({
+                            type: 'PushNotification',
+                            error: new Error('Push ID Updated Failed')
+                        });
+                        deferred.reject('Push ID Updated Failed');
+                    });
             }
         }, false);
 
+    return deferred.promise;
+};
+
+app.startProcesses = function () {
+
+    if (!app.loaded) {
+
+        app.loaded = true;
+
+        app.registerPushID();
+
         app.skynetSocket.on('message', function (data) {
             activity.logActivity({
-                type : 'SkynetMessage',
-                html : 'From: ' + data.fromUuid +
+                type: 'SkynetMessage',
+                html: 'From: ' + data.fromUuid +
                     '<br>Message: ' + data.payload
             });
         });
-
-        $(document).trigger('skynet-loaded');
 
     }
 
@@ -121,150 +151,181 @@ app.startProcesses = function () {
     app.startBG();
 };
 
-app.register = function (callback) {
-    app.isRegistered(function (registered) {
-        if (registered) {
+app.registerDevice = function () {
 
-            // Already Registered & Update the device
-            app.updateDeviceSetting({
-                'type': 'octobluMobile'
-            }, function (data) {
-                callback(data);
-                app.startProcesses();
-            });
+    console.log('Registering...');
 
-        } else {
-            var regData = {
-                'name': app.devicename,
-                'owner': app.skynetuuid,
-                'type': 'octobluMobile',
-                'online': true
-            };
+    var deferred = Q.defer();
 
-            if(app.pushID) regData.pushID = app.pushID;
+    var regData = {
+        'name': app.devicename,
+        'owner': app.skynetuuid,
+        'type': 'octobluMobile',
+        'online': true
+    };
 
-            app.skynetSocket.emit('register', regData, function (data) {
+    if(app.mobileuuid && app.mobiletoken){
+        regData.uuid = app.mobileuuid;
+        regData.token = app.mobiletoken;
+    }
 
-                data.mobileuuid = data.uuid;
-                data.mobiletoken = data.token;
+    if (app.pushID) regData.pushID = app.pushID;
 
-                app.mobileuuid = data.mobileuuid;
-                app.mobiletoken = data.mobiletoken;
+    app.skynetSocket.emit(
+        'register',
+        regData,
+        function (data) {
 
-                window.localStorage.setItem('mobileuuid', data.uuid);
-                window.localStorage.setItem('mobiletoken', data.token);
-                window.localStorage.setItem('devicename', data.name);
+            data.mobileuuid = data.uuid;
+            data.mobiletoken = data.token;
 
-                callback(data);
-                app.startProcesses();
-            });
-        }
-    });
+            app.mobileuuid = data.mobileuuid;
+            app.mobiletoken = data.mobiletoken;
+
+            window.localStorage.setItem('mobileuuid', data.uuid);
+            window.localStorage.setItem('mobiletoken', data.token);
+            window.localStorage.setItem('devicename', data.name);
+
+            deferred.resolve();
+        });
+    return deferred.promise;
+}
+
+app.register = function (registered) {
+
+
+    var deferred = Q.defer();
+
+    if (registered) {
+
+        // Already Registered & Update the device
+        app.updateDeviceSetting({}).then(deferred.resolve, deferred.reject);
+
+    } else {
+
+        // Register new Device
+        app.registerDevice().then(deferred.resolve, deferred.reject);
+
+    }
+
+    return deferred.promise;
 
 };
 
-app.auth = function (callback) {
+app.connect = function(data) {
+
+    console.log('Connecting to skynet...');
+
+    var deferred = Q.defer();
+
+    if(!data){
+        data = {
+            'uuid': app.mobileuuid || app.skynetuuid,
+            'token': app.mobiletoken || app.skynettoken
+        };
+    }
+
     if (app.skynetSocket) {
-        return app.getDeviceSetting(null, null, callback);
+        console.log('Skynet Socket already established.');
+        return app.getDeviceSetting(null, null)
+            .then(deferred.resolve, deferred.reject);
     }
     // GETS HERE
-    var data = {
-        'uuid': app.mobileuuid || app.skynetuuid,
-        'token': app.mobiletoken || app.skynettoken
-    };
     app.skynetClient = skynet(data, function (e, socket) {
-        console.log('here', JSON.stringify(data));
+        var registered = true;
         if (e) {
             console.log(e.toString());
-            activity.logActivity({
-                type : 'Skynet',
-                error : e
-            });
-            callback();
-        } else {
+            registered = false;
+        }
+        if(socket){
             app.skynetSocket = socket;
-            app.register(callback);
+            app.register(registered)
+                .then(deferred.resolve, deferred.reject);
+        }else{
+            deferred.reject('Error Authenticating with Skynet');
         }
     });
-};
 
+    return deferred.promise;
+};
 
 
 app.logSensorData = function () {
     var sensors = [];
 
-    app.getDeviceSetting(null, null, function () {
-        // Push Sensors
-        if (!app.settings || app.settings.geolocation) sensors.push('Geolocation');
-        if (!app.settings || app.settings.compass) sensors.push('Compass');
-        if (!app.settings || app.settings.accelerometer) sensors.push('Accelerometer');
+    app.getDeviceSetting()
+        .then(function () {
+            // Push Sensors
+            if (!app.settings || app.settings.geolocation) sensors.push('Geolocation');
+            if (!app.settings || app.settings.compass) sensors.push('Compass');
+            if (!app.settings || app.settings.accelerometer) sensors.push('Accelerometer');
 
-        var wait = 1;
+            var wait = 1;
 
-        if (app.settings) {
-            if (app.settings.update_interval) {
-                wait = app.settings.update_interval;
-            } else if (app.settings.update_interval === 0) {
-                wait = 0.15;
+            if (app.settings) {
+                if (app.settings.update_interval) {
+                    wait = app.settings.update_interval;
+                } else if (app.settings.update_interval === 0) {
+                    wait = 0.15;
+                }
             }
-        }
-        // Convert min to ms
-        wait = wait * 60 * 1000;
+            // Convert min to ms
+            wait = wait * 60 * 1000;
 
-        var throttled = {};
+            var throttled = {};
 
 
-        var startSensor = function (sensor, type) {
-            var sent = false;
-            sensor.start(
-                // Handle Success
-                function (sensorData) {
-                    // Make sure it hasn't already been sent
-                    if (sent) return;
-                    sent = true;
+            var startSensor = function (sensor, type) {
+                var sent = false;
+                sensor.start(
+                    // Handle Success
+                    function (sensorData) {
+                        // Make sure it hasn't already been sent
+                        if (sent) return;
+                        sent = true;
 
-                    // Emit data
-                    app.skynetSocket.emit('data', {
-                        'uuid' : app.mobileuuid,
-                        'token' : app.mobiletoken,
-                        'sensorData' : {
-                            'type' : type,
-                            'data' : sensorData
-                        }
-                    }, function () {
-                        activity.logActivity({
-                            type : type,
-                            data : sensorData,
-                            html : sensor.prettify(sensorData)
+                        // Emit data
+                        app.skynetSocket.emit('data', {
+                            'uuid': app.mobileuuid,
+                            'token': app.mobiletoken,
+                            'sensorData': {
+                                'type': type,
+                                'data': sensorData
+                            }
+                        }, function () {
+                            activity.logActivity({
+                                type: type,
+                                data: sensorData,
+                                html: sensor.prettify(sensorData)
+                            });
                         });
-                    });
 
-                },
-                // Handle Errors
-                function (err) {
-                    activity.logActivity({
-                        type : type,
-                        error : err
-                    });
-                }
-            );
-        };
+                    },
+                    // Handle Errors
+                    function (err) {
+                        activity.logActivity({
+                            type: type,
+                            error: err
+                        });
+                    }
+                );
+            };
 
-        sensors.forEach(function (sensorType) {
-            if (sensorType && typeof Sensors[sensorType] === 'function') {
-                if(app.sensorIntervals[sensorType]) {
-                    clearInterval(app.sensorIntervals[sensorType]);
+            sensors.forEach(function (sensorType) {
+                if (sensorType && typeof Sensors[sensorType] === 'function') {
+                    if (app.sensorIntervals[sensorType]) {
+                        clearInterval(app.sensorIntervals[sensorType]);
+                    }
+                    throttled[sensorType] = _.throttle(startSensor, wait);
+                    // Trigger Sensor Data every wait
+                    var sensorObj = Sensors[sensorType](1000);
+                    app.sensorIntervals[sensorType] = setInterval(function () {
+                        throttled[sensorType](sensorObj, sensorType);
+                    }, wait);
                 }
-                throttled[sensorType] = _.throttle(startSensor, wait);
-                // Trigger Sensor Data every wait
-                var sensorObj = Sensors[sensorType](1000);
-                app.sensorIntervals[sensorType] = setInterval(function () {
-                    throttled[sensorType](sensorObj, sensorType);
-                }, wait);
-            }
+            });
         });
-    });
-};
+    };
 
 app.startBG = function () {
     // If BG Updates is turned off
@@ -298,8 +359,8 @@ app.startBG = function () {
                 console.log('Success: ' + r.responseText);
 
                 activity.logActivity({
-                    type : 'BG_Geolocation',
-                    html : 'Successfully updated background location'
+                    type: 'BG_Geolocation',
+                    html: 'Successfully updated background location'
                 });
             };
 
@@ -313,8 +374,8 @@ app.startBG = function () {
 
         var failureFn = function (err) {
             activity.logActivity({
-                type : 'BG_Geolocation',
-                error : err
+                type: 'BG_Geolocation',
+                error: err
             });
 
             console.log('BackgroundGeoLocation error');
@@ -343,7 +404,8 @@ app.startBG = function () {
 
 };
 
-app.updateDeviceSetting = function (data, callback) {
+app.updateDeviceSetting = function (data) {
+    var deferred = Q.defer();
     // Extend the data option
     data.uuid = app.mobileuuid;
     data.token = app.mobiletoken;
@@ -353,51 +415,57 @@ app.updateDeviceSetting = function (data, callback) {
     data.name = data.name || app.devicename;
     app.type = 'octobluMobile';
 
-    if(data.setting) app.settings = data.setting;
+    if (data.setting) app.settings = data.setting;
 
     app.devicename = data.name;
 
-    app.skynetSocket.emit('update', data, function(res){
-        // activity.logActivity({
-        //     type : 'UpdateDevice',
-        //     html : 'Successfully updated device'
-        // });
-        callback(res);
-    });
+    app.skynetSocket.emit('update', data, deferred.resolve);
+
+    return deferred.promise;
 };
 
-app.message = function (data, callback) {
-    if(!data.uuid) data.uuid = app.mobileuuid;
-    if(!data.token) data.token = app.mobiletoken;
+app.message = function (data) {
+    var deferred = Q.defer();
+    if (!data.uuid) data.uuid = app.mobileuuid;
+    if (!data.token) data.token = app.mobiletoken;
 
-    app.skynetSocket.emit('message', data, function(d){
+    app.skynetSocket.emit('message', data, function (d) {
         activity.logActivity({
-            type : 'SentMessage',
-            html : 'Sending Message: ' + JSON.stringify(data.payload)
+            type: 'SentMessage',
+            html: 'Sending Message: ' + JSON.stringify(data.payload)
         });
-        callback(d);
+        deferred.resolve(d);
     });
+
+    return deferred.promise;
 };
 
 app.whoami = function (uuid, token, callback) {
+    var deferred = Q.defer();
+
     app.skynetSocket.emit('whoami', {
         uuid: uuid || app.mobileuuid,
         token: token || app.mobiletoken
-    }, callback);
+    }, deferred.resolve);
+
+    return deferred.promise;
 };
 
-app.getDeviceSetting = function (uuid, token, callback) {
-    if(app.settingsUpdated){
-        return callback({
-            setting : app.settings
+app.getDeviceSetting = function (uuid, token) {
+    var deferred = Q.defer();
+
+    if (app.settingsUpdated) {
+        return deferred.resolve({
+            setting: app.settings
         });
     }
-    SkynetRest.getDevice(uuid || app.mobileuuid,
-            token || app.mobiletoken,
-        function (err, data) {
+    SkynetRest.getDevice(
+            uuid || app.mobileuuid,
+            token || app.mobiletoken)
+        .then(function (data) {
             var device;
 
-            if(!data) return callback();
+            if (!data) return deferred.reject('No Device Found');
 
             if (data.devices && data.devices.length) {
                 device = data.devices[0];
@@ -413,51 +481,63 @@ app.getDeviceSetting = function (uuid, token, callback) {
                 }
             }
 
-            callback(device);
+            deferred.resolve(device);
+        }, function(err){
+            console.log(err);
+            deferred.reject('Unable to Retrieve Device');
         });
+    return deferred.promise;
 };
 
-app.init = function (callback) {
+app.init = function () {
+    var deferred = Q.defer();
     app.setData();
 
     activity.init();
 
     if (app.isAuthenticated()) {
-        app.auth(callback);
+        app.connect()
+            .then(deferred.resolve, deferred.reject);
     } else {
-        callback();
+        deferred.reject('Unauthenticated');
     }
+
+    return deferred.promise.timeout(1000 * 5)
+        .then(function () {
+            app.startProcesses();
+            $(document).trigger('skynet-loaded');
+        });
 };
 
 app.setData();
 
 var publicApi = {
-    initilized : true,
-    init : app.init,
-    getDeviceSetting : app.getDeviceSetting,
-    whoami : app.whoami,
-    message : app.message,
-    updateDeviceSetting : app.updateDeviceSetting,
-    logout : app.logout,
-    login : app.login,
-    isAuthenticated : app.isAuthenticated,
-    logSensorData : app.logSensorData,
-    getCurrentSettings : function(){
+    initilized: true,
+    init: app.init,
+    getDeviceSetting: app.getDeviceSetting,
+    whoami: app.whoami,
+    message: app.message,
+    updateDeviceSetting: app.updateDeviceSetting,
+    logout: app.logout,
+    login: app.login,
+    isAuthenticated: app.isAuthenticated,
+    logSensorData: app.logSensorData,
+    getCurrentSettings: function () {
         return {
-            skynetSocket : app.skynetSocket,
-            devicename : app.devicename,
-            loggedin : app.loggedin,
-            mobileuuid : app.mobileuuid,
-            mobiletoken : app.mobiletoken,
-            skynetuuid : app.skynetuuid,
-            skynettoken : app.skynettoken,
-            settings : app.settings
+            skynetSocket: app.skynetSocket,
+            devicename: app.devicename,
+            loggedin: app.loggedin,
+            mobileuuid: app.mobileuuid,
+            mobiletoken: app.mobiletoken,
+            skynetuuid: app.skynetuuid,
+            skynettoken: app.skynettoken,
+            settings: app.settings
         };
     },
-    Sensors : Sensors,
-    clearActivityCount : activity.clearActivityCount,
-    getActivity : activity.getActivity,
-    logActivity : activity.logActivity
+    Sensors: Sensors,
+    clearActivityCount: activity.clearActivityCount,
+    getActivity: activity.getActivity,
+    logActivity: activity.logActivity
 };
 
 

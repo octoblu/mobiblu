@@ -145,7 +145,6 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         $rootScope.ready(function(){
             $scope.getPlugins();
             $rootScope.loading = false;
-
         });
     };
 
@@ -254,7 +253,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         window.octobluMobile.removePlugin(
             $scope.plugin,
             function (err) {
-                if (err) return console.log('Error removing plugin', err);
+                if (err) console.log('Error removing plugin', err);
                 console.log('Removed plugin');
                 $location.path('/plugins');
             }

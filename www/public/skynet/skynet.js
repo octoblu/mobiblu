@@ -1,9 +1,11 @@
 'use strict';
+var Q = require('Q');
 
 var baseURL = 'http://skynet.im';
 var obj = {};
 
-obj.getDevice = function (uuid, token, callback) {
+obj.getDevice = function (uuid, token) {
+    var deferred = Q.defer();
     $.ajax({
         url: baseURL + '/devices/' + uuid,
         method: 'GET',
@@ -13,16 +15,13 @@ obj.getDevice = function (uuid, token, callback) {
         },
         timeout : 5 * 1000
     })
-        .success(function (data) {
-            callback(null, data);
-        })
-        .error(function (data, status, headers, config) {
-            console.log('Error: ', data, status, headers, config);
-            callback(data);
-        });
+        .success(deferred.resolve)
+        .error(deferred.reject);
+    return deferred.promise;
 };
 
-obj.sendData = function (uuid, token, data, callback) {
+obj.sendData = function (uuid, token, data) {
+    var deferred = Q.defer();
     $.ajax({
         url: baseURL + '/data/' + uuid,
         method: 'POST',
@@ -33,13 +32,9 @@ obj.sendData = function (uuid, token, data, callback) {
         },
         timeout : 5 * 1000
     })
-        .success(function (data) {
-            callback(null, data);
-        })
-        .error(function (data, status, headers, config) {
-            console.log('Error: ', data, status, headers, config);
-            callback(data);
-        });
+        .success(deferred.resolve)
+        .error(deferred.reject);
+    return deferred.promise;
 };
 
 module.exports = obj;

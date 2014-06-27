@@ -30,7 +30,7 @@ angular.module('main', [
 
     $rootScope.redirectToError = function (err) {
         $rootScope.loading = false;
-        $rootScope.errorMsg = err.toString();
+        $rootScope.errorMsg = err || '';
         $location.path('/error');
     };
 
@@ -71,10 +71,11 @@ angular.module('main', [
     var skynetInit = function () {
         var deferred = $q.defer();
 
-        $rootScope.Skynet.init(function () {
-            console.log('SKYNET INIT\'d');
-            deferred.resolve();
-        });
+        $rootScope.Skynet.init()
+            .then(function () {
+                console.log('SKYNET INIT\'d');
+                deferred.resolve();
+            }, $rootScope.redirectToError);
 
         setTimeout(deferred.reject, 1000 * 15);
 

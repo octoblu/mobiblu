@@ -41,7 +41,7 @@ systemApp.controller('HeaderCtrl',
         };
 
         $scope.logout = function () {
-            var settings = $rootScope.settings;
+            $rootScope.Skynet.logout();
         };
 
         $scope.settings = function () {
@@ -116,7 +116,16 @@ systemApp.controller('ErrorCtrl',
     function ($rootScope, $scope) {
 
         $scope.init = function () {
+            if(!$rootScope.errorMsg){
+                return $rootScope.errorMsg = '';
+            }
+            if(typeof $rootScope.errorMsg !== 'string'){
+                $rootScope.errorMsg = $rootScope.errorMsg.toString();
+            }
+        };
 
+        $scope.logout = function () {
+            $rootScope.Skynet.logout();
         };
 
     });

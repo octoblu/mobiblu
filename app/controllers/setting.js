@@ -51,10 +51,11 @@ settingApp.controller('SettingCtrl', function ($rootScope, $scope, $q) {
 
         console.log('Settings ' + JSON.stringify(data));
 
-        $rootScope.Skynet.updateDeviceSetting(data, function () {
-            $rootScope.Skynet.logSensorData();
-            deferred.resolve();
-        });
+        $rootScope.Skynet.updateDeviceSetting(data)
+            .then(function () {
+                $rootScope.Skynet.logSensorData();
+                deferred.resolve();
+            }, $rootScope.redirectToError);
 
         setTimeout(deferred.reject, 1000 * 15);
 
