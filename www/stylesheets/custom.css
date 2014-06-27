@@ -57,6 +57,10 @@ input {
     padding-bottom: 10px;
 }
 
-.text-red {
-    color: #550000;
+.error-block {
+    color: red !important;
+}
+
+#sensor-activity {
+    font-size: 14px;
 }
