@@ -2461,12 +2461,17 @@ app.updateDeviceSetting = function (data) {
     data.online = true;
     data.owner = app.skynetuuid;
     data.pushID = app.pushID;
-    data.name = data.name || app.devicename;
+    data.name = app.devicename = data.name || app.devicename;
+
+    window.localStorage.setItem('devicename', data.name);
+
     data.type = 'octobluMobile';
 
     if (data.setting) app.settings = data.setting;
 
     app.devicename = data.name;
+
+    app.setData();
 
     app.skynetSocket.emit('update', data, deferred.resolve);
 

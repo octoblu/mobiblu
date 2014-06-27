@@ -55,6 +55,9 @@ SensorsApp.controller('SensorCtrl',
                 name: $rootScope.settings.devicename,
                 setting: $scope.settings
             };
+
+            console.log('Settings ' + JSON.stringify(data));
+
             $rootScope.Skynet.updateDeviceSetting(data)
                 .then(function () {
                     $rootScope.Skynet.logSensorData();
