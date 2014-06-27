@@ -158,6 +158,8 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
 
             if (!$scope.plugin.subdevices.length) {
                 $scope.addSubdevice();
+            }else if($scope.plugin.subdevices[0] && !$scope.plugin.subdevices[0].name){
+                $scope.addSubdevice();
             }
             $rootScope.loading = false;
         });

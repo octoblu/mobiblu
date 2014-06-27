@@ -155,12 +155,7 @@ app.startProcesses = function () {
     app.startBG();
 };
 
-app.registerDevice = function () {
-
-    console.log('Registering...');
-
-    var deferred = Q.defer();
-
+app.regData = function(){
     var regData = {
         'name': app.devicename,
         'owner': app.skynetuuid,
@@ -174,6 +169,17 @@ app.registerDevice = function () {
     }
 
     if (app.pushID) regData.pushID = app.pushID;
+
+    return regData;
+};
+
+app.registerDevice = function () {
+
+    console.log('Registering...');
+
+    var deferred = Q.defer();
+
+    var regData = app.regData();
 
     app.skynetSocket.emit(
         'register',
@@ -220,45 +226,43 @@ app.register = function (registered) {
 
 };
 
-app.connect = function (data) {
+app.connect = function () {
 
     console.log('Connecting to skynet...');
 
     var deferred = Q.defer();
 
-    if (!data) {
-        data = {
-            'uuid': app.mobileuuid || app.skynetuuid,
-            'token': app.mobiletoken || app.skynettoken
-        };
-    }
+    var data = app.regData();
 
     if (app.skynetSocket) {
-        console.log('Skynet Socket already established.');
-        return app.getDeviceSetting(null, null)
-            .then(deferred.resolve, deferred.reject);
+        console.log('Socket already established.');
+        deferred.resolve();
+    }else{
+        console.log('Reg Data :: ' + JSON.stringify(data));
+
+        app.skynetClient = skynet(data, function (e, socket) {
+            if(app.skynetSocket){
+                console.log('Socket already established.');
+                deferred.resolve();
+                return;
+            }
+            if (socket) {
+                app.skynetSocket = socket;
+            } else {
+                deferred.reject('Error Authenticating with Skynet');
+                return;
+            }
+
+            if (e) {
+                console.log(e.toString());
+                app.registerDevice()
+                    .done(deferred.resolve, deferred.reject);
+            }else{
+                deferred.resolve();
+            }
+
+        });
     }
-    // GETS HERE
-    app.skynetClient = skynet(data, function (e, socket) {
-        var registered = true;
-        if (e) {
-            console.log(e.toString());
-            registered = false;
-        }
-        if (socket) {
-            app.skynetSocket = socket;
-            app.register(registered)
-                .then(function () {
-                    console.log('Registered!');
-                    deferred.resolve();
-                }, function () {
-                    console.log('Error on Skynet Register');
-                    deferred.reject();
-                });
-        } else {
-            deferred.reject('Error Authenticating with Skynet');
-        }
-    });
 
     return deferred.promise;
 };

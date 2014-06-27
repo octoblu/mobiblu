@@ -25,7 +25,7 @@
 
             <div class="card">
                 <ul class="table-view">
-                    <li class="table-view-cell" ng-repeat="device in plugin.subdevices" ng-show="device.name.length" ng-click="selectSubdevice(device)">
+                    <li class="table-view-cell" ng-repeat="device in plugin.subdevices track by $index" ng-show="device.name.length" ng-click="selectSubdevice(device)">
                         <span>
                             {{ device.name }}
                         </span>
