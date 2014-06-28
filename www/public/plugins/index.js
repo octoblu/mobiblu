@@ -237,7 +237,7 @@ obj.registerPlugin = function (name) {
 
     if (~found) {
         deferred.resolve();
-    }else{
+    } else {
         var dir = obj.pluginsDir + name;
         $.getJSON(dir + '/package.json')
             .success(function (json) {
@@ -267,10 +267,11 @@ obj.loadPlugin = function (data) {
     var found = obj.findPlugin(name);
     if (!~found || !obj.instances[name]) {
         console.log('Installing Plugin', name);
-        return obj.registerPlugin(name, function () {
-            obj.retrievePlugins().then(deferred.resolve, deferred.reject);
-        });
-    }else{
+        return obj.registerPlugin(name)
+            .then(function () {
+                obj.retrievePlugins().then(deferred.resolve, deferred.reject);
+            });
+    } else {
         obj.instances[name] = obj.initPlugin(obj.plugins[found]);
         deferred.resolve();
     }
