@@ -63,6 +63,7 @@ angular.module('main', [
     };
 
     $rootScope.ready = function (cb) {
+        $rootScope.setSettings();
         if (loaded) cb();
         else skynetLoad().then(cb, $rootScope.redirectToError);
     };

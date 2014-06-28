@@ -37,7 +37,7 @@
                 if (newskynetuuid && newskynettoken) {
                     console.log('Setting new credentials');
                     // If user changed then do delete the mobileuuid && mobiletoken
-                    if(skynetuuid !== newskynetuuid){
+                    if(skynetuuid && skynetuuid !== newskynetuuid){
                         console.log('Setting new mobile credentials');
                         window.localStorage.removeItem("mobileuuid");
                         window.localStorage.removeItem("mobiletoken");

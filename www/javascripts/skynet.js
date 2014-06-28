@@ -55,4 +55,10 @@ function skynet(config, cb) {
     };
 
     authenticate();
+
+    return {
+        updateConfig : function(newConfig){
+            config = newConfig;
+        }
+    };
 }

@@ -33,7 +33,9 @@ app.setData = function () {
     app.mobileuuid = window.localStorage.getItem('mobileuuid');
     app.mobiletoken = window.localStorage.getItem('mobiletoken');
 
-    if(!app.settings) app.settings = app.defaultSettings;
+    console.log('Set Data Creds', JSON.stringify([app.mobileuuid, app.mobiletoken]));
+
+    if (!app.settings) app.settings = app.defaultSettings;
 
     app.settingsUpdated = false;
 
@@ -43,15 +45,19 @@ app.setData = function () {
 
 app.logout = function () {
 
-    window.localStorage.removeItem('skynetuuid');
-    window.localStorage.removeItem('skynettoken');
-    app.skynetuuid = null;
-    app.skynettoken = null;
+    //window.localStorage.removeItem('skynetuuid');
+    //window.localStorage.removeItem('skynettoken');
+    //app.skynetuuid = null;
+    //app.skynettoken = null;
 
     window.loggedin = app.loggedin = false;
     window.localStorage.removeItem('loggedin');
 
     window.localStorage.removeItem('skynetactivity');
+
+    window.localStorage.removeItem('plugins');
+
+    window.localStorage.removeItem('subdevices');
 
     app.setData();
 
@@ -135,9 +141,9 @@ app.startProcesses = function () {
 
         app.loaded = true;
 
-        app.registerPushID().then(function(){
+        app.registerPushID().then(function () {
             console.log('Push ID Registered');
-        }, function(err){
+        }, function (err) {
             console.log(err);
         });
 
@@ -155,7 +161,7 @@ app.startProcesses = function () {
     app.startBG();
 };
 
-app.regData = function(){
+app.regData = function () {
     var regData = {
         'name': app.devicename,
         'owner': app.skynetuuid,
@@ -173,7 +179,8 @@ app.regData = function(){
     return regData;
 };
 
-app.registerDevice = function () {
+// Register New Device
+app.registerDevice = function (newDevice) {
 
     console.log('Registering...');
 
@@ -181,16 +188,25 @@ app.registerDevice = function () {
 
     var regData = app.regData();
 
+    if(newDevice){
+        delete regData.uuid;
+        delete regData.token;
+    }
+
+    console.log('Registration Data: ', JSON.stringify(regData));
+
     app.skynetSocket.emit(
         'register',
         regData,
         function (data) {
-
+            console.log('Registration Response: ', JSON.stringify(data));
             window.localStorage.setItem('mobileuuid', data.uuid);
             window.localStorage.setItem('mobiletoken', data.token);
             window.localStorage.setItem('devicename', data.name);
 
-            app.setData();
+            app.mobileuuid = data.uuid;
+            app.mobiletoken = data.token;
+            app.devicename = data.name;
 
             deferred.resolve();
         });
@@ -222,47 +238,68 @@ app.register = function (registered) {
 
 };
 
+app.skynet = function () {
+    var deferred = Q.defer();
+
+    if (!app.skynetSocket) {
+        app.skynetSocket = io.connect('http://skynet.im', {
+            port: 80
+        });
+    }
+
+    app.skynetSocket.on('connect', function () {
+        console.log('Requesting websocket connection to Skynet');
+
+        app.skynetSocket.on('identify', function (data) {
+            console.log('Websocket connecting to Skynet with socket id: ' + data.socketid);
+
+            console.log('Mobile UUID', JSON.stringify([app.mobileuuid, app.mobiletoken]));
+
+            //console.log('Sending device uuid: ' + config.uuid);
+            if (app.mobileuuid && app.mobiletoken) {
+                app.skynetSocket.emit('identity', {
+                    uuid: app.mobileuuid,
+                    socketid: data.socketid,
+                    token: app.mobiletoken
+                });
+            } else {
+                app.registerDevice();
+            }
+        });
+
+        app.skynetSocket.on('notReady', function () {
+            deferred.reject(new Error('Authentication Error'));
+        });
+        app.skynetSocket.on('ready', function (data) {
+            deferred.resolve(data);
+        });
+
+    });
+
+    return deferred.promise;
+}
+
 app.connect = function () {
 
     console.log('Connecting to skynet...');
 
     var deferred = Q.defer();
 
-    var data = app.regData();
-
     if (app.skynetSocket) {
         console.log('Socket already established.');
         deferred.resolve();
-    }else{
+    } else {
 
-        app.skynetClient = skynet(data, function (e, socket, data) {
-            if(app.skynetSocket){
-                console.log('Socket already established.');
+        app.skynet()
+            .then(function (data) {
                 deferred.resolve();
-                return;
-            }
-            if (socket) {
-                app.skynetSocket = socket;
-            } else {
-                deferred.reject('Error Authenticating with Skynet');
-                return;
-            }
-
-            if(data){
-                window.localStorage.setItem('mobileuuid', data.uuid);
-                window.localStorage.setItem('mobiletoken', data.token);
-                app.setData();
-            }
-
-            if (e) {
-                console.log(e.toString());
-                app.registerDevice()
-                    .done(deferred.resolve, deferred.reject);
-            }else{
-                deferred.resolve();
-            }
-
-        });
+            }, function (e) {
+                if (e) {
+                    console.log(e.toString());
+                    app.registerDevice(true)
+                        .done(deferred.resolve, deferred.reject);
+                }
+            });
     }
 
     return deferred.promise;
@@ -441,8 +478,6 @@ app.updateDeviceSetting = function (data) {
 
     app.devicename = data.name;
 
-    app.setData();
-
     app.skynetSocket.emit('update', data, deferred.resolve);
 
     return deferred.promise;
@@ -515,20 +550,19 @@ app.getDeviceSetting = function (uuid, token) {
 
 app.init = function () {
     var deferred = Q.defer();
+
     app.setData();
 
     activity.init();
 
-    if(!app.isAuthenticated()){
+    if (!app.isAuthenticated()) {
         deferred.resolve();
-    }else{
+    } else {
         app.connect()
             .then(function () {
                 app.startProcesses();
                 console.log('Connected');
-
                 $(document).trigger('skynet-loaded');
-
                 deferred.resolve();
 
             }, deferred.reject);
@@ -536,8 +570,6 @@ app.init = function () {
 
     return deferred.promise;
 };
-
-app.setData();
 
 var publicApi = {
     initilized: true,
