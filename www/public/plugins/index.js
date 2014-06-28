@@ -237,19 +237,19 @@ obj.registerPlugin = function (name) {
 
     if (~found) {
         deferred.resolve();
+    }else{
+        var dir = obj.pluginsDir + name;
+        $.getJSON(dir + '/package.json')
+            .success(function (json) {
+                console.log('Got package JSON');
+                obj.writePlugin(json, false);
+                deferred.resolve();
+            })
+            .error(function (err) {
+                console.log('Error getting package JSON' + JSON.stringify(err));
+                deferred.reject();
+            });
     }
-
-    var dir = obj.pluginsDir + name;
-    $.getJSON(dir + '/package.json')
-        .success(function (json) {
-            console.log('Got package JSON');
-            obj.writePlugin(json, false);
-            deferred.resolve();
-        })
-        .error(function (err) {
-            console.log('Error getting package JSON' + JSON.stringify(err));
-            deferred.reject();
-        });
 
     return deferred.promise;
 };

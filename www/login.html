@@ -1,10 +1,8 @@
 <html>
     <head>
         <!-- cordova.js is served from localhost to ensure the correct version -->
-        <script id="ag-cordova-loader"></script>
+        <script id="ag-cordova-loader" src="http://localhost/cordova.js"></script>
 
-        <script src="/javascripts/loader.js"></script>
-        
         <script src="/components/steroids-js/steroids.js"></script>
         <script src="/components/steroids-addons/index.js"></script>
 
@@ -31,6 +29,10 @@
                     skynetuuid = window.localStorage.getItem("skynetuuid"),
                     skynettoken = window.localStorage.getItem("skynettoken");
 
+                console.log('Skynet UUID', skynetuuid);
+                console.log('Skynet Token', skynettoken);
+                console.log('NEW Skynet UUID', newskynetuuid);
+                console.log('NEW Skynet Token', newskynettoken);
                 // Set new Skynet Tokens
                 if (newskynetuuid && newskynettoken) {
                     console.log('Setting new credentials');

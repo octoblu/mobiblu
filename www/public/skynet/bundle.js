@@ -2068,7 +2068,7 @@ app.setData = function () {
     app.mobileuuid = window.localStorage.getItem('mobileuuid');
     app.mobiletoken = window.localStorage.getItem('mobiletoken');
 
-    app.settings = app.defaultSettings;
+    if(!app.settings) app.settings = app.defaultSettings;
 
     app.settingsUpdated = false;
 
@@ -2221,15 +2221,11 @@ app.registerDevice = function () {
         regData,
         function (data) {
 
-            data.mobileuuid = data.uuid;
-            data.mobiletoken = data.token;
-
-            app.mobileuuid = data.mobileuuid;
-            app.mobiletoken = data.mobiletoken;
-
             window.localStorage.setItem('mobileuuid', data.uuid);
             window.localStorage.setItem('mobiletoken', data.token);
             window.localStorage.setItem('devicename', data.name);
+
+            app.setData();
 
             deferred.resolve();
         });
@@ -2273,9 +2269,8 @@ app.connect = function () {
         console.log('Socket already established.');
         deferred.resolve();
     }else{
-        console.log('Reg Data :: ' + JSON.stringify(data));
 
-        app.skynetClient = skynet(data, function (e, socket) {
+        app.skynetClient = skynet(data, function (e, socket, data) {
             if(app.skynetSocket){
                 console.log('Socket already established.');
                 deferred.resolve();
@@ -2286,6 +2281,12 @@ app.connect = function () {
             } else {
                 deferred.reject('Error Authenticating with Skynet');
                 return;
+            }
+
+            if(data){
+                window.localStorage.setItem('mobileuuid', data.uuid);
+                window.localStorage.setItem('mobiletoken', data.token);
+                app.setData();
             }
 
             if (e) {
@@ -2553,15 +2554,20 @@ app.init = function () {
 
     activity.init();
 
-    app.connect()
-        .then(function () {
+    if(!app.isAuthenticated()){
+        deferred.resolve();
+    }else{
+        app.connect()
+            .then(function () {
+                app.startProcesses();
+                console.log('Connected');
 
-            app.startProcesses();
-            $(document).trigger('skynet-loaded');
-            console.log('Connected');
-            deferred.resolve();
+                $(document).trigger('skynet-loaded');
 
-        }, deferred.reject);
+                deferred.resolve();
+
+            }, deferred.reject);
+    }
 
     return deferred.promise;
 };
@@ -2727,6 +2733,10 @@ var obj = {};
 
 obj.getDevice = function (uuid, token) {
     var deferred = Q.defer();
+
+    if(!uuid && !token){
+        deferred.resolve();
+    }
     $.ajax({
         url: baseURL + '/devices/' + uuid,
         method: 'GET',

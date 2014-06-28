@@ -8,6 +8,7 @@ homeApp.controller('HomeCtrl', function ($rootScope, $scope) {
 
     $scope.init = function(){
         $scope.login = $rootScope.Skynet.login;
+        $rootScope.loading = false;
     };
 
 

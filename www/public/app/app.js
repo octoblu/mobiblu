@@ -29,10 +29,25 @@ angular.module('main', [
     $rootScope.errorMsg = null;
 
     $rootScope.redirectToError = function (err) {
+        console.log('Redirecting to Error');
         $rootScope.loading = false;
         $rootScope.errorMsg = err || '';
         $location.path('/error');
     };
+
+    var loadingTimeout;
+
+    $rootScope.$on('$locationChangeSuccess', function(){
+        if(loadingTimeout) clearTimeout(loadingTimeout);
+        loadingTimeout = setTimeout(function(){
+            console.log('Loading :: ' + $rootScope.loading);
+            if($rootScope.loading){
+                $rootScope.$apply(function() {
+                    $rootScope.redirectToError('Request Timeout.');
+                });
+            }
+        }, 1000 * 20);
+    });
 
     var skynetLoad = function (cb) {
         var deferred = $q.defer();
@@ -41,6 +56,8 @@ angular.module('main', [
             console.log('SKYNET LOADED EVENT :: ' + JSON.stringify(loaded));
             deferred.resolve();
         });
+
+        setTimeout(deferred.reject, 1000 * 15);
 
         return deferred.promise;
     };
@@ -87,6 +104,7 @@ angular.module('main', [
 
             $rootScope.$on('$locationChangeSuccess', function () {
                 $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
+                $('.content').css('height', '100%');
             });
 
             $rootScope.isAuthenticated();

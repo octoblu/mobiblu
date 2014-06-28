@@ -6,6 +6,10 @@ var obj = {};
 
 obj.getDevice = function (uuid, token) {
     var deferred = Q.defer();
+
+    if(!uuid && !token){
+        deferred.resolve();
+    }
     $.ajax({
         url: baseURL + '/devices/' + uuid,
         method: 'GET',
