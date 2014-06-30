@@ -268,9 +268,11 @@ app.skynet = function () {
         });
 
         app.skynetSocket.on('notReady', function () {
+            console.log('Skynet Authentication Error');
             deferred.reject(new Error('Authentication Error'));
         });
         app.skynetSocket.on('ready', function (data) {
+            console.log('Skynet Ready');
             deferred.resolve(data);
         });
 
@@ -291,7 +293,7 @@ app.connect = function () {
     } else {
 
         app.skynet()
-            .then(function (data) {
+            .then(function () {
                 deferred.resolve();
             }, function (e) {
                 if (e) {
@@ -468,6 +470,7 @@ app.updateDeviceSetting = function (data) {
     data.online = true;
     data.owner = app.skynetuuid;
     data.pushID = app.pushID;
+    data.platform = device.platform;
     data.name = app.devicename = data.name || app.devicename;
 
     window.localStorage.setItem('devicename', data.name);

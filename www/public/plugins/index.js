@@ -418,6 +418,7 @@ obj.loadLocalPlugins = function () {
 
                 var promises = [];
                 for (var x in json) {
+                    var plugin = json[x];
                     promises.push(obj.loadPlugin(plugin));
                 }
                 Q.all(promises).done(deferred.resolve, deferred.reject);
