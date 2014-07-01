@@ -1,0 +1,23 @@
+<div>
+
+    <div ng-controller="PluginCtrl" ng-init="getSubdevices()">
+
+        <div ng-include src="'/public/views/system/loading.html'"></div>
+
+        <p class="content-padded">Devices</p>
+
+        <div class="card">
+            <ul class="table-view">
+                <li class="table-view-cell" ng-repeat="device in subdevices track by $index" ng-show="device.name.length" ng-click="goToDevice(device)">
+                    <span>
+                        {{ device.name }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <a href="index.html#!/plugins/search" class="btn btn-success btn-block btn-outlined">Add Device</a>
+
+    </div>
+
+</div>

@@ -37,6 +37,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         var data = res.data;
 
         $scope.results = $scope.results.concat(data.results || []);
+
         $scope.allResults = $scope.results;
 
         $rootScope.loading = false;
@@ -55,6 +56,16 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
 
     $scope.installPlugin = function (plugin) {
         $rootScope.loading = true;
+
+        var plugins = $scope.getPlugins();
+
+        for(var x in plugins){
+            var p = plugins[x];
+            if(p.name === plugin.name){
+                plugin = _.extend(p, plugin);
+                break;
+            }
+        }
 
         var entry,
             fileTransfer = new FileTransfer(),
@@ -133,6 +144,11 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         }
     };
 
+    $scope.getSubdevices = function () {
+        $scope.subdevices = window.octobluMobile.getSubdevices();
+        console.log('Subdevices :: ' + JSON.stringify($scope.subdevices));
+    };
+
     $scope.installed = function () {
         $rootScope.ready(function () {
             $scope.getPlugins();
@@ -140,7 +156,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         });
     };
 
-    $scope.findOne = function () {
+    $scope.findOne = function (cb) {
         $rootScope.ready(function () {
             $scope.getPlugins();
 
@@ -150,6 +166,11 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     $scope.plugin = plugin;
                     break;
                 }
+            }
+
+            if(!$scope.plugin){
+                console.log('Cant find plugin :: ' + JSON.stringify($routeParams));
+                return;
             }
 
             if (!$scope.plugin.subdevices) {
@@ -162,6 +183,9 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                 $scope.addSubdevice();
             }
             $rootScope.loading = false;
+            if(typeof cb === 'undefined'){
+                cb();
+            }
         });
     };
 
@@ -178,7 +202,25 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         $scope.selectSubdevice(subdevice);
     };
 
+    $scope.goToDevice = function(subdevice){
+        console.log('Subdevice :: ' + JSON.stringify(subdevice));
+        $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id);
+    };
+
+    $scope.loadSubdevice = function(){
+        $scope.findOne(function(){
+            for(var x in $scope.plugin.subdevices){
+                var subdevice = $scope.plugin.subdevices[x];
+                if(subdevice._id === $routeParams.deviceId){
+                    $scope.selectSubdevice(subdevice);
+                    return;
+                }
+            }
+        });
+    };
+
     $scope.selectSubdevice = function (subdevice) {
+
         $scope.subdevice = subdevice;
         var options = subdevice.options || {};
 

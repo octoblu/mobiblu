@@ -44,6 +44,18 @@ obj.getPlugins = function () {
     return obj.plugins || obj.retrieveFromStorage();
 };
 
+obj.getSubdevices = function () {
+    var getSubdevicesFromStorage = function(){
+        var subdevices = [];
+        try{
+            subdevices = JSON.parse(window.localStorage.getItem('subdevices'));
+        }catch(e){}
+
+        return subdevices;
+    };
+    return obj.subdevices || getSubdevicesFromStorage();
+};
+
 obj.writePlugin = function (json, init) {
     if (typeof init === 'undefined') init = true;
     console.log('Writing Plugin', json.name);
@@ -127,7 +139,7 @@ obj.retrieveFromStorage = function () {
             plugins = JSON.parse(pluginsJSON);
         }
 
-        var subdevices = window.localStorage.getItem('plugins');
+        var subdevices = window.localStorage.getItem('subdevices');
 
         obj.subdevices = JSON.parse(subdevices) || [];
 
@@ -475,6 +487,7 @@ var octobluMobile = {
     api: api,
     plugins: {},
     getPlugins: obj.getPlugins,
+    getSubdevices: obj.getSubdevices,
     triggerPluginEvent: obj.triggerPluginEvent,
     removePlugin: obj.removePlugin,
     writePlugin: obj.writePlugin,

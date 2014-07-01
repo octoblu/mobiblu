@@ -1,0 +1,22 @@
+<div>
+
+    <div ng-controller="PluginCtrl" ng-init="loadSubdevice()">
+
+        <div ng-include src="'/public/views/system/loading.html'"></div>
+
+        <p class="content-padded">Adding Device <br> {{ plugin.name }}</p>
+
+        <form class="input-group">
+
+            <div ng-show="subdevice">
+                <input type="text" placeholder="Device Name" ng-model="subdevice.name">
+                <div id="options-editor">
+                </div>
+                <button class="btn btn-success btn-block" ng-click="savePlugin()">Save</button>
+            </div>
+        </form>
+
+
+    </div>
+
+</div>

@@ -13,8 +13,7 @@
                 <li ng-repeat="plugin in results" class="table-view-cell">
                     {{ plugin.name }}
                     <button class="btn" ng-click="installPlugin(plugin)">
-                        <span ng-hide="pluginNames.indexOf(plugin.name) > -1">Install</span>
-                        <span ng-show="pluginNames.indexOf(plugin.name) > -1">Upgrade</span>
+                        <span>Add Device</span>
                     </button>
                 </li>
             </ul>

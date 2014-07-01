@@ -18,10 +18,15 @@ angular.module('main').config(['$routeProvider',
             .when('/plugins/installed', {
                 templateUrl: '/public/views/plugins/installed.html'
             })
+            .when('/plugins/devices', {
+                templateUrl: '/public/views/plugins/list.html'
+            })
             .when('/plugins/:pluginName', {
                 templateUrl: '/public/views/plugins/view.html'
             })
-
+            .when('/plugins/device/:pluginName/:deviceId', {
+                templateUrl: '/public/views/plugins/device.html'
+            })
             .when('/sensors/:sensorType', {
                 templateUrl: '/public/views/sensors/view.html'
             })
