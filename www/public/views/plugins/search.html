@@ -2,11 +2,9 @@
 
     <div ng-controller="PluginCtrl" ng-init="initSearch()">
 
-        <form>
-            <input ng-change="search()" ng-model="term" type="search" placeholder="Search">
-        </form>
-
         <div ng-include src="'/public/views/system/loading.html'"></div>
+
+        <input ng-change="search()" ng-model="term" type="search" placeholder="Search">
 
         <div ng-hide="loading || errorMsg">
             <ul class="table-view" ng-show="results && results.length">

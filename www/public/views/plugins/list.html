@@ -4,19 +4,24 @@
 
         <div ng-include src="'/public/views/system/loading.html'"></div>
 
-        <p class="content-padded">Devices</p>
+        <div ng-show="subdevices">
+            <p class="content-padded">Devices</p>
 
-        <div class="card">
-            <ul class="table-view">
-                <li class="table-view-cell" ng-repeat="device in subdevices track by $index" ng-show="device.name.length" ng-click="goToDevice(device)">
-                    <span>
-                        {{ device.name }}
-                    </span>
-                </li>
-            </ul>
+            <div class="card">
+                <ul class="table-view">
+                    <li class="table-view-cell" ng-repeat="device in subdevices track by $index" ng-show="device.name.length" ng-click="goToDevice(device)">
+                        <span>
+                            {{ device.name }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
         </div>
 
-        <a href="index.html#!/plugins/search" class="btn btn-success btn-block btn-outlined">Add Device</a>
+        <p ng-hide="subdevices" class="content-padded">No devices found.</p>
+
+        <a href="index.html#!/plugins/search" class="btn btn-success btn-block btn-outlined" ng-hide="matchRoute('/$')">Search for Devices</a>
 
     </div>
 

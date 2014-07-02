@@ -56,7 +56,7 @@ obj.getSubdevices = function () {
     return obj.subdevices || getSubdevicesFromStorage();
 };
 
-obj.writePlugin = function (json, init) {
+obj.writePlugin = function (json, init, removing) {
     if (typeof init === 'undefined') init = true;
     console.log('Writing Plugin', json.name);
 
@@ -64,11 +64,34 @@ obj.writePlugin = function (json, init) {
         json._path = obj.pluginsDir + json.name + '/bundle.js';
     }
 
+    if(!json.subdevices){
+        json.subdevices = [];
+    }
+
+    if(!removing){
+        obj.subdevices.forEach(function(item){
+            if(item.type === json.name){
+                var found = false;
+                for(var x in json.subdevices){
+                    var d = json.subdevices[x];
+                    if(d._id === item._id){
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    json.subdevices.push(item);
+                }
+            }
+        });
+    }
+
     var found = obj.findPlugin(json.name);
 
     if (~found) {
         obj.plugins[found] = json;
     } else {
+        json.enabled = true;
         obj.plugins.push(json);
     }
 
@@ -112,6 +135,7 @@ obj.writePluginsToStorage = function () {
     for (var x in obj.plugins) {
         subdevices = subdevices.concat(obj.plugins[x].subdevices || []);
     }
+    obj.subdevices = subdevices;
     window.localStorage.setItem('subdevices', JSON.stringify(subdevices));
     window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
 };
@@ -468,6 +492,9 @@ obj.init = function () {
     ]).done(function () {
 
         obj.startListen();
+
+        $(document).trigger('plugins-ready');
+
         deferred.resolve();
 
     }, deferred.reject);

@@ -49,7 +49,7 @@ angular.module('main', [
         }, 1000 * 20);
     });
 
-    var skynetLoad = function (cb) {
+    var skynetLoad = function () {
         var deferred = $q.defer();
         $(document).on('skynet-loaded', function () {
             loaded = true;
@@ -83,6 +83,32 @@ angular.module('main', [
         }
     };
 
+    var pluginsLoaded = false;
+
+    $(document).on('plugins-loaded', function(){
+        pluginsLoaded = true;
+    });
+
+    var pluginReady = function(){
+        var deferred = $q.defer();
+
+        if(pluginsLoaded){
+            deferred.resolve();
+        }else{
+            $(document).on('plugins-loaded', function(){
+                pluginsLoaded = true;
+                deferred.resolve();
+            });
+        }
+
+        setTimeout(deferred.reject, 1000 * 15);
+
+        return deferred.promise;
+    };
+
+    $rootScope.pluginReady = function(cb){
+        pluginReady().then(cb, $rootScope.redirectToError);
+    };
 
     var skynetInit = function () {
         var deferred = $q.defer();

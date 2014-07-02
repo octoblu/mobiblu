@@ -14,26 +14,17 @@
                 </div>
             </div>
 
-            <div ng-show="subdevice">
-                <input type="text" placeholder="Device Name" ng-model="subdevice.name">
-                <div id="options-editor">
-                </div>
-                <button class="btn btn-success btn-block" ng-click="savePlugin()">Save</button>
-            </div>
-
-            <p class="content-padded">Devices</p>
-
             <div class="card">
                 <ul class="table-view">
-                    <li class="table-view-cell" ng-repeat="device in plugin.subdevices track by $index" ng-show="device.name.length" ng-click="selectSubdevice(device)">
-                        <span>
-                            {{ device.name }}
-                        </span>
+                    <li class="table-view-cell" ng-repeat="device in plugin.subdevices track by $index" ng-show="device.name.length" ng-click="goToDevice(device)">
+                    <span>
+                        {{ device.name }}
+                    </span>
                     </li>
                 </ul>
             </div>
 
-            <button class="btn btn-success btn-block btn-outlined" ng-click="addSubdevice()">Add Device</button>
+            <button class="btn btn-success btn-block btn-outlined" ng-click="addDevice()">Add Device</button>
 
             <button class="btn btn-negative btn-block btn-outlined" ng-click="removePlugin()">Remove Plugin</button>
         </form>

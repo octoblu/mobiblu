@@ -4,7 +4,7 @@
 
         <div ng-include src="'/public/views/system/loading.html'"></div>
 
-        <p class="content-padded">Adding Device <br> {{ plugin.name }}</p>
+        <p class="content-padded"><h3>Adding Device</h3></p>
 
         <form class="input-group">
 
@@ -13,6 +13,7 @@
                 <div id="options-editor">
                 </div>
                 <button class="btn btn-success btn-block" ng-click="savePlugin()">Save</button>
+                <button class="btn btn-negative btn-block" ng-click="deleteDevice()">Delete</button>
             </div>
         </form>
 

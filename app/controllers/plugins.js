@@ -15,7 +15,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.initSearch = function () {
-        $rootScope.ready(function () {
+        $rootScope.pluginReady(function () {
             $rootScope.loading = true;
 
             $scope.getPlugins();
@@ -145,19 +145,21 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.getSubdevices = function () {
-        $scope.subdevices = window.octobluMobile.getSubdevices();
-        console.log('Subdevices :: ' + JSON.stringify($scope.subdevices));
+        $rootScope.pluginReady(function () {
+            $scope.subdevices = window.octobluMobile.getSubdevices();
+            console.log('Subdevices :: ' + JSON.stringify($scope.subdevices));
+        });
     };
 
     $scope.installed = function () {
-        $rootScope.ready(function () {
+        $rootScope.pluginReady(function () {
             $scope.getPlugins();
             $rootScope.loading = false;
         });
     };
 
     $scope.findOne = function (cb) {
-        $rootScope.ready(function () {
+        $rootScope.pluginReady(function () {
             $scope.getPlugins();
 
             for (var x in $scope.plugins) {
@@ -183,7 +185,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                 $scope.addSubdevice();
             }
             $rootScope.loading = false;
-            if(typeof cb === 'undefined'){
+            if(typeof cb === 'function'){
                 cb();
             }
         });
@@ -192,7 +194,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     $scope.addSubdevice = function () {
         var subdevice = {
             _id: Math.random().toString(36).substring(7),
-            name: '',
+            name: 'Device',
             type: $scope.plugin.name,
             options: {
 
@@ -200,6 +202,26 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         };
         $scope.plugin.subdevices.push(subdevice);
         $scope.selectSubdevice(subdevice);
+    };
+
+    $scope.deleteDevice = function(){
+        for (var x in $scope.plugin.subdevices) {
+            var device = $scope.plugin.subdevices[x];
+            if (device._id === $scope.subdevice._id) {
+                $scope.plugin.subdevices.splice(x, 1);
+                break;
+            }
+        }
+
+        $scope.subdevice = null;
+        $scope.writePlugin();
+        $location.path('/plugins/' + $scope.plugin.name);
+    };
+
+    $scope.addDevice = function(){
+        $scope.addSubdevice();
+        $scope.writePlugin();
+        $location.path('/plugins/device/' + $scope.subdevice.type + '/' + $scope.subdevice._id);
     };
 
     $scope.goToDevice = function(subdevice){
@@ -241,7 +263,8 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     startval: options,
                     no_additional_properties: true,
                     iconlib: 'fontawesome4',
-                    disable_collapse: true
+                    disable_collapse: true,
+                    form_name_root : ''
                 });
 
             }, $rootScope.redirectToError);
@@ -261,6 +284,14 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
 
             $scope.subdevice.options = options;
 
+            $scope.writePlugin();
+        }
+
+        $('body').css('height', '100%');
+    };
+
+    $scope.writePlugin = function(){
+        if($scope.subdevice){
             for (var x in $scope.plugin.subdevices) {
                 var device = $scope.plugin.subdevices[x];
                 if (device._id === $scope.subdevice._id) {
@@ -269,10 +300,9 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                 }
             }
         }
-        window.octobluMobile.writePlugin($scope.plugin);
 
-        $('body').css('height', '100%');
-    };
+        window.octobluMobile.writePlugin($scope.plugin, true, true);
+    }
 
     $scope.toggleEnabled = function () {
         $scope.plugin.enabled = !$scope.plugin.enabled;
