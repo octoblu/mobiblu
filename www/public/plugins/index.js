@@ -213,7 +213,7 @@ obj.retrievePlugins = function () {
             });
 
             deferred.resolve();
-        }, deferred.reject);
+        }, deferred.resolve);
 
     return deferred.promise;
 };

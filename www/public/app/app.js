@@ -42,8 +42,6 @@ angular.module('main', [
         $location.path('/error/custom');
     };
 
-
-
     var loadingTimeout;
 
     $rootScope.$on('$locationChangeSuccess', function(){

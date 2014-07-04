@@ -4,7 +4,13 @@
 
         <div ng-include src="'/public/views/system/loading.html'"></div>
 
-        <input ng-change="search()" ng-model="term" type="search" placeholder="Search">
+        <form class="input-group">
+            <input ng-change="search()" ng-model="term" type="search" placeholder="Search Plugins">
+            <button class="btn btn-block" ng-click="search()">
+                Search
+                <span class="icon icon-search"></span>
+            </button>
+        </form>
 
         <div ng-hide="loading || errorMsg">
             <ul class="table-view" ng-show="results && results.length">

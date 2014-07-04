@@ -15,16 +15,19 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.initSearch = function () {
+        $scope.results = [];
+        $scope.allResults = [];
+
+        OctobluRest.searchPlugins('skynet-mobile-plugin')
+            .then(handleSearchResults, $rootScope.redirectToError);
+
+        OctobluRest.searchPlugins('skynet-plugin')
+            .then(handleSearchResults, $rootScope.redirectToError);
+
         $rootScope.pluginReady(function () {
             $rootScope.loading = true;
 
             $scope.getPlugins();
-
-            OctobluRest.searchPlugins('skynet-mobile-plugin')
-                .then(handleSearchResults, $rootScope.redirectToError);
-
-            OctobluRest.searchPlugins('skynet-plugin')
-                .then(handleSearchResults, $rootScope.redirectToError);
 
         });
     };
