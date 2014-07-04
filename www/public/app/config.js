@@ -45,6 +45,9 @@ angular.module('main').config(['$routeProvider',
             .when('/error', {
                 templateUrl: '/public/views/system/error.html'
             })
+            .when('/error/custom', {
+                templateUrl: '/public/views/system/custom_error.html'
+            })
             .when('/activity', {
                 templateUrl: '/public/views/system/activity.html'
             })

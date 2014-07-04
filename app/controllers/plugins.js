@@ -81,7 +81,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             console.log('Error ', error);
             $scope.$apply(function () {
                 end();
-                $rootScope.redirectToError("Unable to install that plugin");
+                $rootScope.redirectToCustomError("Unable to install that plugin. Missing required bundle.js file or a JavaScript error occurred.");
             });
         }
 
@@ -114,7 +114,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                         .done(function () {
                             console.log('Plugin loaded');
                             window.location.href = 'index.html#!/plugins/' + plugin.name;
-                        }, $rootScope.redirectToError);
+                        }, onError);
                 },
                 onError,
                 false

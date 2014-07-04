@@ -35,6 +35,15 @@ angular.module('main', [
         $location.path('/error');
     };
 
+    $rootScope.redirectToCustomError = function (err) {
+        console.log('Redirecting to Custom Error');
+        $rootScope.loading = false;
+        $rootScope.errorMsg = err || '';
+        $location.path('/error/custom');
+    };
+
+
+
     var loadingTimeout;
 
     $rootScope.$on('$locationChangeSuccess', function(){

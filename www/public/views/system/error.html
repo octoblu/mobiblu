@@ -6,12 +6,13 @@
             <i class="fa fa-3x fa-times-circle-o"></i><br>
             <span class="text-red">Uh Oh! An Error Occurred</span>
         </h3>
-        <div class="content-padded">{{ errorMsg }}</div>
-        <br>
-        <br>
+        <div class="content-padded" ng-show="errorMsg">{{ errorMsg }}
+            <br>
+            <br></div>
+
         <div class="content-padded">
             <p>If you are seeing repeated issues. Try logging out and back in.</p>
-            <a ng-click="logout()" class="btn btn-positive btn-block">Logout</a>
+            <a ng-click="logout()" class="btn btn-positive btn-block btn-outlined">Logout</a>
         </div>
     </div>
 
