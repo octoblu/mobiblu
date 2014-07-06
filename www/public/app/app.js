@@ -30,16 +30,24 @@ angular.module('main', [
 
     $rootScope.redirectToError = function (err) {
         console.log('Redirecting to Error');
-        $rootScope.loading = false;
-        $rootScope.errorMsg = err || '';
-        $location.path('/error');
+        setTimeout(function(){
+            $rootScope.$apply(function() {
+                $rootScope.loading = false;
+                $rootScope.errorMsg = err || '';
+                $location.path('/error');
+            });
+        }, 0);
     };
 
     $rootScope.redirectToCustomError = function (err) {
         console.log('Redirecting to Custom Error');
-        $rootScope.loading = false;
-        $rootScope.errorMsg = err || '';
-        $location.path('/error/custom');
+        setTimeout(function(){
+            $rootScope.$apply(function() {
+                $rootScope.loading = false;
+                $rootScope.errorMsg = err || '';
+                $location.path('/error/custom');
+            });
+        }, 0);
     };
 
     var loadingTimeout;
@@ -49,9 +57,7 @@ angular.module('main', [
         loadingTimeout = setTimeout(function(){
             console.log('Loading :: ' + $rootScope.loading);
             if($rootScope.loading){
-                $rootScope.$apply(function() {
-                    $rootScope.redirectToError('Request Timeout.');
-                });
+                $rootScope.redirectToError('Request Timeout.');
             }
         }, 1000 * 20);
     });

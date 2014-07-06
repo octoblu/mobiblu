@@ -4,9 +4,9 @@
 
         <div ng-include src="'/public/views/system/loading.html'"></div>
 
-        <p class="content-padded"><h3>Adding Device</h3></p>
+        <p class="content-padded"><h3>Adding Device</h3><span ng-click="editDevice()"><i class="fa fa-pencil-square-o"></i></span></p>
 
-        <form class="input-group">
+        <form class="input-group" ng-show="edit">
 
             <div ng-show="subdevice">
                 <input type="text" placeholder="Device Name" ng-model="subdevice.name">
@@ -17,6 +17,7 @@
             </div>
         </form>
 
+        <div ng-include src="'/public/views/system/activity.html'"></div>
 
     </div>
 

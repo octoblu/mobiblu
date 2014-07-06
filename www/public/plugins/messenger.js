@@ -16,9 +16,10 @@ obj.init = function () {
 
 obj.send = function (data, callback) {
     if (obj.socket) {
-        Skynet.message(data).then(callback, function(){
-            console.log('Error Sending Message');
-        });
+        Skynet.message(data)
+            .then(callback, function () {
+                console.log('Error Sending Message');
+            });
     } else {
         callback(new Error('Socket not available'));
     }

@@ -86,7 +86,7 @@ systemApp.controller('FooterCtrl',
     });
 
 systemApp.controller('ActivityCtrl',
-    function ($rootScope, $scope) {
+    function ($rootScope, $scope, $routeParams) {
 
         $scope.errors = [];
 
@@ -96,14 +96,14 @@ systemApp.controller('ActivityCtrl',
 
         var setActivity = function () {
             $scope.$apply(function () {
-                $scope.activities = $rootScope.Skynet.getActivity();
+                $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName);
             });
         };
 
         $scope.init = function () {
             $rootScope.ready(function () {
                 $rootScope.Skynet.clearActivityCount();
-                $scope.activities = $rootScope.Skynet.getActivity();
+                $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName);
                 $(document).on('skynetactivity', function () {
                     setActivity();
                 });

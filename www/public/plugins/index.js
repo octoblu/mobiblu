@@ -418,6 +418,11 @@ obj.startListen = function () {
 
                         console.log('Matching subdevice found:', data.subdevice);
 
+                        obj.Skynet.logActivity({
+                            type : data.subdevice,
+                            html : 'Received Message: ' + JSON.stringify(data.payload)
+                        });
+
                         instance.onMessage(data, fn);
 
                     } else {

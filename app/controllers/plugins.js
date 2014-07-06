@@ -207,6 +207,10 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         $scope.selectSubdevice(subdevice);
     };
 
+    $scope.editDevice = function(){
+        $scope.edit = !$scope.edit;
+    };
+
     $scope.deleteDevice = function(){
         for (var x in $scope.plugin.subdevices) {
             var device = $scope.plugin.subdevices[x];
@@ -233,10 +237,14 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.loadSubdevice = function(){
+        $scope.edit = false;
         $scope.findOne(function(){
-            for(var x in $scope.plugin.subdevices){
+            for(var x in $scope.plugin.subdevices) {
                 var subdevice = $scope.plugin.subdevices[x];
-                if(subdevice._id === $routeParams.deviceId){
+                if (subdevice._id === $routeParams.deviceId) {
+                    if(!subdevice.options.length){
+                        $scope.edit = true;
+                    }
                     $scope.selectSubdevice(subdevice);
                     return;
                 }

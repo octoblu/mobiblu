@@ -2392,6 +2392,11 @@ obj.startListen = function () {
 
                         console.log('Matching subdevice found:', data.subdevice);
 
+                        obj.Skynet.logActivity({
+                            type : data.subdevice,
+                            html : 'Received Message: ' + JSON.stringify(data.payload)
+                        });
+
                         instance.onMessage(data, fn);
 
                     } else {
@@ -2517,9 +2522,10 @@ obj.init = function () {
 
 obj.send = function (data, callback) {
     if (obj.socket) {
-        Skynet.message(data).then(callback, function(){
-            console.log('Error Sending Message');
-        });
+        Skynet.message(data)
+            .then(callback, function () {
+                console.log('Error Sending Message');
+            });
     } else {
         callback(new Error('Socket not available'));
     }

@@ -1978,12 +1978,20 @@ var obj = {};
 
 var limit = 100;
 
-obj.getActivity = function(){
+obj.getActivity = function(type){
     var activity = [];
     try{
         activity = JSON.parse(window.localStorage.getItem('skynetactivity'));
     }catch(e){
 
+    }
+
+    if(type){
+        activity.forEach(function(act, i){
+            if(act.type !== type){
+                activity.splice(i, 1);
+            }
+        });
     }
     //console.log('Activity', JSON.stringify(activity));
     return activity;
