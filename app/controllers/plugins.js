@@ -197,7 +197,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     $scope.addSubdevice = function () {
         var subdevice = {
             _id: Math.random().toString(36).substring(7),
-            name: 'Device',
+            name: $scope.plugin.name,
             type: $scope.plugin.name,
             options: {
 
@@ -237,14 +237,11 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.loadSubdevice = function(){
-        $scope.edit = false;
+        $scope.edit = true;
         $scope.findOne(function(){
             for(var x in $scope.plugin.subdevices) {
                 var subdevice = $scope.plugin.subdevices[x];
                 if (subdevice._id === $routeParams.deviceId) {
-                    if(!subdevice.options.length){
-                        $scope.edit = true;
-                    }
                     $scope.selectSubdevice(subdevice);
                     return;
                 }

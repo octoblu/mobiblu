@@ -13,11 +13,7 @@ obj.getActivity = function(type){
     }
 
     if(type){
-        activity.forEach(function(act, i){
-            if(act.type !== type){
-                activity.splice(i, 1);
-            }
-        });
+        activity = _.filter(activity, { type : type });
     }
     //console.log('Activity', JSON.stringify(activity));
     return activity;

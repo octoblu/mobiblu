@@ -2019,11 +2019,12 @@ obj.getPlugins = function () {
 };
 
 obj.getSubdevices = function () {
-    var getSubdevicesFromStorage = function(){
+    var getSubdevicesFromStorage = function () {
         var subdevices = [];
-        try{
+        try {
             subdevices = JSON.parse(window.localStorage.getItem('subdevices'));
-        }catch(e){}
+        } catch (e) {
+        }
 
         return subdevices;
     };
@@ -2038,22 +2039,22 @@ obj.writePlugin = function (json, init, removing) {
         json._path = obj.pluginsDir + json.name + '/bundle.js';
     }
 
-    if(!json.subdevices){
+    if (!json.subdevices) {
         json.subdevices = [];
     }
 
-    if(!removing){
-        obj.subdevices.forEach(function(item){
-            if(item.type === json.name){
+    if (!removing) {
+        obj.subdevices.forEach(function (item) {
+            if (item.type === json.name) {
                 var found = false;
-                for(var x in json.subdevices){
+                for (var x in json.subdevices) {
                     var d = json.subdevices[x];
-                    if(d._id === item._id){
+                    if (d._id === item._id) {
                         found = true;
                         break;
                     }
                 }
-                if(!found){
+                if (!found) {
                     json.subdevices.push(item);
                 }
             }
@@ -2071,7 +2072,11 @@ obj.writePlugin = function (json, init, removing) {
 
     obj.writePluginsToStorage();
 
-    if (init) obj.instances[json.name] = obj.initPlugin(json);
+    if (init) {
+        json.subdevices.forEach(function (subdevice) {
+            obj.instances[subdevice.name] = obj.initPlugin(subdevice);
+        });
+    }
 
     return obj.plugins;
 };
@@ -2091,15 +2096,19 @@ obj.removePlugin = function (plugin) {
 
     obj.writePluginsToStorage();
 
-    if (obj.instances[plugin.name]) {
-        obj.triggerPluginEvent(plugin.name, 'destroy')
-            .then(function () {
-                delete obj.instances[plugin.name];
-                deferred.resolve();
-            }, deferred.reject);
-    } else {
-        deferred.reject('Unable to trigger destroy');
-    }
+    obj.triggerPluginEvent(plugin, 'destroy');
+
+    var deleted = false;
+    plugin.subdevices
+        .forEach(function(subdevice){
+            delete obj.instances[subdevice.name];
+            deleted = true;
+        });
+
+    if(deleted)
+        deferred.resolve();
+    else
+        deferred.reject();
 
     return deferred.promise;
 };
@@ -2153,6 +2162,8 @@ obj.retrieveFromStorage = function () {
             plugins.splice(i, 1);
             return;
         }
+
+        plugins[i].subdevices = plugin.subdevices || [];
 
         obj.pluginsIndex[plugin.name] = i;
     });
@@ -2282,7 +2293,10 @@ obj.loadPlugin = function (data) {
                 obj.retrievePlugins().then(deferred.resolve, deferred.reject);
             });
     } else {
-        obj.instances[name] = obj.initPlugin(obj.plugins[found]);
+        var plugin = obj.plugins[found];
+        plugin.subdevices.forEach(function (subdevice) {
+            obj.instances[subdevice.name] = obj.initPlugin(subdevice);
+        });
         deferred.resolve();
     }
 
@@ -2291,32 +2305,34 @@ obj.loadPlugin = function (data) {
 
 obj.mapPlugins = function () {
     obj.each(function (plugin) {
-        console.log('Maping Plugin :: ' + plugin.name);
         if (!plugin) return;
-        obj.instances[plugin.name] = obj.initPlugin(plugin);
+        plugin.subdevices.forEach(function (subdevice) {
+            console.log('Mapping Subdevice :: ' + subdevice.name);
+            obj.instances[subdevice.name] = obj.initPlugin(subdevice);
+        });
     });
 };
 
 // Individual Plugin Object
-obj.initPlugin = function (plugin) {
+obj.initPlugin = function (subdevice) {
 
     var pluginObj;
 
     var globalPlugins = window.skynetPlugins;
 
-    var camelName = plugin.name.toCamel();
+    var camelName = subdevice.type.toCamel();
 
     try {
 
-        var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : _dereq_(plugin.name);
+        var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : _dereq_(subdevice.type);
 
         pluginObj = p ? new p.Plugin(
-            obj.Messenger,
-                plugin.options || {},
-            window.octobluMobile.api
-        ) : null;
+                obj.Messenger,
+                subdevice.options || {},
+                window.octobluMobile.api
+            ) : null;
 
-        var found = obj.findPlugin(plugin.name);
+        var found = obj.findPlugin(subdevice.type);
         if (~found) {
             obj.plugins[found].optionsSchema = p.optionsSchema;
             obj.plugins[found].messageSchema = p.messageSchema;
@@ -2336,36 +2352,56 @@ obj.initPlugin = function (plugin) {
 };
 
 obj.triggerPluginEvent = function (plugin, event) {
-    var deferred = Q.defer();
-    if (obj.instances[plugin.name]) {
 
-        switch (event) {
-            case 'onEnable':
-                plugin.enabled = true;
-                obj.writePlugin(plugin);
-                break;
-            case 'onDisable':
-                plugin.enabled = false;
-                obj.writePlugin(plugin);
-                break;
-            case 'onInstall':
-            case 'onMessage':
-            case 'getDefaultOptions':
-            case 'destroy':
-                break;
-            default:
-                return deferred.reject('Not a valid event');
+    function triggerEvent(subdevice) {
+
+        var deferred = Q.defer();
+
+        if (obj.instances[subdevice.name]) {
+
+            var pluginEvent = obj.instances[subdevice.name][event];
+
+            if (typeof pluginEvent === 'function') {
+                pluginEvent(deferred.resolve);
+            } else {
+                deferred.resolve('No event found for plugin');
+            }
+
         }
 
-        var pluginEvent = obj.instances[plugin.name][event];
-
-        if (typeof pluginEvent === 'function') {
-            pluginEvent(deferred.resolve);
-        } else {
-            deferred.resolve('No event found for plugin');
-        }
-
+        return deferred.promise;
     }
+
+    var deferred = Q.defer();
+
+    switch (event) {
+        case 'onEnable':
+            plugin.enabled = true;
+            obj.writePlugin(plugin);
+            break;
+        case 'onDisable':
+            plugin.enabled = false;
+            obj.writePlugin(plugin);
+            break;
+        case 'onInstall':
+        case 'onMessage':
+        case 'getDefaultOptions':
+        case 'destroy':
+            break;
+        default:
+            return deferred.reject('Not a valid event');
+    }
+
+    var promises = [];
+
+    plugin.subdevices
+        .forEach(function (subdevice) {
+            promises.push(triggerEvent(subdevice));
+        });
+
+    Q.all(promises)
+        .done(deferred.resolve, deferred.resolve);
+
     return deferred.promise;
 };
 
@@ -2379,9 +2415,7 @@ obj.startListen = function () {
             try {
 
                 if (typeof data === "string") {
-
                     data = JSON.parse(data);
-
                 }
 
                 if (data.subdevice) {
@@ -2393,16 +2427,14 @@ obj.startListen = function () {
                         console.log('Matching subdevice found:', data.subdevice);
 
                         obj.Skynet.logActivity({
-                            type : data.subdevice,
-                            html : 'Received Message: ' + JSON.stringify(data.payload)
+                            type: data.subdevice,
+                            html: 'Received Message: ' + JSON.stringify(data.payload)
                         });
 
                         instance.onMessage(data, fn);
 
                     } else {
-
                         console.log('No matching subdevice:', data.subdevice);
-
                     }
 
                 } else {
@@ -2469,6 +2501,8 @@ obj.init = function () {
         obj.loadLocalPlugins()
 
     ]).done(function () {
+
+        console.log('Plugins Loaded');
 
         obj.startListen();
 
