@@ -150,10 +150,16 @@ app.startProcesses = function () {
         });
 
         app.skynetSocket.on('message', function (data) {
+            var message;
+            if(typeof data.payload !== 'string'){
+                message = JSON.stringify(data.payload);
+            }else{
+                message = data.payload;
+            }
             activity.logActivity({
                 type: 'SkynetMessage',
                 html: 'From: ' + data.fromUuid +
-                    '<br>Message: ' + data.payload
+                    '<br>Message: ' + message
             });
         });
 

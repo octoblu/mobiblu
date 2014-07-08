@@ -1,0 +1,17 @@
+<div>
+
+    <div ng-controller="HomeCtrl" ng-init="init()">
+
+        <div ng-include src="'/public/views/system/loading.html'"></div>
+
+        <p class="content-padded">Welcome to the #IoT world.</p>
+
+        <div ng-include src="'/public/views/plugins/list.html'"></div>
+
+        <message-grapher class="message-summary col-xs-12"></message-grapher>
+
+        <div ng-include src="'/public/views/system/activity.html'"></div>
+
+    </div>
+
+</div>

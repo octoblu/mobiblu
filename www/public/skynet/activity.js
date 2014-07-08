@@ -4,7 +4,7 @@ var obj = {};
 
 var limit = 100;
 
-obj.getActivity = function(type){
+obj.getActivity = function(type, limit){
     var activity = [];
     try{
         activity = JSON.parse(window.localStorage.getItem('skynetactivity'));
@@ -14,6 +14,10 @@ obj.getActivity = function(type){
 
     if(type){
         activity = _.filter(activity, { type : type });
+    }
+    if(limit){
+        console.log('LIMIT: ' + limit);
+        activity = activity.slice(0, limit);
     }
     //console.log('Activity', JSON.stringify(activity));
     return activity;

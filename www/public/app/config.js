@@ -4,7 +4,7 @@ angular.module('main').config(['$routeProvider',
     function ($routeProvider) {
         $routeProvider
             .when('/', {
-                templateUrl: '/public/views/home/index.html'
+                templateUrl: '/public/views/home/dashboard.html'
             })
             .when('/login', {
                 templateUrl: '/public/views/home/login.html'

@@ -151,6 +151,11 @@ angular.module('main', [
 
             $rootScope.loading = false;
 
+            $rootScope.settings
+                .skynetSocket.on('message', function(data){
+                    $rootScope.$emit('skynet:message', data);
+                });
+
         },
         $rootScope.redirectToError);
 

@@ -94,16 +94,21 @@ systemApp.controller('ActivityCtrl',
 
         $scope.activities = [];
 
+        $scope.limit = 25;
+
         var setActivity = function () {
             $scope.$apply(function () {
-                $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName);
+                $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName, $scope.limit);
             });
         };
 
         $scope.init = function () {
+            if($rootScope.matchRoute('/$')){
+                $scope.limit = 5;
+            }
             $rootScope.ready(function () {
                 $rootScope.Skynet.clearActivityCount();
-                $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName);
+                $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName, $scope.limit);
                 $(document).on('skynetactivity', function () {
                     setActivity();
                 });
