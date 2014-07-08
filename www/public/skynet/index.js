@@ -41,6 +41,8 @@ app.setData = function () {
 
     app.sensorIntervals = {};
 
+    app.socketid = null;
+
 };
 
 app.logout = function () {
@@ -199,6 +201,11 @@ app.registerDevice = function (newDevice) {
         'register',
         regData,
         function (data) {
+            app.skynetSocket.emit('identity', {
+                uuid: data.uuid,
+                socketid: app.socketid,
+                token: data.token
+            });
             console.log('Registration Response: ', JSON.stringify(data));
             window.localStorage.setItem('mobileuuid', data.uuid);
             window.localStorage.setItem('mobiletoken', data.token);
@@ -242,9 +249,7 @@ app.skynet = function () {
     var deferred = Q.defer();
 
     if (!app.skynetSocket) {
-        app.skynetSocket = io.connect('http://skynet.im', {
-            port: 80
-        });
+        app.skynetSocket = io("http://skynet.im");
     }
 
     app.skynetSocket.on('connect', function () {
@@ -252,6 +257,8 @@ app.skynet = function () {
 
         app.skynetSocket.on('identify', function (data) {
             console.log('Websocket connecting to Skynet with socket id: ' + data.socketid);
+
+            app.socketid = data.socketid;
 
             console.log('Mobile UUID', JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
