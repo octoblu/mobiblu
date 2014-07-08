@@ -6,8 +6,8 @@ homeApp.controller('HomeCtrl', function ($rootScope, $scope) {
 
 
     $scope.init = function(){
+        $scope.login = $rootScope.Skynet.login;
         $rootScope.ready(function(){
-            $scope.login = $rootScope.Skynet.login;
             $rootScope.loading = false;
             $rootScope.$emit('togglebackbtn', false);
             $rootScope.$emit('toggleerrors', true);

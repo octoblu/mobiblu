@@ -12,6 +12,10 @@ obj.getActivity = function(type, limit){
 
     }
 
+    if(!activity){
+        return [];
+    }
+
     if(type){
         activity = _.filter(activity, { type : type });
     }

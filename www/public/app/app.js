@@ -150,11 +150,13 @@ angular.module('main', [
             $rootScope.isAuthenticated();
 
             $rootScope.loading = false;
+            if($rootScope.settings && $rootScope.settings.skynetSocket){
+                $rootScope.settings
+                    .skynetSocket.on('message', function(data){
+                        $rootScope.$emit('skynet:message', data);
+                    });
+            }
 
-            $rootScope.settings
-                .skynetSocket.on('message', function(data){
-                    $rootScope.$emit('skynet:message', data);
-                });
 
         },
         $rootScope.redirectToError);
