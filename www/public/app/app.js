@@ -63,7 +63,6 @@ angular.module('main', [
     $rootScope.redirectToLoginError = function (err) {
         redirectToError(err, 'login');
     };
-
     var loadingTimeout;
 
     $rootScope.$on('$locationChangeSuccess', function(){
@@ -91,7 +90,7 @@ angular.module('main', [
 
     $rootScope.ready = function (cb) {
         $rootScope.setSettings();
-        if (loaded) cb();
+        if (loaded || isErrorPage()) cb();
         else skynetLoad().then(cb, $rootScope.redirectToError);
     };
 
@@ -115,7 +114,7 @@ angular.module('main', [
     var pluginReady = _.once(function(){
         var deferred = $q.defer();
 
-        if(pluginsLoaded){
+        if(pluginsLoaded || isErrorPage()){
             deferred.resolve();
         }else{
             $(document).one('plugins-loaded', function(){
@@ -140,12 +139,15 @@ angular.module('main', [
     var skynetInit = function () {
         var deferred = $q.defer();
 
-        $rootScope.Skynet.init().timeout(1000 * 15)
-            .then(function () {
-                console.log('SKYNET INIT\'d');
-                deferred.resolve();
-            }, $rootScope.redirectToError);
-
+        if(isErrorPage()){
+            deferred.reject();
+        }else {
+            $rootScope.Skynet.init().timeout(1000 * 15)
+                .then(function () {
+                    console.log('SKYNET INIT\'d');
+                    deferred.resolve();
+                }, $rootScope.redirectToError);
+        }
         return deferred.promise;
     };
 
@@ -164,9 +166,8 @@ angular.module('main', [
             $rootScope.isAuthenticated();
 
             $rootScope.loading = false;
-            if($rootScope.settings && $rootScope.settings.skynetSocket){
-                $rootScope.settings
-                    .skynetSocket.on('message', function(data){
+            if($rootScope.settings && $rootScope.settings.conn){
+                $rootScope.settings.conn.on('message', function(data){
                         $rootScope.$emit('skynet:message', data);
                     });
             }

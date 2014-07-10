@@ -10,12 +10,12 @@ obj.socket = null;
 obj.init = function () {
     Skynet = window.Skynet;
     obj.skynetObj = Skynet.getCurrentSettings();
-    obj.socket = obj.skynetObj.skynetSocket;
+    obj.conn = obj.skynetObj.conn;
     return obj;
 };
 
 obj.send = function (data, callback) {
-    if (obj.socket) {
+    if (obj.conn) {
         Skynet.message(data)
             .then(callback, function () {
                 console.log('Error Sending Message');

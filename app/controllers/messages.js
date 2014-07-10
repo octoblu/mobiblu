@@ -4,20 +4,22 @@ var messagesApp = angular.module('main.messages', ['hmTouchevents', 'SkynetModel
 
 // Index: http://localhost/views/messages/index.html
 
-messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest) {
+messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest, $q) {
 
     $rootScope.$emit('togglebackbtn', false);
     // This will be populated with Restangula
     $scope.messages = {};
 
-    $scope.devices = [{
-        name : 'Select Device',
-        type : 'dummy'
-    }];
+    $scope.devices = [
+        {
+            name: 'Select Device',
+            type: 'dummy'
+        }
+    ];
     $scope.device = $scope.devices[0] || null;
 
     $scope.init = function () {
-        $rootScope.ready(function(){
+        $rootScope.ready(function () {
             $rootScope.loading = true;
             $scope.skynetuuid = $rootScope.settings.skynetuuid;
             $scope.skynettoken = $rootScope.settings.skynettoken;
@@ -40,27 +42,56 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest)
         }
     };
 
-    $scope.getDevices = function(){
-        var promise = OctobluRest.getGateways($scope.skynetuuid, $scope.skynettoken, true);
+    $scope.gatewayConfig = function (options) {
+        var defer = $q.defer(), promise = defer.promise;
 
-        promise.then(function(res){
-            var data = res.data;
-            console.log('Retrieved devices');
-            if(data && data.gateways){
-                $scope.devices =  $scope.devices.concat(data.gateways);
-            }
-            for (var i in $scope.devices) {
-                if(!$scope.devices[i].name){
-                    $scope.devices[i].name = '(Unkown)';
+        $rootScope.settings.conn
+            .gatewayConfig(options, function (result) {
+                defer.resolve(result);
+            });
+
+        return promise;
+    };
+
+    $scope.getGateways = function (myDevices) {
+        //var gateways = _.filter(myDevices, {type: 'gateway', online: true });
+        var gateways = myDevices;
+        _.map(gateways, function (gateway) {
+            gateway.subdevices = [];
+            gateway.plugins = [];
+
+            return $scope.gatewayConfig({
+                'uuid': gateway.uuid,
+                'token': gateway.token,
+                'method': 'configurationDetails'
+            }, function (response) {
+                if (response && response.result) {
+                    gateway.subdevices = response.result.subdevices || [];
+                    gateway.plugins = response.result.plugins || [];
                 }
-            }
+            }, function () {
+                console.log('couldn\'t get data for: ');
+                console.log(gateway);
+            });
+        });
+        return gateways;
+    };
+
+    $scope.getDevices = function () {
+        var promise = OctobluRest.getDevices($scope.skynetuuid, $scope.skynettoken);
+
+        promise.then(function (res) {
+            var myDevices = res.data;
+            console.log('Retrieved devices');
+            $scope.devices = $scope.getGateways(myDevices);
+
             $rootScope.loading = false;
         }, $rootScope.redirectToError);
     };
 
     $scope.getSchema = function (device, subdevice) {
-        if(!device) device = $scope.device;
-        if(!subdevice) subdevice = $scope.subdevice;
+        if (!device) device = $scope.device;
+        if (!subdevice) subdevice = $scope.subdevice;
         $('#device-msg-editor').jsoneditor('destroy');
 
         for (var i in device.plugins) {
@@ -77,7 +108,7 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest)
                 schema: $scope.schema,
                 theme: 'bootstrap3',
                 no_additional_properties: true,
-                disable_collapse : true,
+                disable_collapse: true,
                 iconlib: 'fontawesome4'
             });
 

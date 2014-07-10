@@ -73,7 +73,7 @@ SensorsApp.controller('SensorCtrl',
                             var html = sensorObj.prettify(sensorData);
                             el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
 
-                            $rootScope.settings.skynetSocket.emit('data', {
+                            $rootScope.settings.conn.data({
                                 'uuid': Skynet.mobileuuid,
                                 'token': Skynet.mobiletoken,
                                 'sensorData': {

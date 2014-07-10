@@ -2,7 +2,7 @@
 
 var skynetModel = angular.module('SkynetModel', ['restangular']);
 
-skynetModel.service('SkynetRest', function ($http) {
+skynetModel.service('SkynetRest', function ($q, $http) {
 
     var obj = this,
         baseURL = 'http://skynet.im';
@@ -44,9 +44,13 @@ skynetModel.service('OctobluRest', function ($http) {
     obj.getDevices = function (uuid, token) {
 
         return $http({
-            url: baseURL + '/api/owner/devices/' + uuid + '/' + token,
+            url: baseURL + '/api/devices/',
             method: 'GET',
-            timeout : 5 * 1000
+            timeout : 5 * 1000,
+            headers: {
+                skynet_auth_uuid: uuid,
+                skynet_auth_token: token
+            }
         });
 
     };

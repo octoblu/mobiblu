@@ -432,7 +432,7 @@ obj.triggerPluginEvent = function (plugin, event) {
 };
 
 obj.startListen = function () {
-    obj.socket.on('message', function (data, fn) {
+    obj.conn.on('message', function (data, fn) {
 
         console.log('On Message' + JSON.stringify(data));
 
@@ -513,7 +513,7 @@ obj.init = function () {
 
     obj.Skynet = window.Skynet;
     obj.skynetObj = obj.Skynet.getCurrentSettings();
-    obj.socket = obj.skynetObj.skynetSocket;
+    obj.conn = obj.skynetObj.conn;
     obj.Messenger = require('./messenger').init();
 
     window.octobluMobile.api.logActivity = obj.Skynet.logActivity;

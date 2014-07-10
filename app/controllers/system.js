@@ -121,6 +121,7 @@ systemApp.controller('ErrorCtrl',
     function ($rootScope, $scope) {
 
         $scope.init = function () {
+            console.log('On Error Page');
             if(!$rootScope.errorMsg){
                 return $rootScope.errorMsg = '';
             }

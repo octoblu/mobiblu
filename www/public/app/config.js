@@ -42,7 +42,7 @@ angular.module('main').config(['$routeProvider',
             .when('/messages', {
                 templateUrl: '/public/views/messages/index.html'
             })
-            .when('/error', {
+            .when('/error/basic', {
                 templateUrl: '/public/views/system/error.html'
             })
             .when('/error/custom', {
