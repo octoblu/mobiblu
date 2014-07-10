@@ -64,3 +64,8 @@ input {
 #sensor-activity {
     font-size: 14px;
 }
+
+.message-canvas {
+    width: 100% !important;
+    height: 120px !important;
+}
