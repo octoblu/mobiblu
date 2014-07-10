@@ -113,10 +113,14 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     plugin._url = entry.toURL();
                     plugin._path = '/plugins/' + plugin.name + file;
                     $rootScope.loading = false;
-                    window.octobluMobile.loadPlugin(plugin)
+                    if(!plugin.subdevices) plugin.subdevices = [];
+                    $scope.plugin = plugin;
+                    var subdeviceID = $scope.addSubdevice();
+
+                    window.octobluMobile.loadPlugin($scope.plugin)
                         .done(function () {
-                            console.log('Plugin loaded');
-                            window.location.href = 'index.html#!/plugins/' + plugin.name;
+                            console.log('Plugin loaded :: ' + plugin.name, subdeviceID);
+                            window.location = 'index.html#!/plugins/device/' + plugin.name + '/' + subdeviceID;
                         }, onError);
                 },
                 onError,
@@ -183,9 +187,9 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             }
 
             if (!$scope.plugin.subdevices.length) {
-                $scope.addSubdevice();
+                $scope.addSubdevice(true);
             }else if($scope.plugin.subdevices[0] && !$scope.plugin.subdevices[0].name){
-                $scope.addSubdevice();
+                $scope.addSubdevice(true);
             }
             $rootScope.loading = false;
             if(typeof cb === 'function'){
@@ -194,17 +198,45 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         });
     };
 
-    $scope.addSubdevice = function () {
+    $scope.getSubdevicesName = function(name){
+        if(!$scope.subdevices) $scope.subdevices = window.octobluMobile.getSubdevices();
+        var number = 2;
+        for (var x in $scope.subdevices) {
+            var device = $scope.subdevices[x];
+            if (device.name === name) {
+                if(name.match(/\s+\d*\s*$/)){
+                    var newNumber = name.replace(/.*\s+(\d+)\s*$/g, "$1");
+                    newNumber = parseInt(newNumber);
+                    if(newNumber && !isNaN(newNumber) && number <= newNumber){
+                        number = newNumber;
+                        console.log(number);
+                        name = name.replace(/(\d+)\s*$/g, "");
+                        name += ' ' + (number + 1).toString();
+                    }else{
+                        name += ' ' + number.toString();
+                    }
+
+                }else{
+                    name += ' ' + number.toString();
+                }
+            }
+        }
+        return name;
+    };
+
+    $scope.addSubdevice = function (select) {
+        var id = Math.random().toString(36).slice(2);
         var subdevice = {
-            _id: Math.random().toString(36).substring(7),
-            name: $scope.plugin.name,
+            _id: id,
+            name: $scope.getSubdevicesName($scope.plugin.name),
             type: $scope.plugin.name,
             options: {
 
             }
         };
         $scope.plugin.subdevices.push(subdevice);
-        $scope.selectSubdevice(subdevice);
+        if(select) $scope.selectSubdevice(subdevice);
+        return id;
     };
 
     $scope.editDevice = function(){
@@ -226,7 +258,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     };
 
     $scope.addDevice = function(){
-        $scope.addSubdevice();
+        $scope.addSubdevice(true);
         $scope.writePlugin();
         $location.path('/plugins/device/' + $scope.subdevice.type + '/' + $scope.subdevice._id);
     };
