@@ -38,7 +38,8 @@ angular.module('main', [
     $rootScope.errorMsg = null;
 
     var isErrorPage = function(){
-        if($rootScope.matchRoute('/error')){
+        if($rootScope.matchRoute('/error') ||
+            $rootScope.matchRoute('/login')){
             return true;
         }
         return false;

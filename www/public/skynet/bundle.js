@@ -2324,13 +2324,22 @@ app.skynet = function () {
     conn.on('ready', function (data) {
         app.conn = conn;
         console.log(data);
+
         app.socketid = data.socketid;
+
+        window.localStorage.setItem('mobileuuid', data.uuid);
+        window.localStorage.setItem('mobiletoken', data.token);
+
+        app.mobileuuid = data.uuid;
+        app.mobiletoken = data.token;
+
         console.log('Connected to skynet');
         deferred.resolve();
     });
 
     conn.on('notReady', function (error) {
         console.log('Skynet Error during connect');
+        app.conn = conn;
         deferred.reject(error);
     });
 
@@ -2352,11 +2361,11 @@ app.connect = function () {
             .then(function () {
                 console.log('Connected');
                 app.updateDeviceSetting({}).then(deferred.resolve, deferred.reject);
-            }, function (e) {
+            }, function (e, conn) {
                 if (e) {
                     console.log(e.toString());
                 }
-                app.registerDevice(true)
+                app.registerDevice(true, conn)
                     .done(deferred.resolve, deferred.reject);
             });
     }
