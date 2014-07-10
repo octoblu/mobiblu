@@ -28,6 +28,13 @@ angular.module('main', [
         return false;
     };
 
+    var clearAppTimeouts = function(){
+        timeouts.forEach(function(timeout, i){
+            clearTimeout(timeout);
+            timeouts.splice(i, 1);
+        });
+    };
+
     $rootScope.errorMsg = null;
 
     var isErrorPage = function(){
@@ -39,9 +46,7 @@ angular.module('main', [
 
     var redirectToError = function(err, type){
         if(isErrorPage()) return false;
-        timeouts.forEach(function(timeout){
-            clearTimeout(timeout);
-        });
+        clearAppTimeouts();
         console.log('Redirecting to "' + type + '" Error');
         setTimeout(function(){
             $rootScope.$apply(function() {
@@ -63,16 +68,15 @@ angular.module('main', [
     $rootScope.redirectToLoginError = function (err) {
         redirectToError(err, 'login');
     };
-    var loadingTimeout;
 
     $rootScope.$on('$locationChangeSuccess', function(){
-        if(loadingTimeout) clearTimeout(loadingTimeout);
-        loadingTimeout = setTimeout(function(){
+        clearAppTimeouts();
+        timeouts.push(setTimeout(function(){
             console.log('Loading :: ' + $rootScope.loading);
             if($rootScope.loading){
                 $rootScope.redirectToError('Request Timeout.');
             }
-        }, 1000 * 20);
+        }, 1000 * 20));
     });
 
     var skynetLoad = _.once(function () {
