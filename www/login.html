@@ -6,8 +6,6 @@
         <script src="/components/steroids-js/steroids.js"></script>
         <script src="/components/steroids-addons/index.js"></script>
 
-        <script src="/components/jquery/dist/jquery.min.js"></script>
-
         <script type="text/javascript">
 
             function getParam(variable) {
@@ -21,13 +19,21 @@
                 }
                 return (false);
             }
-
-            $(document).ready(function(){
-
+            window.onload = function(){
                 var newskynetuuid = getParam('uuid'),
-                    newskynettoken = getParam('token'),
-                    skynetuuid = window.localStorage.getItem("skynetuuid"),
-                    skynettoken = window.localStorage.getItem("skynettoken");
+                        newskynettoken = getParam('token'),
+                        skynetuuid = window.localStorage.getItem('skynetuuid'),
+                        skynettoken = window.localStorage.getItem('skynettoken');
+
+                var invalidLogin = false;
+                if (newskynetuuid === 'undefined') {
+                    newskynetuuid = null;
+                    invalidLogin = true;
+                }
+                if (newskynettoken === 'undefined') {
+                    newskynettoken = null;
+                    invalidLogin = true;
+                }
 
                 console.log('Skynet UUID', skynetuuid);
                 console.log('Skynet Token', skynettoken);
@@ -45,17 +51,14 @@
                     window.localStorage.setItem("skynetuuid", newskynetuuid);
                     window.localStorage.setItem("skynettoken", newskynettoken);
                     window.localStorage.setItem('loggedin', true);
-                    // webView = new steroids.views.WebView("/views/home/index.html");
-                    // steroids.layers.pop(webView, {
-                    //     onFailure : function(){
-                    //         steroids.layers.popAll();
-                    //     }
-                    // });
+                }else if(invalidLogin){
+
                 }else{
                     console.log('No Credentials', JSON.stringify([newskynetuuid, newskynettoken]));
                 }
                 window.location = 'index.html#!/';
-            });
+            };
+
 
         </script>
     </head>

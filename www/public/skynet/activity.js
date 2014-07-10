@@ -20,7 +20,6 @@ obj.getActivity = function(type, limit){
         activity = _.filter(activity, { type : type });
     }
     if(limit){
-        console.log('LIMIT: ' + limit);
         activity = activity.slice(0, limit);
     }
     //console.log('Activity', JSON.stringify(activity));

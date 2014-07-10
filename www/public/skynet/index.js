@@ -19,19 +19,30 @@ app.defaultSettings = {
 };
 
 app.setData = function () {
+    var skynetuuid = window.localStorage.getItem('skynetuuid'),
+        skynettoken = window.localStorage.getItem('skynettoken');
+
+    // Set new Skynet Tokens
+    if (skynetuuid && skynettoken) {
+        console.log('Credentials set');
+        // Octoblu User Data
+        app.skynetuuid = skynetuuid;
+        app.skynettoken = skynettoken;
+        // Logged In
+        app.loggedin = !!window.localStorage.getItem('loggedin');
+        //Push ID
+        app.pushID = window.localStorage.getItem('pushID');
+        // Mobile App Data
+        app.mobileuuid = window.localStorage.getItem('mobileuuid');
+        app.mobiletoken = window.localStorage.getItem('mobiletoken');
+
+    }
+
     var devicename = window.localStorage.getItem('devicename');
 
     app.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile';
-    // Octoblu User Data
-    app.skynetuuid = window.localStorage.getItem('skynetuuid');
-    app.skynettoken = window.localStorage.getItem('skynettoken');
-    //Push ID
-    app.pushID = window.localStorage.getItem('pushID');
-    // Logged In
-    app.loggedin = !!window.localStorage.getItem('loggedin');
-    // Mobile App Data
-    app.mobileuuid = window.localStorage.getItem('mobileuuid');
-    app.mobiletoken = window.localStorage.getItem('mobiletoken');
+
+    console.log('Set Owner UUID', JSON.stringify(app.skynetuuid));
 
     console.log('Set Data Creds', JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
@@ -43,14 +54,10 @@ app.setData = function () {
 
     app.socketid = null;
 
+    return true;
 };
 
 app.logout = function () {
-
-    //window.localStorage.removeItem('skynetuuid');
-    //window.localStorage.removeItem('skynettoken');
-    //app.skynetuuid = null;
-    //app.skynettoken = null;
 
     window.loggedin = app.loggedin = false;
     window.localStorage.removeItem('loggedin');
@@ -63,12 +70,24 @@ app.logout = function () {
 
     app.setData();
 
-    window.open('http://app.octoblu.com/logout?js=1&referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_self', 'location=yes');
+    function goToLogin(){
+        window.location = 'http://localhost/index.html#!/login';
+    }
+
+    SkynetRest.logout()
+        .then(function (data) {
+            goToLogin();
+        }, function(){
+            console.log('Error Logging Out');
+            goToLogin();
+        });
+
+    //window.open('http://app.octoblu.com/logout?js=1&referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_self', 'location=yes');
 
 };
 
 app.login = function () {
-    window.open('http://app.octoblu.com/login?js=1&referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
+    window.open('http://app.octoblu.com/login?mobile=true&referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
 };
 
 app.isAuthenticated = function () {
@@ -151,9 +170,9 @@ app.startProcesses = function () {
 
         app.skynetSocket.on('message', function (data) {
             var message;
-            if(typeof data.payload !== 'string'){
+            if (typeof data.payload !== 'string') {
                 message = JSON.stringify(data.payload);
-            }else{
+            } else {
                 message = data.payload;
             }
             activity.logActivity({
@@ -196,7 +215,7 @@ app.registerDevice = function (newDevice) {
 
     var regData = app.regData();
 
-    if(newDevice){
+    if (newDevice) {
         delete regData.uuid;
         delete regData.token;
     }
@@ -567,7 +586,9 @@ app.getDeviceSetting = function (uuid, token) {
 app.init = function () {
     var deferred = Q.defer();
 
-    app.setData();
+    if(!app.setData()) {
+        deferred.resolve();
+    }
 
     activity.init();
 

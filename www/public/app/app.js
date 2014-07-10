@@ -14,6 +14,8 @@ angular.module('main', [
 
     var loaded = false;
 
+    var timeouts = [];
+
     $rootScope.loading = true;
 
     $rootScope.Skynet = window.Skynet;
@@ -28,26 +30,38 @@ angular.module('main', [
 
     $rootScope.errorMsg = null;
 
-    $rootScope.redirectToError = function (err) {
-        console.log('Redirecting to Error');
+    var isErrorPage = function(){
+        if($rootScope.matchRoute('/error')){
+            return true;
+        }
+        return false;
+    };
+
+    var redirectToError = function(err, type){
+        if(isErrorPage()) return false;
+        timeouts.forEach(function(timeout){
+            clearTimeout(timeout);
+        });
+        console.log('Redirecting to "' + type + '" Error');
         setTimeout(function(){
             $rootScope.$apply(function() {
                 $rootScope.loading = false;
                 $rootScope.errorMsg = err || '';
-                $location.path('/error');
+                $location.path('/error/' + type);
             });
         }, 0);
     };
 
+    $rootScope.redirectToError = function (err) {
+        redirectToError(err, 'basic');
+    };
+
     $rootScope.redirectToCustomError = function (err) {
-        console.log('Redirecting to Custom Error');
-        setTimeout(function(){
-            $rootScope.$apply(function() {
-                $rootScope.loading = false;
-                $rootScope.errorMsg = err || '';
-                $location.path('/error/custom');
-            });
-        }, 0);
+        redirectToError(err, 'custom');
+    };
+
+    $rootScope.redirectToLoginError = function (err) {
+        redirectToError(err, 'login');
     };
 
     var loadingTimeout;
@@ -62,18 +76,18 @@ angular.module('main', [
         }, 1000 * 20);
     });
 
-    var skynetLoad = function () {
+    var skynetLoad = _.once(function () {
         var deferred = $q.defer();
-        $(document).on('skynet-loaded', function () {
+        $(document).one('skynet-loaded', function () {
             loaded = true;
             console.log('SKYNET LOADED EVENT :: ' + JSON.stringify(loaded));
             deferred.resolve();
         });
 
-        setTimeout(deferred.reject, 1000 * 15);
+        timeouts.push(setTimeout(deferred.reject, 1000 * 15));
 
         return deferred.promise;
-    };
+    });
 
     $rootScope.ready = function (cb) {
         $rootScope.setSettings();
@@ -98,29 +112,29 @@ angular.module('main', [
 
     var pluginsLoaded = false;
 
-    $(document).on('plugins-loaded', function(){
-        pluginsLoaded = true;
-    });
-
-    var pluginReady = function(){
+    var pluginReady = _.once(function(){
         var deferred = $q.defer();
 
         if(pluginsLoaded){
             deferred.resolve();
         }else{
-            $(document).on('plugins-loaded', function(){
+            $(document).one('plugins-loaded', function(){
+                console.log('Plugins Loaded Event');
                 pluginsLoaded = true;
                 deferred.resolve();
             });
         }
 
-        setTimeout(deferred.reject, 1000 * 15);
+        timeouts.push(setTimeout(deferred.reject, 1000 * 15));
 
         return deferred.promise;
-    };
+    });
 
     $rootScope.pluginReady = function(cb){
-        pluginReady().then(cb, $rootScope.redirectToError);
+        pluginReady().then(function(){
+            console.log('Plugins Loaded');
+            cb();
+        }, $rootScope.redirectToError);
     };
 
     var skynetInit = function () {

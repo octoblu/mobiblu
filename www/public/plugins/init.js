@@ -1,7 +1,7 @@
 'use strict';
 
 $(document).ready(function(){
-    $(document).on('skynet-loaded', function(){
+    $(document).one('skynet-loaded', function(){
         if(window.octobluMobile){
             window.octobluMobile.init()
                 .then(function(){

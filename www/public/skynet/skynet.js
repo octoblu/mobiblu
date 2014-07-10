@@ -41,4 +41,16 @@ obj.sendData = function (uuid, token, data) {
     return deferred.promise;
 };
 
+obj.logout = function () {
+    var deferred = Q.defer();
+    $.ajax({
+        url: 'http://app.octoblu.com/api/auth/logout',
+        method: 'GET',
+        timeout : 5 * 1000
+    })
+        .success(deferred.resolve)
+        .error(deferred.reject);
+    return deferred.promise;
+};
+
 module.exports = obj;

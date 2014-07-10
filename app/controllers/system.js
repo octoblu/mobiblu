@@ -130,7 +130,7 @@ systemApp.controller('ErrorCtrl',
         };
 
         $scope.logout = function () {
-            $rootScope.Skynet.logout();
+            window.Skynet.logout();
         };
 
     });

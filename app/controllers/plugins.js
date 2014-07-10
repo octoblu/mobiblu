@@ -329,7 +329,11 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         ).then(function (err) {
                 if (err) console.log('Error removing plugin', err);
                 console.log('Removed plugin');
-                $location.path('/plugins');
+                setTimeout(function(){
+                    $scope.$apply(function(){
+                        $location.path('/plugins');
+                    });
+                }, 0);
             }, $rootScope.redirectToError);
     };
 });
