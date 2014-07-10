@@ -9,8 +9,6 @@ homeApp.controller('HomeCtrl', function ($rootScope, $scope, $location) {
         $scope.login = $rootScope.Skynet.login;
         $rootScope.ready(function(){
             $rootScope.loading = false;
-            $rootScope.$emit('togglebackbtn', false);
-            $rootScope.$emit('toggleerrors', true);
         });
         $rootScope.pluginReady(function () {
             $scope.subdevices = window.octobluMobile.getSubdevices();

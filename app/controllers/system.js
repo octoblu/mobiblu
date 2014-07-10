@@ -33,7 +33,11 @@ systemApp.controller('HeaderCtrl',
         $scope.backbtn = false;
 
         $rootScope.$on('togglebackbtn', function (e, val) {
-            $scope.backbtn = val;
+            if($rootScope.matchRoute('/$')){
+                $scope.backbtn = false;
+            }else{
+                $scope.backbtn = val;
+            }
         });
 
         $scope.goBack = function () {
@@ -53,6 +57,9 @@ systemApp.controller('HeaderCtrl',
                 $scope.showLogout = true;
             } else {
                 $scope.showLogout = false;
+            }
+            if($rootScope.matchRoute('/$')){
+                $scope.backbtn = false;
             }
         });
 
