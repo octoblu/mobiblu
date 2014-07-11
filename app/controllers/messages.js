@@ -33,12 +33,15 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest,
     $scope.subdevices = [];
 
     $scope.getSubdevices = function (device) {
-        if (device.type !== 'dummy' && device.type === 'gateway') {
-            $scope.device = device;
+        $scope.device = device;
+        if (device.subdevices) {
+
+            console.log('Device :: ' + JSON.stringify(device));
             $scope.subdevices = device.subdevices;
             $scope.subdevice = $scope.subdevices ? $scope.subdevices[0] : null;
 
             $scope.getSchema();
+
         }
     };
 
@@ -64,7 +67,7 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest,
                 'uuid': gateway.uuid,
                 'token': gateway.token,
                 'method': 'configurationDetails'
-            }, function (response) {
+            }).then(function (response) {
                 if (response && response.result) {
                     gateway.subdevices = response.result.subdevices || [];
                     gateway.plugins = response.result.plugins || [];
