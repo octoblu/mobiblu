@@ -25,7 +25,6 @@
     <script src="/javascripts/utils.js"></script>
 
     <!-- Include the compiled Ratchet JS -->
-    <script src="/assets/ratchet/dist/js/ratchet.min.js"></script>
 
     <link rel="stylesheet" href="/stylesheets/application.css" />
     <link rel="stylesheet" href="/assets/font-awesome/css/font-awesome.min.css" />
@@ -77,49 +76,51 @@
 </head>
 
 <body>
-    <header ng-controller="HeaderCtrl" ng-init="init()" class="bar bar-nav">
-        <button ng-show="backbtn" ng-click="goBack()" class="btn btn-link btn-nav pull-left">
-            <span class="icon icon-left-nav"></span>
-            Back
-        </button>
-        <h1 class="title">Mobile Hub</h1>
-        <button ng-show="loggedin && !showLogout" ng-click="settings()" class="btn btn-link btn-nav pull-right">
-            Settings
-        </button>
-        <button ng-show="loggedin && showLogout" ng-click="logout()" class="btn btn-link btn-nav pull-right">
-            Logout
-        </button>
-    </header>
-    <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
-        <a href="index.html#!/activity" id="sensor-activity" class="btn pull-right">
-            Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
-        </a>
-    </div>
-    <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
-    <div class="content" data-ng-view></div>
+    <div id="content">
+        <header ng-controller="HeaderCtrl" ng-init="init()" class="bar bar-nav">
+            <button ng-show="backbtn" ng-click="goBack()" class="btn btn-link btn-nav pull-left">
+                <span class="icon icon-left-nav"></span>
+                Back
+            </button>
+            <h1 class="title">Mobile Hub</h1>
+            <button ng-show="loggedin && !showLogout" ng-click="settings()" class="btn btn-link btn-nav pull-right">
+                Settings
+            </button>
+            <button ng-show="loggedin && showLogout" ng-click="logout()" class="btn btn-link btn-nav pull-right">
+                Logout
+            </button>
+        </header>
+        <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
+            <a href="index.html#!/activity" id="sensor-activity" class="btn pull-right">
+                Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
+            </a>
+        </div>
+        <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
+        <div class="content" data-ng-view></div>
 
-    <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-show="loggedin">
-        <a class="tab-item" href="index.html#!/" ng-class="{active: isActive('/')}" data-ignore="push">
-            <span class="icon fa fa-tachometer"></span>
-            <span class="tab-label">Dashboard</span>
-        </a>
-        <a class="tab-item" href="index.html#!/plugins" ng-class="{active: isActive('/plugins')}" data-transition="fade">
-            <span class="icon fa fa-puzzle-piece"></span>
-            <span class="tab-label">Devices</span>
-        </a>
-        <a class="tab-item" href="index.html#!/sensors" ng-class="{active: isActive('/sensors')}" data-transition="fade">
-            <span class="icon fa fa-crosshairs"></span>
-            <span class="tab-label">Sensors</span>
-        </a>
-        <a class="tab-item" href="index.html#!/messages" ng-class="{active: isActive('/messages')}" data-transition="fade">
-            <span class="icon fa fa-comments"></span>
-            <span class="tab-label">Messages</span>
-        </a>
-        <a class="tab-item" href="index.html#!/flows" ng-class="{active: isActive('/flows')}" data-transition="fade">
-            <span class="icon fa fa-sitemap"></span>
-            <span class="tab-label">Flows</span>
-        </a>
-    </nav>
+        <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-show="loggedin">
+            <a class="tab-item" href="index.html#!/" ng-class="{active: isActive('/')}" data-ignore="push">
+                <span class="icon fa fa-tachometer"></span>
+                <span class="tab-label">Dashboard</span>
+            </a>
+            <a class="tab-item" href="index.html#!/plugins" ng-class="{active: isActive('/plugins')}" data-transition="fade">
+                <span class="icon fa fa-puzzle-piece"></span>
+                <span class="tab-label">Devices</span>
+            </a>
+            <a class="tab-item" href="index.html#!/sensors" ng-class="{active: isActive('/sensors')}" data-transition="fade">
+                <span class="icon fa fa-crosshairs"></span>
+                <span class="tab-label">Sensors</span>
+            </a>
+            <a class="tab-item" href="index.html#!/messages" ng-class="{active: isActive('/messages')}" data-transition="fade">
+                <span class="icon fa fa-comments"></span>
+                <span class="tab-label">Messages</span>
+            </a>
+            <a class="tab-item" href="index.html#!/flows" ng-class="{active: isActive('/flows')}" data-transition="fade">
+                <span class="icon fa fa-sitemap"></span>
+                <span class="tab-label">Flows</span>
+            </a>
+        </nav>
+    </div>
 </body>
 
 </html>
