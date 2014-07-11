@@ -54,6 +54,7 @@
                     window.localStorage.setItem("skynettoken", newskynettoken);
                     window.localStorage.setItem('loggedin', true);
                 }else if(invalidLogin || ( !newskynetuuid && !newskynettoken )){
+                    console.log('No Credentials', JSON.stringify([newskynetuuid, newskynettoken]));
                     window.location = 'error.html';
                     return;
                 }else{
