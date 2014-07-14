@@ -15,6 +15,9 @@
             <div ng-show="!activity.error" ng-bind-html="activity.html">
                 {{ activity.html }}
             </div>
+            <strong ng-show="activity.date">
+                {{ activity.date | date: 'medium' }}
+            </strong>
             <hr>
         </div>
     </div>

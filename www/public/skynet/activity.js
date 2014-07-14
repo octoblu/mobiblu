@@ -39,6 +39,10 @@ obj.logActivity = function(data){
         obj.skynetActivity = [];
     obj.skynetActivity = obj.skynetActivity.slice(0, limit);
 
+    data = _.extend({
+        date : new Date()
+    }, data);
+
     if(obj.skynetActivity.length)
         obj.skynetActivity.unshift(data);
     else

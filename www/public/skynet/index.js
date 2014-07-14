@@ -526,6 +526,20 @@ app.message = function (data) {
     return deferred.promise;
 };
 
+app.triggerTopic = function(name, payload){
+    var deferred = Q.defer();
+
+    app.message({
+        topic : name,
+        payload : payload,
+        uuid : app.skynetuuid,
+        token : app.skynettoken
+    }).then(deferred.resolve,
+        deferred.reject);
+
+    return deferred.promise;
+};
+
 app.whoami = function (uuid, token) {
     var deferred = Q.defer();
 
@@ -611,6 +625,7 @@ var publicApi = {
     login: app.login,
     isAuthenticated: app.isAuthenticated,
     logSensorData: app.logSensorData,
+    triggerTopic: app.triggerTopic,
     getCurrentSettings: function () {
         return {
             conn: app.conn,
