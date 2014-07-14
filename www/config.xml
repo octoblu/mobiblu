@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.octoblu.mobilehub" version="3.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Octoblu Mobile</name>
+    <name>Mobiblu</name>
     <description>
-        Octoblu Mobile Hub for communicating with skynet.im and octoblu.com
+        Use Mobiblu for communicating with SkyNet.im and Octoblu
     </description>
     <author email="info@octoblu.com" href="http://octoblu.com/">
         Octoblu Inc, Team
