@@ -36,14 +36,18 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     $scope.allResults = [];
 
     var handleSearchResults = function (res) {
+        setTimeout(function(){
+            $scope.$apply(function(){
+                var data = res.data;
+                console.log('Handling Search Results', JSON.stringify(data.results.length));
 
-        var data = res.data;
+                $scope.results = $scope.results.concat(data.results || []);
 
-        $scope.results = $scope.results.concat(data.results || []);
+                $scope.allResults = $scope.results;
 
-        $scope.allResults = $scope.results;
-
-        $rootScope.loading = false;
+                $rootScope.loading = false;
+            });
+        }, 0);
     };
 
     $scope.search = function () {
@@ -201,9 +205,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             var device = $scope.subdevices[x];
             if (device.type === name) {
                 found = true;
-                console.log('Name: ' + name);
                 if(device.name.match(/\s+\d*\s*$/)){
-                    console.log('Has number');
                     var newNumber = device.name.replace(/.*\s+(\d+)\s*$/g, "$1");
                     newNumber = parseInt(newNumber);
                     if(newNumber && !isNaN(newNumber) && number <= newNumber){

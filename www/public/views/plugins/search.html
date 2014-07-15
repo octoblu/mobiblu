@@ -12,7 +12,7 @@
             </button>
         </form>
 
-        <div ng-hide="loading || errorMsg">
+        <div ng-hide="loading">
             <ul class="table-view" ng-show="results && results.length">
                 <li ng-repeat="plugin in results" class="table-view-cell">
                     {{ plugin.name }}
