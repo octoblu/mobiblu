@@ -1972,10 +1972,19 @@ process.chdir = function (dir) {
 };
 
 },{}],3:[function(_dereq_,module,exports){
+var API = function(){
+    return {
+        logActivity: window.Skynet.logActivity
+    };
+}
+
+module.exports = API;
+},{}],4:[function(_dereq_,module,exports){
 'use strict';
 
 
 var Q = _dereq_('Q');
+var API = _dereq_('./api.js');
 
 var obj = {};
 
@@ -1988,6 +1997,8 @@ obj.subdevices = [];
 obj.pluginsIndex = {};
 
 obj.pluginsDir = '/public/plugins/local_plugins/';
+
+obj.api = null;
 
 // Utilities
 obj.each = function (cb) {
@@ -2322,14 +2333,14 @@ obj.initPlugin = function (subdevice) {
 
     var camelName = subdevice.type.toCamel();
 
-    try {
+    var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : _dereq_(subdevice.type);
 
-        var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : _dereq_(subdevice.type);
+    try {
 
         pluginObj = p ? new p.Plugin(
                 obj.Messenger,
                 subdevice.options || {},
-                window.octobluMobile.api
+                obj.api
             ) : null;
 
         var found = obj.findPlugin(subdevice.type);
@@ -2357,16 +2368,26 @@ obj.triggerPluginEvent = function (plugin, event) {
 
         var deferred = Q.defer();
 
-        if (obj.instances[subdevice.name]) {
+        var Plugin = obj.instances[subdevice.name];
 
-            var pluginEvent = obj.instances[subdevice.name][event];
+        if (Plugin) {
 
-            if (typeof pluginEvent === 'function') {
-                pluginEvent(deferred.resolve);
+            if (typeof Plugin[event] === 'function') {
+
+                try{
+                    Plugin[event].call(Plugin);
+                }catch(e){
+                    deferred.resolve('Error Triggering Event');
+                    return;
+                }
+
+                deferred.resolve();
             } else {
                 deferred.resolve('No event found for plugin');
             }
 
+        }else{
+            deferred.resolve('No plugin found');
         }
 
         return deferred.promise;
@@ -2426,7 +2447,7 @@ obj.startListen = function () {
 
                         console.log('Matching subdevice found:', data.subdevice);
 
-                        obj.Skynet.logActivity({
+                        obj.api.logActivity({
                             type: data.subdevice,
                             html: 'Received Message: ' + JSON.stringify(data.payload)
                         });
@@ -2490,7 +2511,7 @@ obj.init = function () {
     obj.conn = obj.skynetObj.conn;
     obj.Messenger = _dereq_('./messenger').init();
 
-    window.octobluMobile.api.logActivity = obj.Skynet.logActivity;
+    obj.api = API();
 
     console.log('Init Plugins');
 
@@ -2516,15 +2537,8 @@ obj.init = function () {
 
 };
 
-var api = {
-    logActivity: function (data) {
-        console.log('Dummy Skynet Activity' + JSON.stringify(data));
-    }
-};
-
 var octobluMobile = {
     init: obj.init,
-    api: api,
     plugins: {},
     getPlugins: obj.getPlugins,
     getSubdevices: obj.getSubdevices,
@@ -2537,7 +2551,7 @@ var octobluMobile = {
 
 module.exports = octobluMobile;
 
-},{"./messenger":4,"Q":1}],4:[function(_dereq_,module,exports){
+},{"./api.js":3,"./messenger":5,"Q":1}],5:[function(_dereq_,module,exports){
 'use strict';
 
 var obj = {};
@@ -2555,8 +2569,21 @@ obj.init = function () {
 };
 
 obj.send = function (data, callback) {
+    if(!callback) callback = function(){};
     if (obj.conn) {
         Skynet.message(data)
+            .then(callback, function () {
+                console.log('Error Sending Message');
+            });
+    } else {
+        callback(new Error('Socket not available'));
+    }
+};
+
+obj.data = function (data, callback) {
+    if(!callback) callback = function(){};
+    if (obj.conn) {
+        Skynet.sendData(data)
             .then(callback, function () {
                 console.log('Error Sending Message');
             });
@@ -2572,6 +2599,6 @@ var Messenger = {
 
 module.exports = Messenger;
 
-},{}]},{},[3])
-(3)
+},{}]},{},[4])
+(4)
 });

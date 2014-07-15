@@ -15,8 +15,21 @@ obj.init = function () {
 };
 
 obj.send = function (data, callback) {
+    if(!callback) callback = function(){};
     if (obj.conn) {
         Skynet.message(data)
+            .then(callback, function () {
+                console.log('Error Sending Message');
+            });
+    } else {
+        callback(new Error('Socket not available'));
+    }
+};
+
+obj.data = function (data, callback) {
+    if(!callback) callback = function(){};
+    if (obj.conn) {
+        Skynet.sendData(data)
             .then(callback, function () {
                 console.log('Error Sending Message');
             });

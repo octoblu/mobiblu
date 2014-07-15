@@ -1,9 +1,9 @@
-# Octoblu Mobile
+# Mobiblu
 
 ## Installation
 
 1. `npm install steroids bower browserify -g`
-2. `git clone http://github.com/skynetim/mobile.git`
+2. `git clone http://github.com/octoblu/mobiblu.git`
 3. `cd mobile`
 4. `bower install`
 5. `steroids connect`

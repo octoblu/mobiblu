@@ -2,6 +2,7 @@
 
 
 var Q = require('Q');
+var API = require('./api.js');
 
 var obj = {};
 
@@ -14,6 +15,8 @@ obj.subdevices = [];
 obj.pluginsIndex = {};
 
 obj.pluginsDir = '/public/plugins/local_plugins/';
+
+obj.api = null;
 
 // Utilities
 obj.each = function (cb) {
@@ -348,14 +351,14 @@ obj.initPlugin = function (subdevice) {
 
     var camelName = subdevice.type.toCamel();
 
-    try {
+    var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : require(subdevice.type);
 
-        var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : require(subdevice.type);
+    try {
 
         pluginObj = p ? new p.Plugin(
                 obj.Messenger,
                 subdevice.options || {},
-                window.octobluMobile.api
+                obj.api
             ) : null;
 
         var found = obj.findPlugin(subdevice.type);
@@ -383,16 +386,26 @@ obj.triggerPluginEvent = function (plugin, event) {
 
         var deferred = Q.defer();
 
-        if (obj.instances[subdevice.name]) {
+        var Plugin = obj.instances[subdevice.name];
 
-            var pluginEvent = obj.instances[subdevice.name][event];
+        if (Plugin) {
 
-            if (typeof pluginEvent === 'function') {
-                pluginEvent(deferred.resolve);
+            if (typeof Plugin[event] === 'function') {
+
+                try{
+                    Plugin[event].call(Plugin);
+                }catch(e){
+                    deferred.resolve('Error Triggering Event');
+                    return;
+                }
+
+                deferred.resolve();
             } else {
                 deferred.resolve('No event found for plugin');
             }
 
+        }else{
+            deferred.resolve('No plugin found');
         }
 
         return deferred.promise;
@@ -452,7 +465,7 @@ obj.startListen = function () {
 
                         console.log('Matching subdevice found:', data.subdevice);
 
-                        obj.Skynet.logActivity({
+                        obj.api.logActivity({
                             type: data.subdevice,
                             html: 'Received Message: ' + JSON.stringify(data.payload)
                         });
@@ -516,7 +529,7 @@ obj.init = function () {
     obj.conn = obj.skynetObj.conn;
     obj.Messenger = require('./messenger').init();
 
-    window.octobluMobile.api.logActivity = obj.Skynet.logActivity;
+    obj.api = API();
 
     console.log('Init Plugins');
 
@@ -542,15 +555,8 @@ obj.init = function () {
 
 };
 
-var api = {
-    logActivity: function (data) {
-        console.log('Dummy Skynet Activity' + JSON.stringify(data));
-    }
-};
-
 var octobluMobile = {
     init: obj.init,
-    api: api,
     plugins: {},
     getPlugins: obj.getPlugins,
     getSubdevices: obj.getSubdevices,

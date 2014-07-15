@@ -1,9 +1,9 @@
 {
   "name": "Mobiblu",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Octoblu Mobile Hub",
-  "repository": "https://github.com/skynetim/mobile",
-  "readme": "https://github.com/skynetim/mobile/README.md",
+  "repository": "https://github.com/mobiblu/mobiblu",
+  "readme": "https://github.com/octoblu/mobiblu/README.md",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -363,14 +363,12 @@ app.logSensorData = function () {
                         sent = true;
 
                         // Emit data
-                        app.conn.data({
-                            'uuid': app.mobileuuid,
-                            'token': app.mobiletoken,
+                        app.sendData({
                             'sensorData': {
                                 'type': type,
                                 'data': sensorData
                             }
-                        }, function () {
+                        }).then(function () {
                             activity.logActivity({
                                 type: type,
                                 data: sensorData,
@@ -418,32 +416,24 @@ app.startBG = function () {
 
         // Send POST to SkyNet
         var sendToSkynet = function (response) {
-            var send = JSON.stringify({
+
+            var type = 'Background Geolocation';
+
+            app.sendData({
                 'sensorData': {
-                    'type': 'Geolocation',
+                    'type': type,
                     'data': response
                 }
-            });
-            console.log(send);
-
-            var r = new XMLHttpRequest();
-            r.open('POST', 'http://skynet.im/data/' + app.mobileuuid, true);
-            r.setRequestHeader('Content-type', 'application/json');
-            r.setRequestHeader('skynet_auth_uuid', app.mobileuuid);
-            r.setRequestHeader('skynet_auth_token', app.mobiletoken);
-
-            r.onreadystatechange = function () {
-                if (r.readyState !== 4 || r.status !== 200) return;
-                console.log('Success: ' + r.responseText);
+            }).then(function () {
 
                 activity.logActivity({
-                    type: 'BG Geolocation',
+                    type: type,
                     html: 'Successfully updated background location'
                 });
-            };
+                app.bgGeo.finish();
 
-            r.send(send);
-            app.bgGeo.finish();
+            }, app.bgGeo.finish);
+
         };
 
         var callbackFn = function (location) {
@@ -463,10 +453,13 @@ app.startBG = function () {
         app.bgGeo.configure(callbackFn, failureFn, {
             url: 'http://skynet.im/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
             params: { // HTTP POST params sent to your server when persisting locations.
+                uuid : app.mobileuuid,
+                token : app.mobiletoken,
+                type : 'octobluMobile'
             },
             headers: {
-                'skynet_auth_uuid': app.mobileuuid,
-                'skynet_auth_token': app.mobiletoken
+                skynet_auth_uuid: app.mobileuuid,
+                skynet_auth_token: app.mobiletoken
             },
             desiredAccuracy: 10,
             stationaryRadius: 20,
@@ -491,7 +484,7 @@ app.updateDeviceSetting = function (data) {
     data.online = true;
     data.owner = app.skynetuuid;
     data.pushID = app.pushID;
-    data.platform = device.platform;
+    data.platform = window.device.platform;
     data.name = app.devicename = data.name || app.devicename;
 
     window.localStorage.setItem('devicename', data.name);
@@ -525,6 +518,18 @@ app.message = function (data) {
 
     return deferred.promise;
 };
+
+app.sendData = function(data){
+    var deferred = Q.defer();
+
+    data = _.extend({
+        'uuid': app.mobileuuid,
+        'token': app.mobiletoken
+    }, data);
+    app.conn.data(data, deferred.resolve);
+
+    return deferred.promise;
+}
 
 app.triggerTopic = function(name, payload){
     var deferred = Q.defer();
@@ -620,12 +625,13 @@ var publicApi = {
     getDeviceSetting: app.getDeviceSetting,
     whoami: app.whoami,
     message: app.message,
+    triggerTopic: app.triggerTopic,
+    sendData: app.sendData,
     updateDeviceSetting: app.updateDeviceSetting,
     logout: app.logout,
     login: app.login,
     isAuthenticated: app.isAuthenticated,
     logSensorData: app.logSensorData,
-    triggerTopic: app.triggerTopic,
     getCurrentSettings: function () {
         return {
             conn: app.conn,
