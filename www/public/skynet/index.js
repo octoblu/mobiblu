@@ -437,7 +437,7 @@ app.startBG = function () {
                 console.log('Success: ' + r.responseText);
 
                 activity.logActivity({
-                    type: 'BG_Geolocation',
+                    type: 'BG Geolocation',
                     html: 'Successfully updated background location'
                 });
             };
