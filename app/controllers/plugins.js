@@ -186,11 +186,6 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                 $scope.plugin.subdevices = [];
             }
 
-            if (!$scope.plugin.subdevices.length) {
-                $scope.addSubdevice(true);
-            }else if($scope.plugin.subdevices[0] && !$scope.plugin.subdevices[0].name){
-                $scope.addSubdevice(true);
-            }
             $rootScope.loading = false;
             if(typeof cb === 'function'){
                 cb();
@@ -209,7 +204,6 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     newNumber = parseInt(newNumber);
                     if(newNumber && !isNaN(newNumber) && number <= newNumber){
                         number = newNumber;
-                        console.log(number);
                         name = name.replace(/(\d+)\s*$/g, "");
                         name += ' ' + (number + 1).toString();
                     }else{
@@ -302,17 +296,17 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     options = _.extend(options, defaultOptions);
                 }
 
-                console.log('Options :: ' + JSON.stringify($scope.plugin.optionsSchema));
-
-                $('#options-editor').jsoneditor({
-                    schema: $scope.plugin.optionsSchema,
-                    theme: 'bootstrap3',
-                    startval: options,
-                    no_additional_properties: true,
-                    iconlib: 'fontawesome4',
-                    disable_collapse: true,
-                    form_name_root : ''
-                });
+                if($scope.plugin.optionsSchema){
+                    $('#options-editor').jsoneditor({
+                        schema: $scope.plugin.optionsSchema,
+                        theme: 'bootstrap3',
+                        startval: options,
+                        no_additional_properties: true,
+                        iconlib: 'fontawesome4',
+                        disable_collapse: true,
+                        form_name_root : ''
+                    });
+                }
 
             }, $rootScope.redirectToError);
     };
