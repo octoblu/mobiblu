@@ -40,7 +40,7 @@ steroids.config.location = "http://localhost/index.html#!/"
 steroids.config.loadingScreen.tintColor = "#262626"
 
 # -- iOS Status Bar --
-steroids.config.statusBar.enabled = false
+steroids.config.statusBar.enabled = true
 steroids.config.statusBar.style = "default"
 
 # -- File Watcher --
