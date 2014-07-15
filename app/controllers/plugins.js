@@ -196,26 +196,27 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     $scope.getSubdevicesName = function(name){
         if(!$scope.subdevices) $scope.subdevices = window.octobluMobile.getSubdevices();
         var number = 2;
+        var found = false;
         for (var x in $scope.subdevices) {
             var device = $scope.subdevices[x];
-            if (device.name === name) {
-                if(name.match(/\s+\d*\s*$/)){
-                    var newNumber = name.replace(/.*\s+(\d+)\s*$/g, "$1");
+            if (device.type === name) {
+                found = true;
+                console.log('Name: ' + name);
+                if(device.name.match(/\s+\d*\s*$/)){
+                    console.log('Has number');
+                    var newNumber = device.name.replace(/.*\s+(\d+)\s*$/g, "$1");
                     newNumber = parseInt(newNumber);
                     if(newNumber && !isNaN(newNumber) && number <= newNumber){
-                        number = newNumber;
-                        name = name.replace(/(\d+)\s*$/g, "");
-                        name += ' ' + (number + 1).toString();
-                    }else{
-                        name += ' ' + number.toString();
+                        number = newNumber + 1;
                     }
-
-                }else{
-                    name += ' ' + number.toString();
                 }
             }
         }
-        return name;
+        if(found){
+            return name.replace(/(\d+)\s*$/g, '') + ' ' + number.toString();
+        }else{
+            return name;
+        }
     };
 
     $scope.addSubdevice = function (select) {
@@ -250,11 +251,15 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             $scope.subdevice,
             'destroy'
         ).then(function (err, data) {
-                if (err) return console.log('Error deleting device', err);
+                if (err) console.log('Error deleting device', err);
                 $scope.subdevice = null;
                 $scope.writePlugin();
                 console.log('Data after deleting device', JSON.stringify(data));
-                $location.path('/plugins/' + $scope.plugin.name);
+                setTimeout(function(){
+                    $scope.$apply(function(){
+                        $location.path('/plugins/' + $scope.plugin.name);
+                    });
+                }, 0);
             }, $rootScope.redirectToError);
     };
 
