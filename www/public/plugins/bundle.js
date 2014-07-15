@@ -2362,36 +2362,37 @@ obj.initPlugin = function (subdevice) {
 
 };
 
-obj.triggerPluginEvent = function (plugin, event) {
+obj.triggerDeviceEvent = function(subdevice, event){
 
-    function triggerEvent(subdevice) {
+    var deferred = Q.defer();
 
-        var deferred = Q.defer();
+    var Plugin = obj.instances[subdevice.name];
 
-        var Plugin = obj.instances[subdevice.name];
+    if (Plugin) {
 
-        if (Plugin) {
+        if (typeof Plugin[event] === 'function') {
 
-            if (typeof Plugin[event] === 'function') {
-
-                try{
-                    Plugin[event].call(Plugin);
-                }catch(e){
-                    deferred.resolve('Error Triggering Event');
-                    return;
-                }
-
-                deferred.resolve();
-            } else {
-                deferred.resolve('No event found for plugin');
+            try{
+                Plugin[event].call(Plugin);
+            }catch(e){
+                deferred.resolve('Error Triggering Event');
+                return;
             }
 
-        }else{
-            deferred.resolve('No plugin found');
+            deferred.resolve();
+        } else {
+            deferred.resolve('No event found for plugin');
         }
 
-        return deferred.promise;
+    }else{
+        deferred.resolve('No plugin found');
     }
+
+    return deferred.promise;
+
+};
+
+obj.triggerPluginEvent = function (plugin, event) {
 
     var deferred = Q.defer();
 
@@ -2417,7 +2418,7 @@ obj.triggerPluginEvent = function (plugin, event) {
 
     plugin.subdevices
         .forEach(function (subdevice) {
-            promises.push(triggerEvent(subdevice));
+            promises.push(obj.triggerDeviceEvent(subdevice, event));
         });
 
     Q.all(promises)
@@ -2546,7 +2547,8 @@ var octobluMobile = {
     removePlugin: obj.removePlugin,
     writePlugin: obj.writePlugin,
     loadPlugin: obj.loadPlugin,
-    clearStorage: obj.clearStorage
+    clearStorage: obj.clearStorage,
+    triggerDeviceEvent : obj.triggerDeviceEvent
 };
 
 module.exports = octobluMobile;

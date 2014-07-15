@@ -104,9 +104,11 @@ systemApp.controller('ActivityCtrl',
         $scope.limit = 25;
 
         var setActivity = function () {
-            $scope.$apply(function () {
-                $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName, $scope.limit);
-            });
+            setTimeout(function(){
+                $scope.$apply(function () {
+                    $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName, $scope.limit);
+                });
+            }, 0);
         };
 
         $scope.init = function () {

@@ -252,9 +252,16 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             }
         }
 
-        $scope.subdevice = null;
-        $scope.writePlugin();
-        $location.path('/plugins/' + $scope.plugin.name);
+        window.octobluMobile.triggerDeviceEvent(
+            $scope.subdevice,
+            'destroy'
+        ).then(function (err, data) {
+                if (err) return console.log('Error deleting device', err);
+                $scope.subdevice = null;
+                $scope.writePlugin();
+                console.log('Data after deleting device', JSON.stringify(data));
+                $location.path('/plugins/' + $scope.plugin.name);
+            }, $rootScope.redirectToError);
     };
 
     $scope.addDevice = function(){
