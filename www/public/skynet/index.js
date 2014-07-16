@@ -522,11 +522,16 @@ app.message = function (data) {
 app.sendData = function(data){
     var deferred = Q.defer();
 
-    data = _.extend({
+    var defaults = {
         'uuid': app.mobileuuid,
         'token': app.mobiletoken
-    }, data);
-    app.conn.data(data, deferred.resolve);
+    };
+    data = _.extend(defaults, data);
+
+    app.conn.data(data, function(){
+        console.log('Data Logged ' + JSON.stringify(data));
+        deferred.resolve();
+    });
 
     return deferred.promise;
 }

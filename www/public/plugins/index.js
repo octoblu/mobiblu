@@ -296,6 +296,14 @@ obj.loadScript = function (json) {
     var script = $('script[src="'+path+'"]');
     if(script.size()){
         script.remove();
+        if(json.subdevices && json.subdevices.length){
+            json.subdevices
+                .forEach(function(subdevice){
+                    if(obj.instances[subdevice.name]) delete obj.instances[subdevice.name];
+                    var camel = subdevice.name.toCamel();
+                    if(window.skynetPlugins[camel]) delete window.skynetPlugins[camel];
+                });
+        }
     }
     $.getScript(path)
         .done(function (script, textStatus) {

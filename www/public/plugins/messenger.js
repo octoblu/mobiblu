@@ -28,6 +28,7 @@ obj.send = function (data, callback) {
 
 obj.data = function (data, callback) {
     if(!callback) callback = function(){};
+    console.log('Sending Data from Device');
     if (obj.conn) {
         Skynet.sendData(data)
             .then(callback, function () {

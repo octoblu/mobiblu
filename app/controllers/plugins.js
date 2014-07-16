@@ -98,7 +98,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                 $timeout(function(){
                     $rootScope.loading = false;
                     $scope.plugin = plugin;
-                    window.location.reload();
+                    alert('Updated!');
                 }, 0);
             }, function(err) {
                 console.log('Error ', err);

@@ -2278,6 +2278,14 @@ obj.loadScript = function (json) {
     var script = $('script[src="'+path+'"]');
     if(script.size()){
         script.remove();
+        if(json.subdevices && json.subdevices.length){
+            json.subdevices
+                .forEach(function(subdevice){
+                    if(obj.instances[subdevice.name]) delete obj.instances[subdevice.name];
+                    var camel = subdevice.name.toCamel();
+                    if(window.skynetPlugins[camel]) delete window.skynetPlugins[camel];
+                });
+        }
     }
     $.getScript(path)
         .done(function (script, textStatus) {
@@ -2654,6 +2662,7 @@ obj.send = function (data, callback) {
 
 obj.data = function (data, callback) {
     if(!callback) callback = function(){};
+    console.log('Sending Data from Device');
     if (obj.conn) {
         Skynet.sendData(data)
             .then(callback, function () {
