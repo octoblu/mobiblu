@@ -102,9 +102,7 @@ obj.writePlugin = function (json, init, removing) {
     obj.writePluginsToStorage();
 
     if (init) {
-        json.subdevices.forEach(function (subdevice) {
-            obj.instances[subdevice.name] = obj.initPlugin(subdevice);
-        });
+        obj.initPlugin(json);
     }
 
     return obj.plugins;
@@ -212,7 +210,7 @@ obj.retrievePlugins = function () {
     console.log('Plugins from storage' + JSON.stringify(plugins));
 
     obj.loadPluginScripts()
-        .then(function () {
+        .done(function () {
             console.log('Loaded Plugin Scripts');
             obj.mapPlugins(plugins);
 
@@ -232,10 +230,73 @@ obj.retrievePlugins = function () {
     return deferred.promise;
 };
 
+obj.download = function(plugin){
+    var deferred = Q.defer();
+    var entry,
+        fileTransfer = new FileTransfer(),
+        directories = ['plugins', plugin.name],
+        uri = encodeURI(plugin.bundle);
+
+    function gotFS() {
+        entry.getDirectory(directories[0], {
+            create: true,
+            exclusive: false
+        }, createPluginDir, deferred.reject);
+    }
+
+    function createPluginDir() {
+        entry.getDirectory(directories.join('/'), {
+            create: true,
+            exclusive: false
+        }, onGetDirectorySuccess, deferred.reject);
+    }
+
+    function onGetDirectorySuccess(dir) {
+        console.log('Created dir ' + dir.name);
+        var file = '/bundle.js';
+        fileTransfer.download(
+            uri,
+            steroids.app.absoluteUserFilesPath + '/' + directories.join('/') + file,
+            function (entry) {
+                console.log('download complete: ' + entry.toURL());
+
+                plugin._url = entry.toURL();
+                plugin._path = '/plugins/' + plugin.name + file;
+
+                if(!plugin.subdevices) plugin.subdevices = [];
+
+                obj.loadPlugin(plugin)
+                    .done(function(){
+                        deferred.resolve(plugin);
+                    }, deferred.reject);
+            },
+            deferred.reject,
+            false
+        );
+    }
+
+    try {
+        if (window.FSRoot) {
+            entry = window.FSRoot;
+            gotFS();
+        } else {
+            deferred.reject(new Error('Error no access to file system.'));
+        }
+    } catch (e) {
+        deferred.reject(new Error('No Error Installing Plugin'));
+    }
+
+    return deferred.promise;
+};
+
 obj.loadScript = function (json) {
     var deferred = Q.defer();
 
     var path = json._path || obj.pluginsDir + json.name + '/bundle.js';
+    var script = $('script[src="'+path+'"]');
+    if(script.size()){
+        script.remove();
+    }
     $.getScript(path)
         .done(function (script, textStatus) {
             console.log('Script loaded: ' + textStatus);
@@ -243,7 +304,11 @@ obj.loadScript = function (json) {
         })
         .fail(function (jqxhr, settings, exception) {
             console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status + ' Settings : ' + JSON.stringify(settings) + ' Exception : ' + exception.toString());
-            deferred.reject();
+            if(jqxhr.status === 404){
+
+            }else{
+                deferred.reject();
+            }
         });
 
     return deferred.promise;
@@ -323,9 +388,7 @@ obj.loadPlugin = function (data) {
             });
     } else {
         var plugin = obj.plugins[found];
-        plugin.subdevices.forEach(function (subdevice) {
-            obj.instances[subdevice.name] = obj.initPlugin(subdevice);
-        });
+        obj.initPlugin(plugin);
         deferred.resolve();
     }
 
@@ -335,15 +398,19 @@ obj.loadPlugin = function (data) {
 obj.mapPlugins = function () {
     obj.each(function (plugin) {
         if (!plugin) return;
-        plugin.subdevices.forEach(function (subdevice) {
-            console.log('Mapping Subdevice :: ' + subdevice.name);
-            obj.instances[subdevice.name] = obj.initPlugin(subdevice);
-        });
+        obj.initPlugin(plugin);
+    });
+};
+
+obj.initPlugin = function(plugin){
+    plugin.subdevices.forEach(function (subdevice) {
+        obj.initDevice(subdevice);
     });
 };
 
 // Individual Plugin Object
-obj.initPlugin = function (subdevice) {
+obj.initDevice = function (subdevice) {
+    console.log('INIT DEVICE :: ' + subdevice.name);
 
     var pluginObj;
 
@@ -559,7 +626,10 @@ obj.init = function () {
 var octobluMobile = {
     init: obj.init,
     plugins: {},
+    initPlugin : obj.initPlugin,
+    initDevice : obj.initDevice,
     getPlugins: obj.getPlugins,
+    download: obj.download,
     getSubdevices: obj.getSubdevices,
     triggerPluginEvent: obj.triggerPluginEvent,
     removePlugin: obj.removePlugin,

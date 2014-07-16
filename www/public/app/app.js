@@ -48,6 +48,7 @@ angular.module('main', [
     var redirectToError = function(err, type){
         if(isErrorPage()) return false;
         clearAppTimeouts();
+        console.log('Error! ', err);
         console.log('Redirecting to "' + type + '" Error');
         setTimeout(function(){
             $rootScope.$apply(function() {
