@@ -20,6 +20,8 @@ angular.module('main', [
 
     $rootScope.Skynet = window.Skynet;
 
+    $rootScope.isDeveloper = false;
+
     $rootScope.matchRoute = function (route) {
         var regex = new RegExp('\\#\\!' + route);
         if (window.location.href.match(regex)) {
@@ -104,6 +106,8 @@ angular.module('main', [
         $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
 
         $rootScope.loggedin = $rootScope.settings.loggedin;
+
+        $rootScope.isDeveloper = $rootScope.settings.settings.developer_mode;
     };
 
     $rootScope.isAuthenticated = function () {

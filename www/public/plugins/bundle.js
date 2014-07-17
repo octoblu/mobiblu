@@ -2290,12 +2290,13 @@ obj.loadScript = function (json) {
     $.getScript(path)
         .done(function (script, textStatus) {
             console.log('Script loaded: ' + textStatus);
-            deferred.resolve();
+            deferred.resolve(json);
         })
         .fail(function (jqxhr, settings, exception) {
             console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status + ' Settings : ' + JSON.stringify(settings) + ' Exception : ' + exception.toString());
             if(jqxhr.status === 404){
-
+                // TODO ReDownload
+                deferred.reject();
             }else{
                 deferred.reject();
             }
@@ -2374,7 +2375,11 @@ obj.loadPlugin = function (data) {
         console.log('Installing Plugin', name);
         return obj.registerPlugin(name)
             .then(function () {
-                obj.retrievePlugins().then(deferred.resolve, deferred.reject);
+                found = obj.findPlugin(name);
+                var plugin = obj.plugins[found];
+                obj.loadScript(plugin)
+                    .then(obj.initPlugin)
+                    .then(deferred.resolve, deferred.reject);
             });
     } else {
         var plugin = obj.plugins[found];
@@ -2393,9 +2398,15 @@ obj.mapPlugins = function () {
 };
 
 obj.initPlugin = function(plugin){
+    var deferred = Q.defer();
+
     plugin.subdevices.forEach(function (subdevice) {
         obj.initDevice(subdevice);
     });
+
+    deferred.resolve();
+
+    return deferred.promise;
 };
 
 // Individual Plugin Object

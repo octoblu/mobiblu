@@ -63,7 +63,9 @@ settingApp.controller('SettingCtrl', function ($rootScope, $scope, $q) {
     };
 
     $scope.update = function () {
-        update().then(null, $rootScope.redirectToError);
+        update().then(function(){
+            $rootScope.setSettings();
+        }, $rootScope.redirectToError);
     };
 
     $scope.clearPlugins = function(){

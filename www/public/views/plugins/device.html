@@ -19,7 +19,7 @@
                 <div id="options-editor">
                 </div>
                 <button class="btn btn-success btn-block btn-outlined" ng-click="savePlugin()">Save</button>
-                <button class="btn btn-block btn-outlined" ng-click="initDevice(subdevice)">Re-Initialize</button>
+                <button class="btn btn-block btn-outlined" ng-show="isDeveloper" ng-click="initDevice(subdevice)">Re-Initialize</button>
                 <button class="btn btn-negative btn-block btn-outlined" ng-click="deleteDevice()">Delete</button>
             </div>
 
