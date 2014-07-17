@@ -99,6 +99,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                     $rootScope.loading = false;
                     $scope.plugin = plugin;
                     alert('Updated!');
+                    window.location.reload();
                 }, 0);
             }, function(err) {
                 console.log('Error ', err);
