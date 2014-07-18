@@ -159,7 +159,8 @@ angular.module('main')
 
         var processMessage = function (message) {
             $rootScope.$broadcast('skynet:message', message);
-            $rootScope.$broadcast('skynet:message:' + message.fromUuid, message);
+            var device = message.subdevice || message.fromUuid;
+            $rootScope.$broadcast('skynet:message:' + device, message);
             if (message.payload && _.has(message.payload, 'online')) {
                 var device = _.findWhere($rootScope.myDevices, {uuid: message.fromUuid});
                 if (device) {

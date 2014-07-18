@@ -2429,7 +2429,8 @@ obj.initDevice = function (subdevice) {
         pluginObj = p ? new p.Plugin(
                 obj.Messenger,
                 subdevice.options || {},
-                obj.api
+                obj.api,
+                subdevice.name
             ) : null;
 
         var found = obj.findPlugin(subdevice.type);

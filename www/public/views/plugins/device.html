@@ -23,10 +23,12 @@
                 <div ng-show="schema">
                     <schema-editor control="schemaEditor" schema="schema" model="subdevice.options" allow-json-edit="true" additional-properties="true"></schema-editor>
                 </div>
-                <button class="btn btn-success btn-block btn-outlined" ng-click="savePlugin()">Save</button>
-                <button class="btn btn-block btn-outlined" ng-show="isDeveloper" ng-click="initDevice(subdevice)">Re-Initialize</button>
-                <button class="btn btn-negative btn-block btn-outlined" ng-click="deleteDevice()">Delete</button>
+
             </div>
+
+            <button class="btn btn-success btn-block btn-outlined" ng-click="savePlugin()">Save</button>
+            <button class="btn btn-block btn-outlined" ng-show="isDeveloper" ng-click="initDevice(subdevice)">Re-Initialize</button>
+            <button class="btn btn-negative btn-block btn-outlined" ng-click="deleteDevice()">Delete</button>
 
         </form>
 
