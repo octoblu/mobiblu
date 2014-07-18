@@ -72,6 +72,8 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
             }
         }
 
+        plugin.enabled = true;
+
         window.octobluMobile.download(plugin)
             .timeout(15 * 1000)
             .then(function(plugin){

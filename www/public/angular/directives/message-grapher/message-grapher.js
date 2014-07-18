@@ -67,10 +67,14 @@ angular.module('main')
                         }
                         if(log){
                             var key = message.type;
-                            messageLines[key] = {
-                                line: new TimeSeries(),
-                                color: lineColors.pop()
-                            };
+
+                            if(!messageLines[key]){
+                                messageLines[key] = {
+                                    line: new TimeSeries(),
+                                    color: lineColors.pop()
+                                };
+                            }
+
                             smoothie.addTimeSeries(messageLines[key].line, { strokeStyle: messageLines[key].color, lineWidth: 3 });
                         }
 

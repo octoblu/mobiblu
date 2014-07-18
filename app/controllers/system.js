@@ -114,6 +114,8 @@ systemApp.controller('ActivityCtrl',
         $scope.init = function () {
             if($rootScope.matchRoute('/$')){
                 $scope.limit = 5;
+            }else if($rootScope.matchRoute('/plugins')){
+                $scope.limit = 10;
             }
             $rootScope.ready(function () {
                 $rootScope.Skynet.clearActivityCount();
