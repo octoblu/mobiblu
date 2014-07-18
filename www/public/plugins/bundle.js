@@ -2294,7 +2294,6 @@ obj.loadScript = function (json) {
         .fail(function (jqxhr, settings, exception) {
             console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status + ' Settings : ' + JSON.stringify(settings) + ' Exception : ' + exception.toString());
             if(jqxhr.status === 404){
-                // TODO ReDownload
                 obj.download(json)
                     .done(deferred.resolve, deferred.reject);
             }else{
@@ -2398,11 +2397,15 @@ obj.mapPlugins = function () {
 };
 
 obj.initPlugin = function(plugin){
-    var deferred = Q.defer();
+    var deferred = Q.defer()
 
-    plugin.subdevices.forEach(function (subdevice) {
-        obj.initDevice(subdevice);
-    });
+    if(plugin.enabled){
+        plugin.subdevices.forEach(function (subdevice) {
+            obj.initDevice(subdevice);
+        });
+    }else{
+        console.log('Plugin Disabled');
+    }
 
     deferred.resolve();
 

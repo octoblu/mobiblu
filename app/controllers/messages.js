@@ -131,11 +131,11 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest,
         if (uuid) {
 
             if ($scope.schema) {
-                var errors = $scope.schemaEditor.validate();
+                var errors = $('#device-msg-editor').jsoneditor('validate');
                 if (errors.length) {
                     alert(errors);
                 } else {
-                    message = $scope.schemaEditor.getValue();
+                    message = $scope.schemaEdi;
                     console.log('schema message', JSON.stringify(message));
 
                     $scope.subdevicename = $scope.subdevice.name;

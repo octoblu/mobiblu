@@ -1,8 +1,9 @@
-<div>
+<div style="clear: both;">
 
   <div ng-controller="ActivityCtrl" ng-init="init()">
 
-    <h3 class="content-padded">Activity</h3>
+    <p class="content-padded">Activity</p>
+
     <div class="content-padded" id="sensor-activity">
 
         <div ng-repeat="activity in activities track by $index" ng-class="{'error-block' : activity.error}">

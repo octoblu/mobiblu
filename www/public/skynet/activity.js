@@ -61,7 +61,7 @@ obj.logActivity = function(data){
 
     window.localStorage.setItem('skynetactivity', string);
     window.localStorage.setItem('activitycount', obj.x);
-    $(document).trigger('skynetactivity', true);
+    $(document).trigger('skynetactivity', data);
 };
 
 obj.init = function(){

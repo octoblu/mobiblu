@@ -4,7 +4,8 @@ angular.module('main')
             restrict: 'AE',
             templateUrl: '/public/angular/directives/message-grapher/message-grapher.html',
             scope: {
-                device: '='
+                device: '=',
+                activity: '='
             },
             link: function (scope, element) {
                 var messages = [],
@@ -37,6 +38,7 @@ angular.module('main')
                 if (scope.device) {
                     eventName += ':' + scope.device;
                 }
+                console.log(eventName);
                 $rootScope.$on(eventName, function (event, message) {
                     messages.push(message.payload);
                     if (scope.device) {
@@ -47,11 +49,33 @@ angular.module('main')
                                     color: lineColors.pop()
                                 };
                                 smoothie.addTimeSeries(messageLines[key].line, { strokeStyle: messageLines[key].color, lineWidth: 3 });
-                                console.log('added line for: ' + key);
                             }
                         });
                     }
                 });
+
+                if(!!scope.activity){
+                    $(document).on('skynetactivity', function (event, message) {
+                        var payload = message.error || message.html;
+                        messages.push(payload);
+                        var log = false;
+                        if (scope.device &&
+                            scope.device === message.type) {
+                            log = true;
+                        }else if(!scope.device){
+                            log = true;
+                        }
+                        if(log){
+                            var key = message.type;
+                            messageLines[key] = {
+                                line: new TimeSeries(),
+                                color: lineColors.pop()
+                            };
+                            smoothie.addTimeSeries(messageLines[key].line, { strokeStyle: messageLines[key].color, lineWidth: 3 });
+                        }
+
+                    });
+                }
 
                 var intervalPromise = $interval(function () {
                     messageLines.message.line.append(new Date().getTime(), messages.length);

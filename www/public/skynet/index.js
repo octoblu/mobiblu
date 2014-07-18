@@ -537,7 +537,6 @@ app.sendData = function(data){
     data = _.extend(defaults, data);
 
     app.conn.data(data, function(){
-        console.log('Data Logged ' + JSON.stringify(data));
         deferred.resolve();
     });
 

@@ -2035,7 +2035,7 @@ obj.logActivity = function(data){
 
     window.localStorage.setItem('skynetactivity', string);
     window.localStorage.setItem('activitycount', obj.x);
-    $(document).trigger('skynetactivity', true);
+    $(document).trigger('skynetactivity', data);
 };
 
 obj.init = function(){
@@ -2587,7 +2587,6 @@ app.sendData = function(data){
     data = _.extend(defaults, data);
 
     app.conn.data(data, function(){
-        console.log('Data Logged ' + JSON.stringify(data));
         deferred.resolve();
     });
 

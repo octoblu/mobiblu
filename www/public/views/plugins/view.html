@@ -27,6 +27,10 @@
                 </ul>
             </div>
 
+            <div ng-hide="edit">
+                <message-grapher class="device-messages" activity="true" device="subdevice.type"></message-grapher>
+            </div>
+
             <button class="btn btn-success btn-block btn-outlined" ng-click="addDevice()">Add Device</button>
             <button class="btn btn-block btn-outlined" ng-show="isDeveloper" ng-click="initPlugin(plugin)">Re-Initialize</button>
             <button class="btn btn-block btn-outlined" ng-click="redownload()">Update</button>

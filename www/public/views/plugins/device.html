@@ -12,6 +12,10 @@
             </span>
         </h3></p>
 
+        <div ng-hide="edit">
+            <message-grapher class="device-messages" activity="true" device="subdevice.type"></message-grapher>
+        </div>
+
         <form class="input-group" ng-show="edit">
 
             <div ng-show="subdevice">
@@ -25,8 +29,6 @@
             </div>
 
         </form>
-
-        <hr>
 
         <div ng-include src="'/public/views/system/activity.html'"></div>
 

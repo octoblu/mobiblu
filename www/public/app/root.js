@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $location, $q) {
+    .run(function ($rootScope, $location, $q, OctobluRest) {
 
         var loaded = false;
 
@@ -78,7 +78,6 @@ angular.module('main')
             var deferred = $q.defer();
             $(document).one('skynet-loaded', function () {
                 loaded = true;
-                console.log('SKYNET LOADED EVENT :: ' + JSON.stringify(loaded));
                 deferred.resolve();
             });
 
@@ -99,6 +98,11 @@ angular.module('main')
             $rootScope.loggedin = $rootScope.settings.loggedin;
 
             $rootScope.isDeveloper = $rootScope.settings.settings.developer_mode;
+
+            $rootScope.skynetConn = $rootScope.settings.conn;
+
+            $rootScope.Sensors = $rootScope.Skynet.Sensors;
+
         };
 
         $rootScope.isAuthenticated = function () {
@@ -121,7 +125,7 @@ angular.module('main')
 
             } else {
                 $(document).one('plugins-loaded', function () {
-                    console.log('Plugins Loaded Event');
+                    console.log('Plugins Loaded');
                     pluginsLoaded = true;
                     deferred.resolve();
                 });
@@ -134,7 +138,6 @@ angular.module('main')
 
         $rootScope.pluginReady = function (cb) {
             pluginReady().then(function () {
-                console.log('Plugins Loaded');
                 cb();
             }, $rootScope.redirectToError);
         };
@@ -145,37 +148,44 @@ angular.module('main')
             if (isErrorPage()) {
                 deferred.reject();
             } else {
-                $rootScope.Skynet.init().timeout(1000 * 15)
+                $rootScope.Skynet.init()
+                    .timeout(1000 * 15)
                     .then(function () {
-                        console.log('SKYNET INIT\'d');
                         deferred.resolve();
                     }, $rootScope.redirectToError);
             }
             return deferred.promise;
         };
 
-        skynetInit().then(function () {
-            console.log('SKYNET LOADED');
-
-            $rootScope.Sensors = $rootScope.Skynet.Sensors;
-
-            $rootScope.setSettings();
-
-            $rootScope.$on('$locationChangeSuccess', function () {
-                $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
-                $('.content').css('height', '100%');
-            });
-
-            $rootScope.isAuthenticated();
-
-            $rootScope.loading = false;
-            if ($rootScope.settings && $rootScope.settings.conn) {
-                $rootScope.Skynet.subscribe({}, function (data) {
-                    console.log('Received Subscribe Message');
-                    $rootScope.$emit('skynet:message', data);
-                });
+        var processMessage = function (message) {
+            $rootScope.$broadcast('skynet:message', message);
+            $rootScope.$broadcast('skynet:message:' + message.fromUuid, message);
+            if (message.payload && _.has(message.payload, 'online')) {
+                var device = _.findWhere($rootScope.myDevices, {uuid: message.fromUuid});
+                if (device) {
+                    device.online = message.payload.online;
+                }
             }
-        }, $rootScope.redirectToError);
+        };
+
+        var startListen = function () {
+            console.log('registering for messages');
+            $rootScope.skynetConn.on('message', processMessage);
+        };
+
+        skynetInit()
+            .then(function () {
+                console.log('SKYNET LOADED');
+
+                $rootScope.setSettings();
+
+                startListen();
+
+                $rootScope.isAuthenticated();
+
+                $rootScope.loading = false;
+
+            }, $rootScope.redirectToError);
 
         skynetLoad();
 
