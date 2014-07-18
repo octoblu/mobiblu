@@ -2034,8 +2034,7 @@ obj.getSubdevices = function () {
         var subdevices = [];
         try {
             subdevices = JSON.parse(window.localStorage.getItem('subdevices'));
-        } catch (e) {
-        }
+        } catch (e) {}
 
         return subdevices;
     };
@@ -2296,7 +2295,8 @@ obj.loadScript = function (json) {
             console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status + ' Settings : ' + JSON.stringify(settings) + ' Exception : ' + exception.toString());
             if(jqxhr.status === 404){
                 // TODO ReDownload
-                deferred.reject();
+                obj.download(json)
+                    .done(deferred.resolve, deferred.reject);
             }else{
                 deferred.reject();
             }
@@ -2379,7 +2379,7 @@ obj.loadPlugin = function (data) {
                 var plugin = obj.plugins[found];
                 obj.loadScript(plugin)
                     .then(obj.initPlugin)
-                    .then(deferred.resolve, deferred.reject);
+                    .done(deferred.resolve, deferred.reject);
             });
     } else {
         var plugin = obj.plugins[found];
@@ -2419,7 +2419,7 @@ obj.initDevice = function (subdevice) {
 
     var camelName = subdevice.type.toCamel();
 
-    var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : _dereq_(subdevice.type);
+    var p = globalPlugins && globalPlugins[camelName] ? globalPlugins[camelName] : null;
 
     try {
 
@@ -2444,6 +2444,8 @@ obj.initDevice = function (subdevice) {
         pluginObj.getDefaultOptions = p.getDefaultOptions;
     }
 
+    obj.instances[subdevice.name] = pluginObj;
+
     return pluginObj;
 
 };
@@ -2459,7 +2461,7 @@ obj.triggerDeviceEvent = function(subdevice, event){
         if (typeof Plugin[event] === 'function') {
 
             try{
-                Plugin[event].call(Plugin);
+                Plugin[event].call(Plugin, deferred.resolve);
             }catch(e){
                 deferred.resolve('Error Triggering Event');
                 return;
@@ -2471,7 +2473,7 @@ obj.triggerDeviceEvent = function(subdevice, event){
         }
 
     }else{
-        deferred.resolve('No plugin found');
+        deferred.resolve('No plugin found :: ' + subdevice.name);
     }
 
     return deferred.promise;
@@ -2481,6 +2483,7 @@ obj.triggerDeviceEvent = function(subdevice, event){
 obj.triggerPluginEvent = function (plugin, event) {
 
     var deferred = Q.defer();
+    var pluginMethod = false;
 
     switch (event) {
         case 'onEnable':
@@ -2491,24 +2494,40 @@ obj.triggerPluginEvent = function (plugin, event) {
             plugin.enabled = false;
             obj.writePlugin(plugin);
             break;
-        case 'onInstall':
-        case 'onMessage':
         case 'getDefaultOptions':
+        case 'onInstall':
+            pluginMethod = true;
+            break;
+        case 'onMessage':
         case 'destroy':
             break;
         default:
             return deferred.reject('Not a valid event');
     }
 
-    var promises = [];
+    if(!pluginMethod){
+        var promises = [];
 
-    plugin.subdevices
-        .forEach(function (subdevice) {
-            promises.push(obj.triggerDeviceEvent(subdevice, event));
-        });
+        plugin.subdevices
+            .forEach(function (subdevice) {
+                promises.push(obj.triggerDeviceEvent(subdevice, event));
+            });
 
-    Q.all(promises)
-        .done(deferred.resolve, deferred.resolve);
+        Q.all(promises)
+            .done(deferred.resolve, deferred.resolve);
+    }else{
+        var first = plugin.subdevices[0] || null;
+        if(first) {
+            obj.triggerDeviceEvent(first, event)
+                .done(function(err, o){
+                    if(err) console.log('Error', err);
+                    console.log('Response', JSON.stringify(o));
+                    deferred.resolve();
+                }, deferred.resolve);
+        }else{
+            deferred.reject();
+        }
+    }
 
     return deferred.promise;
 };

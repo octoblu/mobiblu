@@ -95,7 +95,6 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest,
     $scope.getSchema = function (device, subdevice) {
         if (!device) device = $scope.device;
         if (!subdevice) subdevice = $scope.subdevice;
-        $('#device-msg-editor').jsoneditor('destroy');
 
         for (var i in device.plugins) {
             var plugin = device.plugins[i];
@@ -105,17 +104,7 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest,
             }
         }
 
-        if ($scope.schema) {
-
-            $('#device-msg-editor').jsoneditor({
-                schema: $scope.schema,
-                theme: 'bootstrap3',
-                no_additional_properties: true,
-                disable_collapse: true,
-                iconlib: 'fontawesome4'
-            });
-
-        }
+        $scope.schemaEditor = {};
     };
 
     $scope.sendMessage = function () {
@@ -142,11 +131,11 @@ messagesApp.controller('MessageCtrl', function ($rootScope, $scope, OctobluRest,
         if (uuid) {
 
             if ($scope.schema) {
-                var errors = $('#device-msg-editor').jsoneditor('validate');
+                var errors = $scope.schemaEditor.validate();
                 if (errors.length) {
                     alert(errors);
                 } else {
-                    message = $('#device-msg-editor').jsoneditor('value');
+                    message = $scope.schemaEditor.getValue();
                     console.log('schema message', JSON.stringify(message));
 
                     $scope.subdevicename = $scope.subdevice.name;

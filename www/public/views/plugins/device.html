@@ -7,7 +7,7 @@
         <p class="content-padded">
         <h3>Device
             <span ng-click="editDevice()" class="pull-right">
-                <span ng-hide="edit"><i class="fa fa-pencil-square-o"></i>&nbsp;Edit</span>
+                <span ng-hide="edit"><i class="fa fa-pencil-square-o"></i>&nbsp;Configure</span>
                 <span ng-show="edit" ng-click="savePlugin()"><i class="fa fa-check-square-o"></i>&nbsp;Done</span>
             </span>
         </h3></p>
@@ -16,7 +16,8 @@
 
             <div ng-show="subdevice">
                 <input type="text" placeholder="Device Name" ng-model="subdevice.name">
-                <div id="options-editor">
+                <div ng-show="schema">
+                    <schema-editor control="schemaEditor" schema="schema" model="subdevice.options" allow-json-edit="true" additional-properties="true"></schema-editor>
                 </div>
                 <button class="btn btn-success btn-block btn-outlined" ng-click="savePlugin()">Save</button>
                 <button class="btn btn-block btn-outlined" ng-show="isDeveloper" ng-click="initDevice(subdevice)">Re-Initialize</button>

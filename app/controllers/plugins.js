@@ -78,7 +78,7 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                 $rootScope.loading = false;
                 $scope.plugin = plugin;
                 var subdeviceID = $scope.addSubdevice();
-                window.location = 'index.html#!/plugins/device/' + plugin.name + '/' + subdeviceID;
+                window.location = 'index.html#!/plugins/device/' + plugin.name + '/' + subdeviceID + '/1';
             }, function(err){
                 console.log('Error ', err);
                 $scope.$apply(function () {
@@ -231,16 +231,16 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
     $scope.addDevice = function(){
         $scope.addSubdevice(true);
         $scope.writePlugin();
-        $location.path('/plugins/device/' + $scope.subdevice.type + '/' + $scope.subdevice._id);
+        $location.path('/plugins/device/' + $scope.subdevice.type + '/' + $scope.subdevice._id + '/1');
     };
 
     $scope.goToDevice = function(subdevice){
         console.log('Subdevice :: ' + JSON.stringify(subdevice));
-        $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id);
+        $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id + '/0');
     };
 
     $scope.loadSubdevice = function(){
-        $scope.edit = true;
+        $scope.edit = !!parseInt($routeParams.configure);
         $scope.findOne(function(){
             for(var x in $scope.plugin.subdevices) {
                 var subdevice = $scope.plugin.subdevices[x];
@@ -257,6 +257,8 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
         $scope.subdevice = subdevice;
         var options = subdevice.options || {};
 
+        $scope.schemaEditor = {};
+
         window.octobluMobile.triggerPluginEvent(
             $scope.plugin,
             'getDefaultOptions')
@@ -265,43 +267,16 @@ pluginsApp.controller('PluginCtrl', function ($rootScope, $scope, $routeParams, 
                 if (!err && defaultOptions) {
                     options = _.extend(options, defaultOptions);
                 }
+                $scope.schema = $scope.plugin.optionsSchema;
 
-                if($scope.plugin.optionsSchema){
-                    $('#options-editor').jsoneditor({
-                        schema: $scope.plugin.optionsSchema,
-                        theme: 'bootstrap3',
-                        startval: options,
-                        no_additional_properties: true,
-                        iconlib: 'fontawesome4',
-                        disable_collapse: true,
-                        form_name_root : ''
-                    });
-                }
+                console.log('Options ' + JSON.stringify(options));
 
             }, $rootScope.redirectToError);
     };
 
     $scope.savePlugin = function () {
-        var errors = [];
-        if($scope.plugin.optionsSchema) {
-            errors = $('#options-editor').jsoneditor('validate');
-        }
-        if (errors.length) {
-            alert(errors);
-        } else {
-            var options = {};
-            if($scope.plugin.optionsSchema){
-               options = $('#options-editor').jsoneditor('value');
-            }
-
-            console.log('Options', JSON.stringify(options));
-
-            $scope.plugin.options = null;
-
-            $scope.subdevice.options = options;
-
-            $scope.writePlugin();
-        }
+        $scope.subdevice.options = $scope.schemaEditor.getValue();
+        $scope.writePlugin();
     };
 
     $scope.writePlugin = function(){

@@ -17,7 +17,7 @@ homeApp.controller('HomeCtrl', function ($rootScope, $scope, $location) {
     };
 
     $scope.goToDevice = function(subdevice){
-        $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id);
+        $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id + '/0');
     };
 
 });
