@@ -30,8 +30,8 @@ angular.module('main', [
         return false;
     };
 
-    var clearAppTimeouts = function(){
-        timeouts.forEach(function(timeout, i){
+    var clearAppTimeouts = function () {
+        timeouts.forEach(function (timeout, i) {
             clearTimeout(timeout);
             timeouts.splice(i, 1);
         });
@@ -39,21 +39,21 @@ angular.module('main', [
 
     $rootScope.errorMsg = null;
 
-    var isErrorPage = function(){
-        if($rootScope.matchRoute('/error') ||
-            $rootScope.matchRoute('/login')){
+    var isErrorPage = function () {
+        if ($rootScope.matchRoute('/error') ||
+            $rootScope.matchRoute('/login')) {
             return true;
         }
         return false;
     };
 
-    var redirectToError = function(err, type){
-        if(isErrorPage()) return false;
+    var redirectToError = function (err, type) {
+        if (isErrorPage()) return false;
         clearAppTimeouts();
         console.log('Error! ', err);
         console.log('Redirecting to "' + type + '" Error');
-        setTimeout(function(){
-            $rootScope.$apply(function() {
+        setTimeout(function () {
+            $rootScope.$apply(function () {
                 $rootScope.loading = false;
                 $rootScope.errorMsg = err || '';
                 $location.path('/error/' + type);
@@ -73,11 +73,11 @@ angular.module('main', [
         redirectToError(err, 'login');
     };
 
-    $rootScope.$on('$locationChangeSuccess', function(){
+    $rootScope.$on('$locationChangeSuccess', function () {
         clearAppTimeouts();
-        timeouts.push(setTimeout(function(){
+        timeouts.push(setTimeout(function () {
             console.log('Loading :: ' + $rootScope.loading);
-            if($rootScope.loading){
+            if ($rootScope.loading) {
                 $rootScope.redirectToError('Request Timeout.');
             }
         }, 1000 * 20));
@@ -121,13 +121,15 @@ angular.module('main', [
 
     var pluginsLoaded = false;
 
-    var pluginReady = _.once(function(){
+    var pluginReady = _.once(function () {
         var deferred = $q.defer();
 
-        if(pluginsLoaded || isErrorPage()){
+        if (pluginsLoaded || isErrorPage()) {
+
             deferred.resolve();
-        }else{
-            $(document).one('plugins-loaded', function(){
+
+        } else {
+            $(document).one('plugins-loaded', function () {
                 console.log('Plugins Loaded Event');
                 pluginsLoaded = true;
                 deferred.resolve();
@@ -139,8 +141,8 @@ angular.module('main', [
         return deferred.promise;
     });
 
-    $rootScope.pluginReady = function(cb){
-        pluginReady().then(function(){
+    $rootScope.pluginReady = function (cb) {
+        pluginReady().then(function () {
             console.log('Plugins Loaded');
             cb();
         }, $rootScope.redirectToError);
@@ -149,9 +151,9 @@ angular.module('main', [
     var skynetInit = function () {
         var deferred = $q.defer();
 
-        if(isErrorPage()){
+        if (isErrorPage()) {
             deferred.reject();
-        }else {
+        } else {
             $rootScope.Skynet.init().timeout(1000 * 15)
                 .then(function () {
                     console.log('SKYNET INIT\'d');
@@ -176,15 +178,12 @@ angular.module('main', [
             $rootScope.isAuthenticated();
 
             $rootScope.loading = false;
-            if($rootScope.settings && $rootScope.settings.conn){
-                $rootScope.settings.conn.on('message', function(data){
-                        $rootScope.$emit('skynet:message', data);
-                    });
+            if ($rootScope.settings && $rootScope.settings.conn) {
+                $rootScope.settings.conn.on('message', function (data) {
+                    $rootScope.$emit('skynet:message', data);
+                });
             }
-
-
-        },
-        $rootScope.redirectToError);
+        }, $rootScope.redirectToError);
 
     skynetLoad();
 
