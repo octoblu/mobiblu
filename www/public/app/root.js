@@ -170,7 +170,8 @@ angular.module('main')
 
             $rootScope.loading = false;
             if ($rootScope.settings && $rootScope.settings.conn) {
-                $rootScope.settings.conn.on('message', function (data) {
+                $rootScope.Skynet.subscribe({}, function (data) {
+                    console.log('Received Subscribe Message');
                     $rootScope.$emit('skynet:message', data);
                 });
             }

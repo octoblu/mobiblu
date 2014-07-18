@@ -2569,6 +2569,14 @@ app.message = function (data) {
     return deferred.promise;
 };
 
+
+app.subscribe = function (data, fn) {
+    if (!data.uuid) data.uuid = app.mobileuuid;
+    if (!data.token) data.token = app.mobiletoken;
+
+    app.conn.subscribe(data, fn);
+};
+
 app.sendData = function(data){
     var deferred = Q.defer();
 
@@ -2680,6 +2688,7 @@ var publicApi = {
     getDeviceSetting: app.getDeviceSetting,
     whoami: app.whoami,
     message: app.message,
+    subscribe : app.subscribe,
     triggerTopic: app.triggerTopic,
     sendData: app.sendData,
     updateDeviceSetting: app.updateDeviceSetting,
