@@ -1,8 +1,8 @@
 {
   "name": "Mobiblu",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "Octoblu Mobile Hub",
-  "repository": "https://github.com/mobiblu/mobiblu",
+  "repository": "https://github.com/octoblu/mobiblu",
   "readme": "https://github.com/octoblu/mobiblu/README.md",
   "private": true,
   "scripts": {
