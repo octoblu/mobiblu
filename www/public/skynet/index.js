@@ -18,6 +18,8 @@ app.defaultSettings = {
     developer_mode: false
 };
 
+app.bgRunning = false;
+
 app.conn = null;
 
 app.setData = function () {
@@ -331,93 +333,118 @@ app.connect = function () {
 app.logSensorData = function () {
     var sensors = [];
 
+    // Clear Session Timeouts
+    if (app.sensorIntervals) {
+        console.log('Clearing Sensors');
+        _.each(_.keys(app.sensorIntervals), function(key){
+            clearInterval(app.sensorIntervals[key]);
+        });
+    }
+
+    var startSensor = function (sensor, type) {
+        var sent = false;
+        sensor.start(
+            // Handle Success
+            function (sensorData) {
+                // Make sure it hasn't already been sent
+                if (sent) return;
+                sent = true;
+
+                // Emit data
+                app.sendData({
+                    'sensorData': {
+                        'type': type,
+                        'data': sensorData
+                    }
+                }).then(function () {
+                    activity.logActivity({
+                        type: type,
+                        data: sensorData,
+                        html: sensor.prettify(sensorData)
+                    });
+                });
+
+            },
+            // Handle Errors
+            function (err) {
+                activity.logActivity({
+                    type: type,
+                    error: err
+                });
+            }
+        );
+    };
+
     app.getDeviceSetting()
         .then(function () {
             // Push Sensors
-            if (!app.settings || app.settings.geolocation) sensors.push('Geolocation');
-            if (!app.settings || app.settings.compass) sensors.push('Compass');
-            if (!app.settings || app.settings.accelerometer) sensors.push('Accelerometer');
 
             var wait = 1;
 
             if (app.settings) {
+                // Geolocation
+                if (app.settings.geolocation)
+                    sensors.push('Geolocation');
+                // Compass
+                if (app.settings.compass)
+                    sensors.push('Compass');
+                // Accelerometer
+                if (app.settings.accelerometer)
+                    sensors.push('Accelerometer');
+
                 if (app.settings.update_interval) {
                     wait = app.settings.update_interval;
                 } else if (app.settings.update_interval === 0) {
                     wait = 0.15;
                 }
             }
+            console.log('Active Sensors (' + wait + '), ' + JSON.stringify(sensors));
             // Convert min to ms
             wait = wait * 60 * 1000;
 
             var throttled = {};
 
-
-            var startSensor = function (sensor, type) {
-                var sent = false;
-                sensor.start(
-                    // Handle Success
-                    function (sensorData) {
-                        // Make sure it hasn't already been sent
-                        if (sent) return;
-                        sent = true;
-
-                        // Emit data
-                        app.sendData({
-                            'sensorData': {
-                                'type': type,
-                                'data': sensorData
-                            }
-                        }).then(function () {
-                            activity.logActivity({
-                                type: type,
-                                data: sensorData,
-                                html: sensor.prettify(sensorData)
-                            });
-                        });
-
-                    },
-                    // Handle Errors
-                    function (err) {
-                        activity.logActivity({
-                            type: type,
-                            error: err
-                        });
-                    }
-                );
-            };
-
             sensors.forEach(function (sensorType) {
+
                 if (sensorType && typeof Sensors[sensorType] === 'function') {
-                    if (app.sensorIntervals[sensorType]) {
-                        clearInterval(app.sensorIntervals[sensorType]);
-                    }
+
                     throttled[sensorType] = _.throttle(startSensor, wait);
                     // Trigger Sensor Data every wait
                     var sensorObj = Sensors[sensorType](1000);
                     app.sensorIntervals[sensorType] = setInterval(function () {
                         throttled[sensorType](sensorObj, sensorType);
                     }, wait);
+
                 }
+
             });
         });
 };
 
+app.getBGPlugin = function(){
+    app.bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
+
+    if (!app.bgGeo) {
+        console.log('No BG Plugin');
+        return false;
+    }
+
+    return true;
+};
+
 app.startBG = function () {
+    if(!app.getBGPlugin()) return;
+    console.log('Started BG Location');
+
+    if (!app.settings.bg_updates) app.stopBG();
+
+    var type = 'Background Geolocation';
+
     // If BG Updates is turned off
     Sensors.Geolocation(1000).start(function () {
-        app.bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
-
-        if (!app.bgGeo) {
-            return;
-        }
-
-        if (!app.settings.bg_updates) return app.bgGeo.stop();
-
         // Send POST to SkyNet
         var sendToSkynet = function (response) {
 
-            var type = 'Background Geolocation';
 
             app.sendData({
                 'sensorData': {
@@ -430,6 +457,7 @@ app.startBG = function () {
                     type: type,
                     html: 'Successfully updated background location'
                 });
+
                 app.bgGeo.finish();
 
             }, app.bgGeo.finish);
@@ -442,11 +470,9 @@ app.startBG = function () {
 
         var failureFn = function (err) {
             activity.logActivity({
-                type: 'BG_Geolocation',
+                type: type,
                 error: err
             });
-
-            console.log('BackgroundGeoLocation error');
         };
 
         // BackgroundGeoLocation is highly configurable.
@@ -467,12 +493,31 @@ app.startBG = function () {
             debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
         });
 
+        app.bgRunning = true;
+
         app.bgGeo.start();
 
     }, function (err) {
         console.log('Error', err);
     });
 
+};
+
+app.stopBG = function(){
+    var type = 'Background Geolocation';
+
+    if(!app.getBGPlugin()) return;
+
+    console.log('Stopping BG Location');
+
+    app.bgGeo.stop();
+
+    activity.logActivity({
+        type: type,
+        html: 'Stopped Background Location'
+    });
+
+    app.bgRunning = false;
 };
 
 app.updateDeviceSetting = function (data) {
@@ -492,6 +537,12 @@ app.updateDeviceSetting = function (data) {
     data.type = 'octobluMobile';
 
     if (data.setting) app.settings = data.setting;
+
+    if(app.bgRunning && !app.settings.bg_updates){
+        app.stopBG();
+    }else if(!app.bgRunning){
+        app.startBG();
+    }
 
     app.devicename = data.name;
     console.log('Updating Device');
@@ -572,37 +623,39 @@ app.getDeviceSetting = function (uuid, token) {
     var deferred = Q.defer();
 
     if (app.settingsUpdated) {
-        return deferred.resolve({
+        deferred.resolve({
             setting: app.settings
         });
-    }
-    SkynetRest.getDevice(
-            uuid || app.mobileuuid,
-            token || app.mobiletoken)
-        .then(function (data) {
-            var device;
+    }else{
+        SkynetRest.getDevice(
+                uuid || app.mobileuuid,
+                token || app.mobiletoken)
+            .then(function (data) {
+                var device;
 
-            if (!data) return deferred.reject('No Device Found');
+                if (!data) return deferred.reject('No Device Found');
 
-            if (data.devices && data.devices.length) {
-                device = data.devices[0];
-            } else {
-                device = data;
-            }
-            if (!uuid || uuid !== app.mobileuuid) {
-                if (device.setting) {
-                    app.settingsUpdated = true;
-                    app.settings = device.setting;
+                if (data.devices && data.devices.length) {
+                    device = data.devices[0];
                 } else {
-                    app.settings = app.defaultSettings;
+                    device = data;
                 }
-            }
+                if (!uuid || uuid !== app.mobileuuid) {
+                    if (device.setting) {
+                        app.settingsUpdated = true;
+                        app.settings = device.setting;
+                    } else {
+                        app.settings = app.defaultSettings;
+                    }
+                }
 
-            deferred.resolve(device);
-        }, function (err) {
-            console.log(err);
-            deferred.reject('Unable to Retrieve Device');
-        });
+                deferred.resolve(device);
+            }, function (err) {
+                console.log(err);
+                deferred.reject('Unable to Retrieve Device');
+            });
+    }
+
     return deferred.promise;
 };
 
