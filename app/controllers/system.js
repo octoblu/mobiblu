@@ -1,6 +1,6 @@
 'use strict';
 
-var systemApp = angular.module('main.system', ['SkynetModel']);
+var systemApp = angular.module('main.system');
 
 systemApp.controller('SubHeaderCtrl',
     function ($rootScope, $scope) {

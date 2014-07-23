@@ -1,97 +1,94 @@
 'use strict';
 
-var settingApp = angular.module('main.setting', ['hmTouchevents', 'SkynetModel']);
+angular.module('main.setting')
+    .controller('SettingCtrl', function ($rootScope, $scope, $q) {
 
-// Index: http://localhost/views/setting/index.html
+        $rootScope.$on('togglebackbtn', false);
 
-settingApp.controller('SettingCtrl', function ($rootScope, $scope, $q) {
+        // This will be populated with Restangula
+        $scope.settings = {};
 
-    $rootScope.$on('togglebackbtn', false);
+        var tokenmask = '*************************';
+        $rootScope.loading = true;
 
-    // This will be populated with Restangula
-    $scope.settings = {};
+        // Set up minutes
+        $scope.minutes = [];
+        for (var i = 0; i < (60 * 3); i++) {
+            $scope.minutes.push(i);
+        }
 
-    var tokenmask = '*************************';
-    $rootScope.loading = true;
+        $scope.init = function () {
+            $rootScope.ready(function () {
+                $scope.skynettoken_dummy = tokenmask;
+                $scope.mobiletoken_dummy = tokenmask;
 
-    // Set up minutes
-    $scope.minutes = [];
-    for (var i = 0; i < (60 * 3); i++) {
-        $scope.minutes.push(i);
-    }
+                var settings = $rootScope.settings;
+                console.log('Settings ' + JSON.stringify(settings.settings));
+                $scope.loggedin = settings.loggedin;
+                $scope.skynetuuid = settings.skynetuuid;
+                $scope.skynettoken = settings.skynettoken;
 
-    $scope.init = function () {
-        $rootScope.ready(function(){
-            $scope.skynettoken_dummy = tokenmask;
-            $scope.mobiletoken_dummy = tokenmask;
+                $scope.mobileuuid = settings.mobileuuid;
+                $scope.mobiletoken = settings.mobiletoken;
 
-            var settings = $rootScope.settings;
-            console.log('Settings ' + JSON.stringify(settings.settings));
-            $scope.loggedin = settings.loggedin;
-            $scope.skynetuuid = settings.skynetuuid;
-            $scope.skynettoken = settings.skynettoken;
+                $scope.devicename = settings.devicename;
+                $scope.settings = settings.settings;
 
-            $scope.mobileuuid = settings.mobileuuid;
-            $scope.mobiletoken = settings.mobiletoken;
-
-            $scope.devicename = settings.devicename;
-            $scope.settings = settings.settings;
-
-            $rootScope.loading = false;
-        });
-    };
-
-    var update = function(){
-        var deferred = $q.defer();
-
-        var data = {
-            name: $scope.devicename,
-            setting: $scope.settings
+                $rootScope.loading = false;
+            });
         };
 
-        console.log('Settings ' + JSON.stringify(data));
+        var update = function () {
+            var deferred = $q.defer();
 
-        $rootScope.Skynet.updateDeviceSetting(data)
-            .timeout(1000 * 15)
-            .then(function () {
-                $rootScope.Skynet.logSensorData();
-                deferred.resolve();
+            var data = {
+                name: $scope.devicename,
+                setting: $scope.settings
+            };
+
+            console.log('Settings ' + JSON.stringify(data));
+
+            $rootScope.Skynet.updateDeviceSetting(data)
+                .timeout(1000 * 15)
+                .then(function () {
+                    $rootScope.Skynet.logSensorData();
+                    deferred.resolve();
+                }, $rootScope.redirectToError);
+
+            return deferred.promise;
+        };
+
+        $scope.update = function () {
+            update().then(function () {
+                $rootScope.setSettings();
             }, $rootScope.redirectToError);
+        };
 
-        return deferred.promise;
-    };
+        $scope.clearPlugins = function () {
+            if (confirm('Are you sure you want to clear the plugins?')) {
+                window.octobluMobile.clearStorage();
+                window.location = 'index.html';
+            }
+        };
 
-    $scope.update = function () {
-        update().then(function(){
-            $rootScope.setSettings();
-        }, $rootScope.redirectToError);
-    };
+        $scope.revealMobileToken = function () {
+            if ($scope.mobiletoken_dummy.match(/^\**$/)) {
+                $scope.mobiletoken_dummy = $scope.mobiletoken;
+            } else {
+                $scope.mobiletoken_dummy = tokenmask;
+            }
+        };
 
-    $scope.clearPlugins = function(){
-        if(confirm('Are you sure you want to clear the plugins?')){
-            window.octobluMobile.clearStorage();
-            window.location = 'index.html';
-        }
-    };
+        $scope.revealUserToken = function () {
+            if ($scope.skynettoken_dummy.match(/^\**$/)) {
+                $scope.skynettoken_dummy = $scope.skynettoken;
+            } else {
+                $scope.skynettoken_dummy = tokenmask;
+            }
+        };
 
-    $scope.revealMobileToken = function () {
-        if ($scope.mobiletoken_dummy.match(/^\**$/)) {
-            $scope.mobiletoken_dummy = $scope.mobiletoken;
-        } else {
-            $scope.mobiletoken_dummy = tokenmask;
-        }
-    };
-
-    $scope.revealUserToken = function () {
-        if ($scope.skynettoken_dummy.match(/^\**$/)) {
-            $scope.skynettoken_dummy = $scope.skynettoken;
-        } else {
-            $scope.skynettoken_dummy = tokenmask;
-        }
-    };
-
-    $scope.toggleSwitch = function (setting) {
-        $scope.settings[setting] = !$scope.settings[setting];
-        $scope.update();
-    };
-});
+        $scope.toggleSwitch = function (setting) {
+            $scope.settings[setting] = !$scope.settings[setting];
+            $scope.update();
+        };
+    });

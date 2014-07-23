@@ -1,0 +1,24 @@
+<div ng-controller="FlowCtrl" ng-init="init()">
+
+    <div ng-include src="'/public/views/system/loading.html'"></div>
+
+    <form>
+
+        <label>Topic Name:</label>
+        <input type="text" placeholder="Topic Name" ng-model="topic.name">
+
+        <label>Payload: </label>
+        <input type="text" placeholder="Payload" ng-model="topic.payload">
+
+        <label>Wait for Response: </label>
+        <div class="input-row">
+
+            <toggle-switch model="topic.wait"></toggle-switch>
+
+        </div>
+
+        <button class="btn btn-block btn-outlined" ng-click="save()">Done</button>
+
+    </form>
+
+</div>

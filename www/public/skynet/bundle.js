@@ -1974,11 +1974,14 @@ process.chdir = function (dir) {
 },{}],3:[function(_dereq_,module,exports){
 'use strict';
 
+var Labels = _dereq_('./labels.js');
+
 var obj = {};
 
 var limit = 100;
 
 obj.getActivity = function(type, limit){
+
     var activity = [];
     try{
         activity = JSON.parse(window.localStorage.getItem('skynetactivity'));
@@ -1998,6 +2001,7 @@ obj.getActivity = function(type, limit){
     }
     //console.log('Activity', JSON.stringify(activity));
     return activity;
+
 };
 
 obj.clearActivityCount = function(){
@@ -2008,51 +2012,60 @@ obj.clearActivityCount = function(){
 };
 
 obj.logActivity = function(data){
-    if( !obj.skynetActivity ||
-        !_.isArray(obj.skynetActivity) )
-        obj.skynetActivity = [];
-    obj.skynetActivity = obj.skynetActivity.slice(0, limit);
+    Labels.getLabel(data.type)
+        .then(function(type){
+            data.type = type;
 
-    data = _.extend({
-        date : new Date()
-    }, data);
+            if( !obj.skynetActivity ||
+                !_.isArray(obj.skynetActivity) )
+                obj.skynetActivity = [];
+            obj.skynetActivity = obj.skynetActivity.slice(0, limit);
 
-    if(obj.skynetActivity.length)
-        obj.skynetActivity.unshift(data);
-    else
-        obj.skynetActivity.push(data);
+            data = _.extend({
+                date : new Date()
+            }, data);
 
-    if(data.error){
-        obj.sensActBadge.text('Error');
-        obj.sensActBadge.addClass('badge-negative');
-    }else{
-        obj.x++;
-        obj.sensActBadge.text(obj.x.toString() + ' New');
-        obj.sensActBadge.removeClass('badge-negative');
-    }
+            if(obj.skynetActivity.length)
+                obj.skynetActivity.unshift(data);
+            else
+                obj.skynetActivity.push(data);
 
-    var string = JSON.stringify(obj.skynetActivity);
+            if(data.error){
+                obj.sensActBadge.text('Error');
+                obj.sensActBadge.addClass('badge-negative');
+            }else{
+                obj.x++;
+                obj.sensActBadge.text(obj.x.toString() + ' New');
+                obj.sensActBadge.removeClass('badge-negative');
+            }
 
-    window.localStorage.setItem('skynetactivity', string);
-    window.localStorage.setItem('activitycount', obj.x);
-    $(document).trigger('skynetactivity', data);
+            var string = JSON.stringify(obj.skynetActivity);
+
+            window.localStorage.setItem('skynetactivity', string);
+            window.localStorage.setItem('activitycount', obj.x);
+            $(document).trigger('skynetactivity', data);
+
+        });
 };
 
 obj.init = function(){
+
     obj.sensActBadge = $('#sensor-activity-badge'),
         obj.x = window.localStorage.getItem('activitycount') || 0;
     obj.skynetActivity = obj.getActivity();
+
 };
 
 
 
 module.exports = obj;
-},{}],4:[function(_dereq_,module,exports){
+},{"./labels.js":5}],4:[function(_dereq_,module,exports){
 'use strict';
 
 var Sensors = _dereq_('./sensors.js');
 var activity = _dereq_('./activity.js');
 var SkynetRest = _dereq_('./skynet.js');
+var Labels = _dereq_('./labels.js');
 var Q = _dereq_('Q');
 
 var app = {};
@@ -2185,7 +2198,7 @@ app.registerPushID = function () {
                 steroids.addons.urbanairship
                     .notifications.onValue(function (notification) {
                         activity.logActivity({
-                            type: 'PushNotification',
+                            type: 'push',
                             html: notification.message
                         });
                     });
@@ -2193,13 +2206,13 @@ app.registerPushID = function () {
                 app.updateDeviceSetting({})
                     .then(function () {
                         activity.logActivity({
-                            type: 'PushNotification',
+                            type: 'push',
                             html: 'Push ID Registered'
                         });
                         deferred.resolve();
                     }, function () {
                         activity.logActivity({
-                            type: 'PushNotification',
+                            type: 'push',
                             error: new Error('Push ID Updated Failed')
                         });
                         deferred.reject('Push ID Updated Failed');
@@ -2230,7 +2243,7 @@ app.startProcesses = function () {
                 message = data.payload;
             }
             activity.logActivity({
-                type: 'SkynetMessage',
+                type: 'message',
                 html: 'From: ' + data.fromUuid +
                     '<br>Message: ' + message
             });
@@ -2611,7 +2624,7 @@ app.message = function (data) {
 
     app.conn.message(data, function (d) {
         activity.logActivity({
-            type: 'SentMessage',
+            type: 'sent_message',
             html: 'Sending Message: ' + JSON.stringify(data.payload)
         });
         deferred.resolve(d);
@@ -2761,14 +2774,58 @@ var publicApi = {
         };
     },
     Sensors: Sensors,
+    Labels: Labels,
     clearActivityCount: activity.clearActivityCount,
     getActivity: activity.getActivity,
-    logActivity: activity.logActivity
+    logActivity: activity.logActivity,
+    SkynetRest: SkynetRest
 };
 
 
 module.exports = publicApi;
-},{"./activity.js":3,"./sensors.js":5,"./skynet.js":6,"Q":1}],5:[function(_dereq_,module,exports){
+},{"./activity.js":3,"./labels.js":5,"./sensors.js":6,"./skynet.js":7,"Q":1}],5:[function(_dereq_,module,exports){
+var Q = _dereq_('Q');
+
+var self = {};
+
+var loaded = false;
+
+self.labels = {};
+
+self.getLabels = function () {
+    var deferred = Q.defer();
+
+    if (loaded) {
+        deferred.resolve(self.labels);
+    } else {
+        $.getJSON('/data/labels.json')
+            .success(function (data) {
+                loaded = true;
+                self.labels = data;
+                deferred.resolve(data);
+            })
+            .error(deferred.reject);
+    }
+
+    return deferred.promise;
+};
+
+self.getLabel = function (lbl) {
+    var deferred = Q.defer();
+
+    self.getLabels()
+        .then(function () {
+            var label = self.labels[lbl] || lbl;
+            deferred.resolve(label);
+        }, function(){
+            deferred.resolve(lbl);
+        });
+
+    return deferred.promise;
+};
+
+module.exports = self;
+},{"Q":1}],6:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = {
@@ -2887,7 +2944,7 @@ module.exports = {
         };
     }
 };
-},{}],6:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 'use strict';
 var Q = _dereq_('Q');
 

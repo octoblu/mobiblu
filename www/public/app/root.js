@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $location, $q, OctobluRest) {
+    .run(function ($rootScope, $location, $q) {
 
         var loaded = false;
 

@@ -1,10 +1,13 @@
 'use strict';
 
+var Labels = require('./labels.js');
+
 var obj = {};
 
 var limit = 100;
 
 obj.getActivity = function(type, limit){
+
     var activity = [];
     try{
         activity = JSON.parse(window.localStorage.getItem('skynetactivity'));
@@ -24,6 +27,7 @@ obj.getActivity = function(type, limit){
     }
     //console.log('Activity', JSON.stringify(activity));
     return activity;
+
 };
 
 obj.clearActivityCount = function(){
@@ -34,40 +38,48 @@ obj.clearActivityCount = function(){
 };
 
 obj.logActivity = function(data){
-    if( !obj.skynetActivity ||
-        !_.isArray(obj.skynetActivity) )
-        obj.skynetActivity = [];
-    obj.skynetActivity = obj.skynetActivity.slice(0, limit);
+    Labels.getLabel(data.type)
+        .then(function(type){
+            data.type = type;
 
-    data = _.extend({
-        date : new Date()
-    }, data);
+            if( !obj.skynetActivity ||
+                !_.isArray(obj.skynetActivity) )
+                obj.skynetActivity = [];
+            obj.skynetActivity = obj.skynetActivity.slice(0, limit);
 
-    if(obj.skynetActivity.length)
-        obj.skynetActivity.unshift(data);
-    else
-        obj.skynetActivity.push(data);
+            data = _.extend({
+                date : new Date()
+            }, data);
 
-    if(data.error){
-        obj.sensActBadge.text('Error');
-        obj.sensActBadge.addClass('badge-negative');
-    }else{
-        obj.x++;
-        obj.sensActBadge.text(obj.x.toString() + ' New');
-        obj.sensActBadge.removeClass('badge-negative');
-    }
+            if(obj.skynetActivity.length)
+                obj.skynetActivity.unshift(data);
+            else
+                obj.skynetActivity.push(data);
 
-    var string = JSON.stringify(obj.skynetActivity);
+            if(data.error){
+                obj.sensActBadge.text('Error');
+                obj.sensActBadge.addClass('badge-negative');
+            }else{
+                obj.x++;
+                obj.sensActBadge.text(obj.x.toString() + ' New');
+                obj.sensActBadge.removeClass('badge-negative');
+            }
 
-    window.localStorage.setItem('skynetactivity', string);
-    window.localStorage.setItem('activitycount', obj.x);
-    $(document).trigger('skynetactivity', data);
+            var string = JSON.stringify(obj.skynetActivity);
+
+            window.localStorage.setItem('skynetactivity', string);
+            window.localStorage.setItem('activitycount', obj.x);
+            $(document).trigger('skynetactivity', data);
+
+        });
 };
 
 obj.init = function(){
+
     obj.sensActBadge = $('#sensor-activity-badge'),
         obj.x = window.localStorage.getItem('activitycount') || 0;
     obj.skynetActivity = obj.getActivity();
+
 };
 
 

@@ -1,51 +1,88 @@
 'use strict';
 
-var flowsApp = angular.module('main.flows', ['hmTouchevents', 'SkynetModel']);
+angular.module('main.flows')
+    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams) {
 
-flowsApp.controller('FlowCtrl', function ($rootScope, $scope, $timeout) {
-
-    if(/\#\!\/flows\/*$/.test(window.location.href)){
-        $rootScope.$emit('togglebackbtn', false);
-    }else{
-        $rootScope.$emit('togglebackbtn', true);
-    }
-
-    $scope.topics = [
-        {
-            name : 'Flow Preset A'
-        },
-        {
-            name : 'Flow Preset B'
+        if ($rootScope.matchRoute('/flows$')) {
+            $rootScope.$emit('togglebackbtn', false);
+        } else {
+            $rootScope.$emit('togglebackbtn', true);
         }
-    ];
 
-    $scope.init = function(){
+        $scope.topics = [
+            {
+                id: 1,
+                name: 'Flow Preset A',
+                wait: false,
+                payload: false
+            },
+            {
+                id: 2,
+                name: 'Flow Preset B',
+                wait: false,
+                payload: false
+            }
+        ];
 
-    };
+        $scope.init = function () {
 
-    $scope.triggerTopic = function(topic){
-        var index = _.findIndex($scope.topics, topic);
-        $scope.loading = true;
-        topic.sent = false;
-        $scope.topic = topic;
-        var payload = new Date(),
-            name = $scope.topic.name;
-        $rootScope.Skynet
-            .triggerTopic(name, payload)
-            .then(function(){
-                $rootScope.Skynet.logActivity({
-                    type : 'Skynet Flows',
-                    html : 'Topic "' + name + '" Triggered'
-                });
-                $scope.$apply(function(){
-                    $scope.topics[index].sent = true;
+        };
+
+        $scope.triggerTopic = function (topic) {
+            $scope.loading = true;
+
+            var index = _.findIndex($scope.topics, topic);
+
+            var done = function (i) {
+                $timeout(function () {
+                    $scope.topics[i].sent = true;
                     $scope.loading = false;
+                }, 0);
+            };
+
+            topic.sent = false;
+            $scope.topic = topic;
+
+            var defaultPayload = new Date(),
+                name = $scope.topic.name;
+
+            var promise = $rootScope.Skynet
+                .triggerTopic(name,
+                    $scope.topic.payload || defaultPayload);
+
+            if ($scope.topic.wait) {
+                promise.timeout(60 * 1000);
+            }
+
+            promise.then(function () {
+                $rootScope.Skynet.logActivity({
+                    type: 'flows',
+                    html: 'Topic "' + name + '" Triggered'
                 });
-                $timeout(function(){
-                    $scope.topics[index].sent = false;
-                }, 5000);
+                done(index);
             }, $rootScope.redirectToError);
-    };
 
 
-});
+            if (!$scope.topic.wait) {
+                done(index);
+            }
+        };
+
+        $scope.goToFlow = function(flow){
+            $location.path('/flows/' + flow.id);
+        };
+
+        $scope.findOne = function () {
+
+            var index = _.findIndex($scope.topics, { id: $routeParams.flowId });
+
+            $scope.topic = $scope.topics[index];
+
+        };
+
+        $scope.save = function(){
+
+        };
+
+
+    });

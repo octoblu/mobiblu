@@ -1,0 +1,7 @@
+{
+    "bg_location" : "Background Location",
+    "flows" : "Topic Flows",
+    "push" : "Push Notification",
+    "message" : "Skynet Message",
+    "sent_message" : "Sent Message"
+}

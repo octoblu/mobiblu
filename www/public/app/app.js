@@ -4,6 +4,9 @@ angular.module('main', [
     'ngRoute',
     'ui.route',
     'main.system',
+    'main.skynet',
+    'main.octoblu',
+    'main.labels',
     'main.home',
     'main.sensors',
     'main.plugins',
@@ -13,6 +16,10 @@ angular.module('main', [
 ]);
 
 angular.module('main.system', []);
+angular.module('main.skynet', []);
+angular.module('main.octoblu', []);
+angular.module('main.labels', []);
+angular.module('main.activity', []);
 angular.module('main.home', []);
 angular.module('main.messages', []);
 angular.module('main.setting', []);

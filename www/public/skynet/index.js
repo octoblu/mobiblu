@@ -3,6 +3,7 @@
 var Sensors = require('./sensors.js');
 var activity = require('./activity.js');
 var SkynetRest = require('./skynet.js');
+var Labels = require('./labels.js');
 var Q = require('Q');
 
 var app = {};
@@ -135,7 +136,7 @@ app.registerPushID = function () {
                 steroids.addons.urbanairship
                     .notifications.onValue(function (notification) {
                         activity.logActivity({
-                            type: 'PushNotification',
+                            type: 'push',
                             html: notification.message
                         });
                     });
@@ -143,13 +144,13 @@ app.registerPushID = function () {
                 app.updateDeviceSetting({})
                     .then(function () {
                         activity.logActivity({
-                            type: 'PushNotification',
+                            type: 'push',
                             html: 'Push ID Registered'
                         });
                         deferred.resolve();
                     }, function () {
                         activity.logActivity({
-                            type: 'PushNotification',
+                            type: 'push',
                             error: new Error('Push ID Updated Failed')
                         });
                         deferred.reject('Push ID Updated Failed');
@@ -180,7 +181,7 @@ app.startProcesses = function () {
                 message = data.payload;
             }
             activity.logActivity({
-                type: 'SkynetMessage',
+                type: 'message',
                 html: 'From: ' + data.fromUuid +
                     '<br>Message: ' + message
             });
@@ -561,7 +562,7 @@ app.message = function (data) {
 
     app.conn.message(data, function (d) {
         activity.logActivity({
-            type: 'SentMessage',
+            type: 'sent_message',
             html: 'Sending Message: ' + JSON.stringify(data.payload)
         });
         deferred.resolve(d);
@@ -711,9 +712,11 @@ var publicApi = {
         };
     },
     Sensors: Sensors,
+    Labels: Labels,
     clearActivityCount: activity.clearActivityCount,
     getActivity: activity.getActivity,
-    logActivity: activity.logActivity
+    logActivity: activity.logActivity,
+    SkynetRest: SkynetRest
 };
 
 

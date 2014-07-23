@@ -1,21 +1,21 @@
-<div>
+<div ng-controller="FlowCtrl" ng-init="init()">
 
-    <div ng-controller="FlowCtrl" ng-init="init()">
+    <div ng-include src="'/public/views/system/loading.html'"></div>
 
-        <div ng-include src="'/public/views/system/loading.html'"></div>
+    <p class="content-padded">Trigger flows with a click of a button.</p>
 
-        <p class="content-padded">Trigger flows with a click of a button.</p>
-
-        <div class="card">
-            <ul class="table-view">
-                <li class="table-view-cell" ng-repeat="topic in topics" ng-click="triggerTopic(topic)">
+    <div class="card">
+        <ul class="table-view">
+            <li class="table-view-cell" ng-repeat="topic in topics">
+                <span ng-click="triggerTopic(topic)">
                     {{ topic.name }}
                     <span ng-show="topic.sent"><i class="fa fa-check-circle"></i></span>
-                </li>
-            </ul>
-        </div>
-
-
+                </span>
+                <i class="fa fa-edit pull-right" ng-click="goToFlow(flow)"></i>
+            </li>
+        </ul>
     </div>
 
+
 </div>
+

@@ -1,8 +1,7 @@
 'use strict';
 
-var SensorsApp = angular.module('main.sensors', ['hmTouchevents', 'SkynetModel', 'ngSanitize']);
-
-SensorsApp.controller('SensorCtrl',
+angular.module('main.sensors')
+    .controller('SensorCtrl',
     function ($rootScope, $scope, $filter, $routeParams) {
 
         $rootScope.loading = true;

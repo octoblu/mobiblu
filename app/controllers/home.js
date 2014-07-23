@@ -1,23 +1,20 @@
 'use strict';
 
-var homeApp = angular.module('main.home', ['hmTouchevents', 'SkynetModel']);
+angular.module('main.home')
+    .controller('HomeCtrl', function ($rootScope, $scope, $location) {
 
-homeApp.controller('HomeCtrl', function ($rootScope, $scope, $location) {
+        $scope.init = function () {
+            $scope.login = $rootScope.Skynet.login;
+            $rootScope.ready(function () {
+                $rootScope.loading = false;
+            });
+            $rootScope.pluginReady(function () {
+                $scope.subdevices = window.octobluMobile.getSubdevices();
+            });
+        };
 
+        $scope.goToDevice = function (subdevice) {
+            $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id + '/0');
+        };
 
-    $scope.init = function(){
-        $scope.login = $rootScope.Skynet.login;
-        $rootScope.ready(function(){
-            $rootScope.loading = false;
-        });
-        $rootScope.pluginReady(function () {
-            $scope.subdevices = window.octobluMobile.getSubdevices();
-            console.log('Home Subdevices :: ' + JSON.stringify($scope.subdevices));
-        });
-    };
-
-    $scope.goToDevice = function(subdevice){
-        $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id + '/0');
-    };
-
-});
+    });

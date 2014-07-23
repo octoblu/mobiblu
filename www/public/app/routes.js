@@ -36,6 +36,9 @@ angular.module('main').config(['$routeProvider',
             .when('/flows', {
                 templateUrl: '/public/views/flows/list.html'
             })
+            .when('/flows/:flowId', {
+                templateUrl: '/public/views/flows/edit.html'
+            })
             .when('/setting', {
                 templateUrl: '/public/views/setting/index.html'
             })
