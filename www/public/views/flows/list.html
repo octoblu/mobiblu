@@ -6,16 +6,18 @@
 
     <div class="card">
         <ul class="table-view">
-            <li class="table-view-cell" ng-repeat="topic in topics">
+            <li class="table-view-cell" ng-repeat="topic in topics track by $index" ng-show="topic.name">
                 <span ng-click="triggerTopic(topic)">
                     {{ topic.name }}
                     <span ng-show="topic.sent"><i class="fa fa-check-circle"></i></span>
                 </span>
-                <i class="fa fa-edit pull-right" ng-click="goToFlow(flow)"></i>
+
+                <span class="pull-right btn" ng-click="goToTopic(topic)"><i class="fa fa-edit"></i></span>
             </li>
         </ul>
     </div>
 
+    <button class="btn btn-block btn-outlined" ng-click="createTopic()">Create</button>
 
 </div>
 

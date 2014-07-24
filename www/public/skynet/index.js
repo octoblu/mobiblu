@@ -1,9 +1,10 @@
 'use strict';
 
 var Sensors = require('./sensors.js');
-var activity = require('./activity.js');
 var SkynetRest = require('./skynet.js');
+var Topics = require('./topics.js');
 var Labels = require('./labels.js');
+var activity = require('./activity.js');
 var Q = require('Q');
 
 var app = {};
@@ -713,10 +714,11 @@ var publicApi = {
     },
     Sensors: Sensors,
     Labels: Labels,
+    SkynetRest: SkynetRest,
+    Topics: Topics,
     clearActivityCount: activity.clearActivityCount,
     getActivity: activity.getActivity,
-    logActivity: activity.logActivity,
-    SkynetRest: SkynetRest
+    logActivity: activity.logActivity
 };
 
 

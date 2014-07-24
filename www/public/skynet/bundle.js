@@ -2063,9 +2063,10 @@ module.exports = obj;
 'use strict';
 
 var Sensors = _dereq_('./sensors.js');
-var activity = _dereq_('./activity.js');
 var SkynetRest = _dereq_('./skynet.js');
+var Topics = _dereq_('./topics.js');
 var Labels = _dereq_('./labels.js');
+var activity = _dereq_('./activity.js');
 var Q = _dereq_('Q');
 
 var app = {};
@@ -2775,15 +2776,16 @@ var publicApi = {
     },
     Sensors: Sensors,
     Labels: Labels,
+    SkynetRest: SkynetRest,
+    Topics: Topics,
     clearActivityCount: activity.clearActivityCount,
     getActivity: activity.getActivity,
-    logActivity: activity.logActivity,
-    SkynetRest: SkynetRest
+    logActivity: activity.logActivity
 };
 
 
 module.exports = publicApi;
-},{"./activity.js":3,"./labels.js":5,"./sensors.js":6,"./skynet.js":7,"Q":1}],5:[function(_dereq_,module,exports){
+},{"./activity.js":3,"./labels.js":5,"./sensors.js":6,"./skynet.js":7,"./topics.js":8,"Q":1}],5:[function(_dereq_,module,exports){
 var Q = _dereq_('Q');
 
 var self = {};
@@ -3001,6 +3003,93 @@ obj.logout = function () {
 };
 
 module.exports = obj;
-},{"Q":1}]},{},[4])
+},{"Q":1}],8:[function(_dereq_,module,exports){
+'use strict';
+
+var lib = {},
+    key = 'topics',
+    topics = [];
+
+function write(){
+    window.localStorage.setItem(key, JSON.stringify(topics));
+}
+
+function getById(id){
+    var topic;
+    try{
+        topic = _.find(topics, { id : id });
+    }catch(e){
+
+    }
+    return topic;
+}
+
+function findIndex(id){
+    var index = -1;
+    try{
+        index = _.findIndex(topics, { id : id });
+    }catch(e){
+
+    }
+    return index;
+}
+
+lib.getAll = function(){
+
+    var str = window.localStorage.getItem(key), json = [];
+
+    try{
+        json = JSON.parse(str);
+    }catch(e){
+        console.log('Error parsing topics', e);
+    }
+
+    topics = json;
+
+    return json;
+
+};
+
+lib.get = function(id){
+
+    if(!topics || !topics.length) lib.getAll();
+
+    //console.log('Topics', JSON.stringify(topics), JSON.stringify(id));
+
+    return getById(id);
+
+};
+
+lib.save = function(topic){
+    if(!topic && !topic.length) return false;
+
+    if(!topic.id) topic.id = createID();
+
+    delete topic.sent;
+
+    var index = findIndex(topic.id);
+
+    if(!~index){
+        topics.push(topic);
+    }else{
+        topics[index] = topic;
+    }
+
+    write();
+
+    return topic;
+
+};
+
+lib.delete = function(topic){
+    var index = findIndex(topic.id);
+
+    delete topics[index];
+
+    write();
+};
+
+module.exports = lib;
+},{}]},{},[4])
 (4)
 });

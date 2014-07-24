@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.flows')
-    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams) {
+    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams, Topic) {
 
         if ($rootScope.matchRoute('/flows$')) {
             $rootScope.$emit('togglebackbtn', false);
@@ -9,23 +9,28 @@ angular.module('main.flows')
             $rootScope.$emit('togglebackbtn', true);
         }
 
-        $scope.topics = [
+        $scope.defaultTopics = [
             {
-                id: 1,
+                id: 'a12319b-5d4f-ad87-a90a-198e92833335',
                 name: 'Flow Preset A',
                 wait: false,
-                payload: false
+                payload: ''
             },
             {
-                id: 2,
+                id: 'a112di9b-5dsf-ad82-a90a-198e928123335',
                 name: 'Flow Preset B',
                 wait: false,
-                payload: false
+                payload: ''
             }
         ];
 
         $scope.init = function () {
 
+            $scope.topics = Topic.getAll();
+
+            _.each($scope.defaultTopics, function(topic){
+                Topic.save(topic);
+            });
         };
 
         $scope.triggerTopic = function (topic) {
@@ -54,12 +59,15 @@ angular.module('main.flows')
                 promise.timeout(60 * 1000);
             }
 
-            promise.then(function () {
+            promise.then(function (data) {
                 $rootScope.Skynet.logActivity({
                     type: 'flows',
                     html: 'Topic "' + name + '" Triggered'
                 });
-                done(index);
+                if ($scope.topic.wait) {
+                    alert(JSON.stringify(data));
+                    done(index);
+                }
             }, $rootScope.redirectToError);
 
 
@@ -68,21 +76,27 @@ angular.module('main.flows')
             }
         };
 
-        $scope.goToFlow = function(flow){
-            $location.path('/flows/' + flow.id);
+        $scope.goToTopic = function(topic){
+            $location.path('/flows/' + topic.id);
         };
 
         $scope.findOne = function () {
-
-            var index = _.findIndex($scope.topics, { id: $routeParams.flowId });
-
-            $scope.topic = $scope.topics[index];
-
+            console.log('Flow ID ', $routeParams.flowId);
+            $scope.topic = Topic.get($routeParams.flowId);
         };
 
         $scope.save = function(){
-
+            $scope.topic = Topic.save($scope.topic);
+            $location.path('/flows');
         };
 
+        $scope.deleteTopic = function(){
+            Topic.delete($scope.topic);
+            $location.path('/flows');
+        };
+
+        $scope.createTopic = function(){
+            $location.path('/flows/' + createID());
+        };
 
     });

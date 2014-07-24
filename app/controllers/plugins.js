@@ -190,7 +190,7 @@ angular.module('main.plugins')
         };
 
         $scope.addSubdevice = function (select) {
-            var id = Math.random().toString(36).slice(2);
+            var id = createID();
             var subdevice = {
                 _id: id,
                 name: $scope.getSubdevicesName($scope.plugin.name),
