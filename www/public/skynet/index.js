@@ -52,7 +52,8 @@ app.setData = function () {
 
     console.log('Set Data Creds', JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
-    if (!app.settings) app.settings = app.defaultSettings;
+    if (!app.settings ||
+        !app.settings.length) app.settings = app.defaultSettings;
 
     app.settingsUpdated = false;
 
@@ -662,25 +663,29 @@ app.getDeviceSetting = function (uuid, token) {
 };
 
 app.init = function () {
-    var deferred = Q.defer();
-
-    if(!app.setData()) {
-        deferred.resolve();
-    }
+    var deferred = Q.defer(),
+        shouldStart = app.setData();
 
     activity.init();
 
-    if (!app.isAuthenticated()) {
-        deferred.resolve();
-    } else {
-        app.connect()
-            .then(function () {
-                app.startProcesses();
-                console.log('Connected');
-                $(document).trigger('skynet-loaded');
-                deferred.resolve();
+    if(!shouldStart) {
 
-            }, deferred.reject);
+        deferred.resolve();
+
+    } else {
+
+        if (!app.isAuthenticated()) {
+            deferred.resolve();
+        } else {
+            app.connect()
+                .then(function () {
+                    app.startProcesses();
+                    console.log('Connected');
+                    $(document).trigger('skynet-loaded');
+                    deferred.resolve();
+
+                }, deferred.reject);
+        }
     }
 
     return deferred.promise;

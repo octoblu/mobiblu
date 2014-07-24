@@ -30,17 +30,17 @@ function findIndex(id){
 
 lib.getAll = function(){
 
-    var str = window.localStorage.getItem(key), json = [];
+    var str = window.localStorage.getItem(key), obj = [];
 
     try{
-        json = JSON.parse(str);
+        obj = JSON.parse(str);
     }catch(e){
         console.log('Error parsing topics', e);
     }
 
-    topics = json;
+    topics = obj || [];
 
-    return json;
+    return obj;
 
 };
 
