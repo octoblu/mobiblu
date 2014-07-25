@@ -15,7 +15,7 @@ angular.module('main')
 
         $rootScope.matchRoute = function (route) {
             var regex = new RegExp('\\#\\!' + route);
-            if (window.location.href.match(regex)) {
+            if (window.location.href.split('?')[0].match(regex)) {
                 return true;
             }
             return false;
@@ -138,7 +138,6 @@ angular.module('main')
 
         var _skynetInit = function () {
             var deferred = $q.defer();
-            console.log('Skynet Init');
             if (isErrorPage()) {
                 deferred.resolve();
             } else {
@@ -181,8 +180,11 @@ angular.module('main')
 
         var _startListen = function () {
             $rootScope.skynetConn.on('message', function (message) {
+
                 $rootScope.$broadcast('skynet:message', message);
+
                 var device = message.subdevice || message.fromUuid;
+
                 $rootScope.$broadcast('skynet:message:' + device, message);
                 if (message.payload && _.has(message.payload, 'online')) {
                     var device = _.findWhere($rootScope.myDevices, {uuid: message.fromUuid});
@@ -190,6 +192,7 @@ angular.module('main')
                         device.online = message.payload.online;
                     }
                 }
+
             });
         };
 
@@ -213,9 +216,22 @@ angular.module('main')
                 }, $rootScope.redirectToError);
         };
 
-        $rootScope.skynetInit();
+        var _init = function(){
+            $rootScope.skynetInit();
 
-        _skynetLoad();
+            _skynetLoad();
+        }
+
+        if($rootScope.isSettingUser()){
+            Auth.getCurrentUser()
+                .then(function(){
+                    $location.path('/');
+                    _init();
+                });
+        }else{
+            _init();
+        }
+
 
         $rootScope.setSettings();
 

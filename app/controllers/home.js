@@ -4,6 +4,8 @@ angular.module('main.home')
     .controller('HomeCtrl', function ($rootScope, $scope, $location, Auth) {
 
         $scope.init = function () {
+            $rootScope.$emit('togglebackbtn', false);
+
             $rootScope.ready(function () {
                 $rootScope.loading = false;
             });

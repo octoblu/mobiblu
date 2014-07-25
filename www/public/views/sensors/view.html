@@ -10,9 +10,9 @@
             <form class="input-group">
                 <label>Enable Background Tracking</label>
                 <div class="input-row">
-                    <div ng-model="setting" class="toggle pull-right" ng-class="{ active : setting }" ng-click="toggleSwitch()">
-                        <div class="toggle-handle"></div>
-                    </div>
+
+                    <toggle-switch model="setting" change="toggleSwitch"></toggle-switch>
+
                 </div>
                 <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
                 <div id="sensorData"></div>

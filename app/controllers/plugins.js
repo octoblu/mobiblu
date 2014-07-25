@@ -4,7 +4,7 @@ angular.module('main.plugins')
     .controller('PluginCtrl',
     function ($rootScope, $scope, $routeParams, $timeout, $location, OctobluRest) {
 
-        if (/\#\!\/plugins\/*$/.test(window.location.href)) {
+        if ($rootScope.matchRoute('/plugins$')) {
             $rootScope.$emit('togglebackbtn', false);
         } else {
             $rootScope.$emit('togglebackbtn', true);
