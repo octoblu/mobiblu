@@ -25,6 +25,10 @@ angular.module('main')
                             color: lineColors.pop()
                         }
                     };
+
+                scope.graphWidth = $(document).width();
+                scope.graphHeight = 120;
+
                 scope.messageLines = messageLines;
 
                 var smoothie = new SmoothieChart({
@@ -38,7 +42,6 @@ angular.module('main')
                 if (scope.device) {
                     eventName += ':' + scope.device;
                 }
-                console.log(eventName);
                 $rootScope.$on(eventName, function (event, message) {
                     messages.push(message.payload);
                     if (scope.device) {

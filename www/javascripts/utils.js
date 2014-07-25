@@ -13,15 +13,20 @@ String.prototype.toUnderscore = function(){
 
 (function(global){
     global.getParam = function (variable) {
-        var query = window.location.search.substring(1);
-        var vars = query.split("&");
+        var url = window.location.href;
+        if(!~url.indexOf('?')){
+            return false;
+        }
+        var query = url.split('?')[1];
+        var vars = query.split('&');
         for (var i = 0; i < vars.length; i++) {
-            var pair = vars[i].split("=");
-            if (pair[0] == variable) {
+            var pair = vars[i].split('=');
+            if (pair[0] === variable) {
+                if(pair[0] === 'token') pair[1] += '=';
                 return pair[1];
             }
         }
-        return (false);
+        return false;
     };
 
     global.createID = function(){

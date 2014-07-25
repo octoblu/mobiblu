@@ -1,15 +1,16 @@
 <style>
-   .message-grapher .legend .legend-item .swatch {
+   .sensorgrapher .legend .legend-item .swatch {
        color: white;
        font-size: 1em;
        font-family: "Helvetica Neue", "Light Helvetica Neue",sans-serif ;
        border: 1px solid black;
        margin: 2px;
-   }   .message-grapher .legend .legend-item .swatch .legend-text {
+   }
+   .sensor-grapher .legend .legend-item .swatch .legend-text {
        padding: 2px;
    }
 </style>
-<div class="message-grapher">
+<div class="sensor-grapher">
     <canvas class="smoothie-canvas" ng-style="{ width : graphWidth + 'px' }" width="320" height="120"></canvas>
     <div class="legend" ng-if="device">
         <div class=" pull-left legend-item" ng-repeat="(key, value) in messageLines">

@@ -27,15 +27,15 @@ systemApp.controller('SubHeaderCtrl',
     });
 
 systemApp.controller('HeaderCtrl',
-    function ($rootScope, $scope, $location) {
+    function ($rootScope, $scope, $location, Auth) {
 
         // TODO improve this functionality for multiple levels
         $scope.backbtn = false;
 
         $rootScope.$on('togglebackbtn', function (e, val) {
-            if($rootScope.matchRoute('/$')){
+            if ($rootScope.matchRoute('/$')) {
                 $scope.backbtn = false;
-            }else{
+            } else {
                 $scope.backbtn = val;
             }
         });
@@ -45,7 +45,10 @@ systemApp.controller('HeaderCtrl',
         };
 
         $scope.logout = function () {
-            $rootScope.Skynet.logout();
+            Auth.logout()
+                .then(function () {
+                    $location.path('/login');
+                });
         };
 
         $scope.settings = function () {
@@ -58,7 +61,7 @@ systemApp.controller('HeaderCtrl',
             } else {
                 $scope.showLogout = false;
             }
-            if($rootScope.matchRoute('/$')){
+            if ($rootScope.matchRoute('/$')) {
                 $scope.backbtn = false;
             }
         });
@@ -104,7 +107,7 @@ systemApp.controller('ActivityCtrl',
         $scope.limit = 25;
 
         var setActivity = function () {
-            setTimeout(function(){
+            setTimeout(function () {
                 $scope.$apply(function () {
                     $scope.activities = $rootScope.Skynet.getActivity($routeParams.pluginName, $scope.limit);
                 });
@@ -112,9 +115,9 @@ systemApp.controller('ActivityCtrl',
         };
 
         $scope.init = function () {
-            if($rootScope.matchRoute('/$')){
+            if ($rootScope.matchRoute('/$')) {
                 $scope.limit = 5;
-            }else if($rootScope.matchRoute('/plugins')){
+            } else if ($rootScope.matchRoute('/plugins')) {
                 $scope.limit = 10;
             }
             $rootScope.ready(function () {
@@ -133,10 +136,10 @@ systemApp.controller('ErrorCtrl',
 
         $scope.init = function () {
             console.log('On Error Page');
-            if(!$rootScope.errorMsg){
+            if (!$rootScope.errorMsg) {
                 return $rootScope.errorMsg = '';
             }
-            if(typeof $rootScope.errorMsg !== 'string'){
+            if (typeof $rootScope.errorMsg !== 'string') {
                 $rootScope.errorMsg = $rootScope.errorMsg.toString();
             }
         };

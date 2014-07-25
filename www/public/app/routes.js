@@ -7,7 +7,13 @@ angular.module('main').config(['$routeProvider',
                 templateUrl: '/public/views/home/dashboard.html'
             })
             .when('/login', {
-                templateUrl: '/public/views/home/login.html'
+                templateUrl: '/public/views/user/login.html'
+            })
+            .when('/set', {
+                templateUrl: '/public/views/home/dashboard.html'
+            })
+            .when('/accept_terms', {
+                templateUrl: '/public/views/user/accept_terms.html'
             })
             .when('/plugins', {
                 templateUrl: '/public/views/plugins/index.html'

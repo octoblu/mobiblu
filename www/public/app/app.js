@@ -4,6 +4,7 @@ angular.module('main', [
     'ngRoute',
     'ui.route',
     'main.system',
+    'main.user',
     'main.skynet',
     'main.octoblu',
     'main.labels',
@@ -16,6 +17,7 @@ angular.module('main', [
 ]);
 
 angular.module('main.system', []);
+angular.module('main.user', []);
 angular.module('main.skynet', []);
 angular.module('main.octoblu', []);
 angular.module('main.labels', []);

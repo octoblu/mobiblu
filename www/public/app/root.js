@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $location, $q) {
+    .run(function ($rootScope, $location, $q, Auth) {
 
         var loaded = false;
 
@@ -15,7 +15,7 @@ angular.module('main')
 
         $rootScope.matchRoute = function (route) {
             var regex = new RegExp('\\#\\!' + route);
-            if (window.location.href.match(regex)) {
+            if (window.location.href.split('?')[0].match(regex)) {
                 return true;
             }
             return false;
@@ -31,8 +31,7 @@ angular.module('main')
         $rootScope.errorMsg = null;
 
         var isErrorPage = function () {
-            if ($rootScope.matchRoute('/error') ||
-                $rootScope.matchRoute('/login')) {
+            if ($rootScope.matchRoute('/error')) {
                 return true;
             }
             return false;
@@ -74,30 +73,12 @@ angular.module('main')
             }, 1000 * 20));
         });
 
-        var skynetLoad = _.once(function () {
-            var deferred = $q.defer();
-            $(document).one('skynet-loaded', function () {
-                loaded = true;
-                deferred.resolve();
-            });
-
-            timeouts.push(setTimeout(deferred.reject, 1000 * 15));
-
-            return deferred.promise;
-        });
-
-        $rootScope.ready = function (cb) {
-            $rootScope.setSettings();
-            if (loaded || isErrorPage()) cb();
-            else skynetLoad().then(cb, $rootScope.redirectToError);
-        };
-
         $rootScope.setSettings = function () {
             $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
 
             $rootScope.loggedin = $rootScope.settings.loggedin;
 
-            $rootScope.isDeveloper = $rootScope.settings.settings.developer_mode;
+            $rootScope.isDeveloper = $rootScope.settings.settings ? $rootScope.settings.settings.developer_mode : false;
 
             $rootScope.skynetConn = $rootScope.settings.conn;
 
@@ -105,9 +86,22 @@ angular.module('main')
 
         };
 
+        $rootScope.isSettingUser = function(){
+            var uuid = getParam('uuid'), token = getParam('token');
+
+            if(uuid && token){
+                return true;
+            }else{
+                return false;
+            }
+        };
+
         $rootScope.isAuthenticated = function () {
-            if (!$rootScope.loggedin) {
-                if (!$rootScope.matchRoute('/login')) $location.path('/login');
+            if (!$rootScope.loggedin && !$rootScope.matchRoute('/set')) {
+                if (!$rootScope.matchRoute('/login')) {
+                    console.log('Redirecting to login');
+                    $location.path('/login');
+                }
                 return false;
             } else {
                 return true;
@@ -142,13 +136,22 @@ angular.module('main')
             }, $rootScope.redirectToError);
         };
 
-        var skynetInit = function () {
+        var _skynetInit = function () {
             var deferred = $q.defer();
-
             if (isErrorPage()) {
-                deferred.reject();
+                deferred.resolve();
             } else {
-                $rootScope.Skynet.init()
+                var currentUser = {};
+                if ($rootScope.loggedin || $rootScope.matchRoute('/set')) {
+                    currentUser = Auth.getCurrentUser();
+                }
+                var uuid, token;
+                if (currentUser && currentUser.skynet) {
+                    uuid = currentUser.skynet.uuid;
+                    token = currentUser.skynet.token;
+                }
+
+                $rootScope.Skynet.init(uuid, token)
                     .timeout(1000 * 15)
                     .then(function () {
                         deferred.resolve();
@@ -157,38 +160,78 @@ angular.module('main')
             return deferred.promise;
         };
 
-        var processMessage = function (message) {
-            $rootScope.$broadcast('skynet:message', message);
-            var device = message.subdevice || message.fromUuid;
-            $rootScope.$broadcast('skynet:message:' + device, message);
-            if (message.payload && _.has(message.payload, 'online')) {
-                var device = _.findWhere($rootScope.myDevices, {uuid: message.fromUuid});
-                if (device) {
-                    device.online = message.payload.online;
+        var _skynetLoad = _.once(function () {
+
+            var deferred = $q.defer();
+
+            $(document).one('skynet-loaded', function () {
+                loaded = true;
+                deferred.resolve();
+            });
+
+            return deferred.promise;
+        });
+
+        $rootScope.ready = function (cb) {
+            $rootScope.setSettings();
+            if (loaded || isErrorPage()) cb();
+            else _skynetLoad().then(cb, $rootScope.redirectToError);
+        };
+
+        var _startListen = function () {
+            $rootScope.skynetConn.on('message', function (message) {
+
+                $rootScope.$broadcast('skynet:message', message);
+
+                var device = message.subdevice || message.fromUuid;
+
+                $rootScope.$broadcast('skynet:message:' + device, message);
+                if (message.payload && _.has(message.payload, 'online')) {
+                    var device = _.findWhere($rootScope.myDevices, {uuid: message.fromUuid});
+                    if (device) {
+                        device.online = message.payload.online;
+                    }
                 }
-            }
+
+            });
         };
 
-        var startListen = function () {
-            console.log('registering for messages');
-            $rootScope.skynetConn.on('message', processMessage);
+        $rootScope.skynetInit = function () {
+            _skynetInit()
+                .then(function () {
+
+                    $rootScope.setSettings();
+
+                    if ($rootScope.skynetConn) {
+
+                        console.log('SKYNET LOADED');
+                        _startListen();
+
+                    }
+
+                    $rootScope.isAuthenticated();
+
+                    $rootScope.loading = false;
+
+                }, $rootScope.redirectToError);
         };
 
-        skynetInit()
-            .then(function () {
-                console.log('SKYNET LOADED');
+        var _init = function(){
+            $rootScope.skynetInit();
 
-                $rootScope.setSettings();
+            _skynetLoad();
+        }
 
-                startListen();
+        if($rootScope.isSettingUser()){
+            Auth.getCurrentUser()
+                .then(function(){
+                    $location.path('/');
+                    _init();
+                });
+        }else{
+            _init();
+        }
 
-                $rootScope.isAuthenticated();
-
-                $rootScope.loading = false;
-
-            }, $rootScope.redirectToError);
-
-        skynetLoad();
 
         $rootScope.setSettings();
 

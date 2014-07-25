@@ -87,8 +87,4 @@ angular.module('main.setting')
             }
         };
 
-        $scope.toggleSwitch = function (setting) {
-            $scope.settings[setting] = !$scope.settings[setting];
-            $scope.update();
-        };
     });

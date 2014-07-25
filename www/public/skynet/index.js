@@ -24,9 +24,9 @@ app.bgRunning = false;
 
 app.conn = null;
 
-app.setData = function () {
-    var skynetuuid = window.localStorage.getItem('skynetuuid'),
-        skynettoken = window.localStorage.getItem('skynettoken');
+app.setData = function (skynetuuid, skynettoken) {
+    if(!skynetuuid) skynetuuid = window.localStorage.getItem('skynetuuid');
+    if(!skynettoken) skynettoken = window.localStorage.getItem('skynettoken');
 
     // Set new Skynet Tokens
     if (skynetuuid && skynettoken) {
@@ -64,9 +64,15 @@ app.setData = function () {
     return true;
 };
 
+app.login = function (uuid, token) {
+    app.setData(uuid, token);
+    app.loggedin = true;
+};
+
 app.logout = function () {
 
     window.loggedin = app.loggedin = false;
+
     window.localStorage.removeItem('loggedin');
 
     window.localStorage.removeItem('skynetactivity');
@@ -76,25 +82,6 @@ app.logout = function () {
     window.localStorage.removeItem('subdevices');
 
     app.setData();
-
-    function goToLogin(){
-        window.location = 'http://localhost/index.html#!/login';
-    }
-
-    SkynetRest.logout()
-        .then(function (data) {
-            goToLogin();
-        }, function(){
-            console.log('Error Logging Out');
-            goToLogin();
-        });
-
-    //window.open('http://app.octoblu.com/logout?js=1&referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_self', 'location=yes');
-
-};
-
-app.login = function () {
-    window.open('http://app.octoblu.com/login?mobile=true&referrer=' + encodeURIComponent('http://localhost/login.html'), '_self', 'location=yes');
 };
 
 app.isAuthenticated = function () {
@@ -590,6 +577,19 @@ app.sendData = function(data){
     };
     data = _.extend(defaults, data);
 
+    var eventName = 'sensor';
+    if(data.sensorData && data.sensorData.type){
+        eventName += ':' + data.sensorData.type;
+    }else if(data.type){
+        eventName += ':' + data.type;
+    }else if(data.subdevice){
+        eventName += ':' + data.subdevice;
+    }else if(data.name){
+        eventName += ':' + data.name;
+    }
+
+    $(document).trigger(eventName, data);
+
     app.conn.data(data, function(){
         deferred.resolve();
     });
@@ -662,30 +662,26 @@ app.getDeviceSetting = function (uuid, token) {
     return deferred.promise;
 };
 
-app.init = function () {
-    var deferred = Q.defer(),
-        shouldStart = app.setData();
+app.init = function (skynetuuid, skynettoken) {
+    console.log('Init');
+    var deferred = Q.defer();
+
+    app.setData(skynetuuid, skynettoken);
 
     activity.init();
 
-    if(!shouldStart) {
-
+    if (!app.isAuthenticated()) {
+        console.log('Not Authenticated');
         deferred.resolve();
-
     } else {
+        app.connect()
+            .then(function () {
+                app.startProcesses();
+                console.log('Connected');
+                $(document).trigger('skynet-loaded');
+                deferred.resolve();
 
-        if (!app.isAuthenticated()) {
-            deferred.resolve();
-        } else {
-            app.connect()
-                .then(function () {
-                    app.startProcesses();
-                    console.log('Connected');
-                    $(document).trigger('skynet-loaded');
-                    deferred.resolve();
-
-                }, deferred.reject);
-        }
+            }, deferred.reject);
     }
 
     return deferred.promise;

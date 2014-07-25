@@ -10,10 +10,8 @@
                 <input type="text" placeholder="Device Name" ng-model="devicename" ng-blur="update()">
                 <label>Background Updates</label>
                 <div class="input-row">
-                    <div ng-model="settings.bg_updates" class="toggle pull-right" ng-class="{ active : settings.bg_updates }" ng-click="toggleSwitch('bg_updates')">
-                        <div class="toggle-handle"></div>
-                    </div>
-                 </div>
+                    <toggle-switch model="settings.bg_updates" change="update"></toggle-switch>
+                </div>
                 <label>Update Frequency (minutes)</label>
                 <div class="input-row">
                     <select ng-model="settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
@@ -22,9 +20,7 @@
             </form>
 
             <div class="input-row">
-                <div ng-model="settings.developer_mode" class="toggle pull-right" ng-class="{ active : settings.developer_mode }" ng-click="toggleSwitch('developer_mode')">
-                    <div class="toggle-handle"></div>
-                </div>
+                <toggle-switch model="settings.developer_mode" change="update"></toggle-switch>
             </div>
 
             <div ng-show="settings.developer_mode">
