@@ -1,0 +1,50 @@
+<div ng-controller="UserCtrl" ng-init="init()">
+
+    <div ng-include src="'/public/views/system/loading.html'"></div>
+
+    <p class="content-padded">Please login to continue.</p>
+
+    <p class="content-padded text-negative" ng-show="error">{{ error }}</p>
+
+    <form class="input-group">
+        <div class="input-row">
+            <label>Email</label>
+            <input type="email" placeholder="E-mail" ng-model="user.email">
+        </div>
+        <div class="input-row">
+            <label>Password</label>
+            <input type="password" placeholder="Password" ng-model="user.password">
+        </div>
+        <div class="input-row" ng-show="signup">
+            <label>Confirm</label>
+            <input type="password" placeholder="Confirm Password" ng-model="user.confirm_password">
+        </div>
+
+        <button class="btn btn-block btn-positive btn-outlined" ng-hide="signup" ng-click="loginMethod()">Login</button>
+        <button class="btn btn-block btn-positive btn-outlined" ng-show="signup" ng-click="signupMethod()">Signup</button>
+
+        <div class="text-center">
+
+            <a class="btn btn-github" href ng-click="loginViaProvider('github')" target="_self">
+                <span class="fa fa-github"> Github</span>
+            </a>
+            <a class="btn btn-facebook" href ng-click="loginViaProvider('facebook')" target="_self">
+                <span class="fa fa-facebook"> Facebook</span>
+            </a>
+            <a class="btn btn-twitter" href ng-click="loginViaProvider('twitter')" target="_self">
+                <span class="fa fa-twitter"> Twitter</span>
+            </a>
+            <a class="btn btn-google-plus" href ng-click="loginViaProvider('google')" target="_self">
+                <span class="fa fa-google-plus"> Google+</span>
+            </a>
+
+        </div>
+
+        <div class="content-padded text-center">
+            <strong ng-click="showSignup()" ng-hide="signup">Sign up!</strong>
+            <strong ng-click="hideSignup()" ng-show="signup">Login</strong>
+            <br>
+            <br>
+        </div>
+    </form>
+</div>
