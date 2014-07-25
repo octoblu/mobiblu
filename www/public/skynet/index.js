@@ -580,8 +580,8 @@ app.sendData = function(data){
     var eventName = 'sensor';
     if(data.sensorData && data.sensorData.type){
         eventName += ':' + data.sensorData.type;
-    }else if(data.type){
-        eventName += ':' + data.type;
+    }else if(data.device){
+        eventName += ':' + data.device;
     }else if(data.subdevice){
         eventName += ':' + data.subdevice;
     }else if(data.name){
