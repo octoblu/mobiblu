@@ -51,13 +51,12 @@ angular.module('main.flows')
             var defaultPayload = new Date(),
                 name = $scope.topic.name;
 
+            var start = new Date().getTime();
+
             var promise = $rootScope.Skynet
                 .triggerTopic(name,
                     $scope.topic.payload || defaultPayload);
 
-            if ($scope.topic.wait) {
-                promise.timeout(60 * 1000);
-            }
 
             promise.then(function (data) {
                 $rootScope.Skynet.logActivity({
@@ -65,7 +64,16 @@ angular.module('main.flows')
                     html: 'Topic "' + name + '" Triggered'
                 });
                 if ($scope.topic.wait) {
-                    alert(JSON.stringify(data));
+                    var end = new Date().getTime();
+                    var response;
+
+                    if(/^timeout/.test(data.error)){
+                        response = 'No response received';
+                    }else{
+                        response = JSON.stringify(data);
+                    }
+
+                    $rootScope.alertModal('Response - ' + (end - start) + ' ms', response);
                     done(index);
                 }
             }, $rootScope.redirectToError);

@@ -56,6 +56,10 @@ systemApp.controller('HeaderCtrl',
         };
 
         $scope.$on('$locationChangeSuccess', function () {
+            if(!$rootScope.loggedin){
+                $scope.showLogout = false;
+                $scope.backbtn = false;
+            }
             if ($rootScope.matchRoute('/setting')) {
                 $scope.showLogout = true;
             } else {

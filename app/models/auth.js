@@ -105,6 +105,8 @@ angular.module('main.user')
             window.localStorage.removeItem('skynettoken');
 
             window.Skynet.logout();
+
+            $rootScope.setSettings();
         }
 
         return service = {

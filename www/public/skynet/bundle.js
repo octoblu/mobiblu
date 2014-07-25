@@ -3047,6 +3047,8 @@ lib.getAll = function(){
 
     topics = obj || [];
 
+    topics = _.sortBy(topics, 'name');
+
     return obj;
 
 };

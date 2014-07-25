@@ -237,4 +237,19 @@ angular.module('main')
 
         $rootScope.isAuthenticated();
 
+
+        $rootScope.alertModal = function(title, msg){
+            $rootScope.globalModal = {};
+            $rootScope.globalModal.title = title;
+            $rootScope.globalModal.msg = msg;
+
+            $('#globalModal').addClass('active');
+        };
+
+        $rootScope.closeModal = function(){
+            $rootScope.globalModal = {};
+            $('#globalModal').removeClass('active');
+
+        };
+
     });

@@ -99,7 +99,7 @@
             </button>
         </header>
         <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
-            <a href="index.html#!/activity" id="sensor-activity" class="btn pull-right">
+            <a href="index.html#!/activity" id="sensor-activity" class="btn pull-right" ng-show="loggedin">
                 Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
             </a>
         </div>
@@ -128,6 +128,17 @@
                 <span class="tab-label">Flows</span>
             </a>
         </nav>
+
+        <div id="globalModal" class="modal">
+            <header class="bar bar-nav">
+                <span class="icon icon-close pull-right" ng-click="closeModal()"></span>
+                <h1 class="title">{{ globalModal.title }}</h1>
+            </header>
+
+            <div class="content">
+                <p class="content-padded">{{ globalModal.msg }}</p>
+            </div>
+        </div>
     </div>
 </body>
 
