@@ -2639,6 +2639,19 @@ app.sendData = function(data){
     };
     data = _.extend(defaults, data);
 
+    var eventName = 'sensor';
+    if(data.sensorData && data.sensorData.type){
+        eventName += ':' + data.sensorData.type;
+    }else if(data.type){
+        eventName += ':' + data.type;
+    }else if(data.subdevice){
+        eventName += ':' + data.subdevice;
+    }else if(data.name){
+        eventName += ':' + data.name;
+    }
+
+    $(document).trigger(eventName, data);
+
     app.conn.data(data, function(){
         deferred.resolve();
     });

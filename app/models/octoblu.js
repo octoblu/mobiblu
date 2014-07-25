@@ -1,5 +1,5 @@
 angular.module('main.octoblu')
-    .service('OctobluRest', function ($http) {
+    .service('OctobluRest', function ($http, $rootScope) {
 
         var self = this,
             baseURL = 'http://app.octoblu.com';
@@ -31,13 +31,17 @@ angular.module('main.octoblu')
 
         };
 
-        self.searchPlugins = function (term, callback) {
+        self.searchPlugins = function (term) {
 
             return $http({
                 url: baseURL + '/api/devices/plugins/',
                 method: 'GET',
                 params: {
                     keywords: term
+                },
+                headers: {
+                    skynet_auth_uuid: $rootScope.settings.skynetuuid,
+                    skynet_auth_token: $rootScope.settings.skynettoken
                 },
                 timeout: 10 * 1000
             });

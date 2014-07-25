@@ -37,6 +37,13 @@ angular.module('main.plugins')
         $scope.allResults = [];
 
         var handleSearchResults = function (res) {
+            if(!res){
+                res = {
+                    data : {
+                        results : []
+                    }
+                };
+            }
             $timeout(function () {
                 var data = res.data;
 

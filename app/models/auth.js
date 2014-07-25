@@ -26,8 +26,8 @@ angular.module('main.user')
             } else {
                 var uuid = getParam('uuid'), token = getParam('token');
                 if(!uuid && !token){
-                    uuid = window.localStorage.getItem('skynetuuid');
-                    token = window.localStorage.getItem('skynettoken');
+                    uuid = $rootScope.settings.skynetuuid;
+                    token = $rootScope.settings.skynettoken;
                 }
                 var req = {
                     url: baseUrl + '/api/auth',

@@ -72,14 +72,12 @@ angular.module('main.sensors')
                             var html = sensorObj.prettify(sensorData);
                             el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
 
-                            $rootScope.settings.conn.data({
-                                'uuid': Skynet.mobileuuid,
-                                'token': Skynet.mobiletoken,
+                            $rootScope.Skynet.sendData({
                                 'sensorData': {
                                     'type': $scope.sensor.label,
                                     'data': sensorData
                                 }
-                            }, function () {
+                            }).then(function () {
                                 el.innerHTML = html + '<strong>Skynet Updated</strong><hr>';
                             });
                         }

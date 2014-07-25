@@ -11,10 +11,12 @@ angular.module('main')
                 return {
                     responseError: function (response) {
                         if (response.status === 401) {
+                            console.log('401 Intercept');
                             $window.location = 'index.html#!/login';
                             return;
                         }
                         if (response.status === 403) {
+                            console.log('403 Intercept');
                             $window.location = 'index.html#!/accept_terms';
                             return;
                         }
