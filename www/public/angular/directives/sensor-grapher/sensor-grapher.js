@@ -7,7 +7,7 @@ angular.module('main')
                 device: '='
             },
             link: function (scope, element) {
-                var messages = [],
+                var messages = {},
                     lineColors = [
                         '#b58900',
                         '#cb4b16',
@@ -34,14 +34,17 @@ angular.module('main')
                 smoothie.streamTo(element.find('canvas')[0]);
 
                 function processEvent(event, data) {
-                    var key = data.type || scope.device;
+                    var key = data.type || scope.device, payload = {};
                     if(data.sensorData){
-                        messages.push(data.sensorData);
                         key = data.sensorData.type;
+                        payload = data.sensorData;
                     }else{
-                        messages.push(data);
+                        payload = data;
                     }
-
+                    if(!messages[key]){
+                        messages[key] = [];
+                    }
+                    messages[key].push(payload[key]);
 
                     if (!messageLines[key]) {
                         messageLines[key] = {
@@ -62,16 +65,19 @@ angular.module('main')
                 }
 
                 var intervalPromise = $interval(function () {
-                    if (messages.length) {
-                        _.each(_.keys(messageLines), function (key) {
-                            if (typeof messages[0][key] === 'number') {
-                                messageLines[key].line.append(new Date().getTime(), messages[0][key]);
+                    _.each(_.keys(messageLines), function (key) {
+                        var count = 0;
+                        _.each(messages[key], function(message){
+                            if (typeof message === 'number') {
+                                messageLines[key].line.append(new Date().getTime(), message);
                             } else {
-                                messageLines[key].line.append(new Date().getTime(), messages.length);
+                                messageLines[key].line.append(new Date().getTime(), count);
                             }
+                            count++;
                         });
-                    }
-                    messages = [];
+
+                    });
+                    messages = {};
                 }, 1000);
 
                 scope.$on('$destroy', function () {
