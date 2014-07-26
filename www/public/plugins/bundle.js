@@ -2005,6 +2005,18 @@ obj.each = function (cb) {
     obj.plugins.forEach(cb);
 };
 
+obj.findInstance = function (match) {
+    return _.where(_.keys(obj.instances), function(key){
+        return obj.instances[key].uuid === match || obj.instances[key].name === match;
+    });
+};
+
+obj.pluginIsLoaded = function (name) {
+    return _.findIndex(_.keys(obj.instances), function(key){
+        return obj.instances[key].type === name;
+    });
+};
+
 obj.findPlugin = function (name) {
     // If already cached
     var index = obj.pluginsIndex[name];
@@ -2059,7 +2071,7 @@ obj.writePlugin = function (json, init, removing) {
                 var found = false;
                 for (var x in json.subdevices) {
                     var d = json.subdevices[x];
-                    if (d._id === item._id) {
+                    if (d.uuid === item.uuid) {
                         found = true;
                         break;
                     }
@@ -2109,7 +2121,7 @@ obj.removePlugin = function (plugin) {
     var deleted = false;
     plugin.subdevices
         .forEach(function(subdevice){
-            delete obj.instances[subdevice.name];
+            delete obj.instances[subdevice.uuid];
             deleted = true;
         });
 
@@ -2171,7 +2183,14 @@ obj.retrieveFromStorage = function () {
             return;
         }
 
-        plugins[i].subdevices = plugin.subdevices || [];
+        var subdevices = plugin.subdevices || [];
+
+        subdevices = _.map(subdevices, function(subdevice){
+            if(!subdevice.uuid) subdevice.uuid = createID();
+            return subdevice;
+        });
+
+        plugins[i].subdevices = subdevices;
 
         obj.pluginsIndex[plugin.name] = i;
     });
@@ -2280,8 +2299,8 @@ obj.loadScript = function (json) {
         if(json.subdevices && json.subdevices.length){
             json.subdevices
                 .forEach(function(subdevice){
-                    if(obj.instances[subdevice.name]) delete obj.instances[subdevice.name];
-                    var camel = subdevice.name.toCamel();
+                    if(obj.instances[subdevice.uuid]) delete obj.instances[subdevice.uuid];
+                    var camel = subdevice.type.toCamel();
                     if(window.skynetPlugins[camel]) delete window.skynetPlugins[camel];
                 });
         }
@@ -2318,7 +2337,7 @@ obj.loadPluginScripts = function () {
             var plugin = obj.plugins[x];
 
             if (!plugin) continue;
-            if (obj.instances[plugin.name]) {
+            if (obj.findInstance(plugin.uuid)) {
                 continue;
             }
 
@@ -2370,7 +2389,7 @@ obj.loadPlugin = function (data) {
         console.log('Wrote plugin in load plugin');
     }
     var found = obj.findPlugin(name);
-    if (!~found || !obj.instances[name]) {
+    if (!~found || !~obj.pluginIsLoaded(name)) {
         console.log('Installing Plugin', name);
         return obj.registerPlugin(name)
             .then(function () {
@@ -2430,7 +2449,10 @@ obj.initDevice = function (subdevice) {
                 obj.Messenger,
                 subdevice.options || {},
                 obj.api,
-                subdevice.name
+                {
+                    uuid : subdevice.uuid,
+                    name : subdevice.name
+                }
             ) : null;
 
         var found = obj.findPlugin(subdevice.type);
@@ -2448,7 +2470,7 @@ obj.initDevice = function (subdevice) {
         pluginObj.getDefaultOptions = p.getDefaultOptions;
     }
 
-    obj.instances[subdevice.name] = pluginObj;
+    obj.instances[subdevice.uuid] = pluginObj;
 
     return pluginObj;
 
@@ -2458,7 +2480,7 @@ obj.triggerDeviceEvent = function(subdevice, event){
 
     var deferred = Q.defer();
 
-    var Plugin = obj.instances[subdevice.name];
+    var Plugin = obj.instances[subdevice.uuid];
 
     if (Plugin) {
 
@@ -2545,13 +2567,13 @@ obj.startListen = function () {
 
             try {
 
-                if (typeof data === "string") {
+                if (typeof data === 'string') {
                     data = JSON.parse(data);
                 }
 
                 if (data.subdevice) {
 
-                    var instance = obj.instances[data.subdevice];
+                    var instance = obj.findInstance(data.subdevice);
 
                     if (instance && instance.onMessage) {
 
