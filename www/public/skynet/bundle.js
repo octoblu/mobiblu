@@ -2074,11 +2074,11 @@ var app = {};
 app.loaded = false;
 
 app.defaultSettings = {
-    compass: true,
-    accelerometer: true,
-    geolocation: true,
-    update_interval: 1,
-    bg_updates: true,
+    compass: false,
+    accelerometer: false,
+    geolocation: false,
+    update_interval: 3,
+    bg_updates: false,
     developer_mode: false
 };
 
