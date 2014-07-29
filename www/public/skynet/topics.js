@@ -40,9 +40,16 @@ lib.getAll = function(){
 
     topics = obj || [];
 
-    topics = _.sortBy(topics, 'name');
 
-    return obj;
+
+    if(topics && topics.length){
+        _.remove(topics, function(t){
+            return !t;
+        });
+        topics = _.sortBy(topics, 'name');
+    }
+
+    return topics;
 
 };
 
@@ -57,7 +64,7 @@ lib.get = function(id){
 };
 
 lib.save = function(topic){
-    if(!topic && !topic.length) return false;
+    if((topic && topic.length)) return false;
 
     if(!topic.id) topic.id = createID();
 
@@ -78,9 +85,7 @@ lib.save = function(topic){
 };
 
 lib.delete = function(topic){
-    var index = findIndex(topic.id);
-
-    delete topics[index];
+    _.remove(topics, { id : topic.id });
 
     write();
 };
