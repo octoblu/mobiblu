@@ -3053,7 +3053,6 @@ lib.getAll = function(){
         _.remove(topics, function(t){
             return !t;
         });
-        console.log('TOPICS', JSON.stringify(topics));
         topics = _.sortBy(topics, 'name');
     }
 

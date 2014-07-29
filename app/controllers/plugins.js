@@ -216,7 +216,7 @@ angular.module('main.plugins')
 
         $scope.deleteDevice = function () {
 
-            $scope.plugin.subdevices = _.remove($scope.plugin.subdevices, { uuid : $scope.subdevice.uuid });
+            _.remove($scope.plugin.subdevices, { uuid : $scope.subdevice.uuid });
 
             window.octobluMobile.triggerDeviceEvent(
                 $scope.subdevice,
