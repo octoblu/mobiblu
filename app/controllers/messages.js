@@ -82,7 +82,7 @@ angular.module('main.messages')
             var promise = OctobluRest.getDevices($scope.skynetuuid, $scope.skynettoken);
 
             promise.then(function (res) {
-                var myDevices = res.data;
+                var myDevices = res ? res.data : [];
                 console.log('Retrieved devices');
                 $scope.devices = $scope.getGateways(myDevices);
 
@@ -116,7 +116,7 @@ angular.module('main.messages')
 
             var message, uuid;
 
-            if ($scope.sendUuid === undefined || $scope.sendUuid === '') {
+            if (typeof $scope.sendUuid === 'undefined' || $scope.sendUuid === '') {
                 if ($scope.device) {
                     uuid = $scope.device.uuid;
                 } else {
@@ -129,12 +129,11 @@ angular.module('main.messages')
             if (uuid) {
 
                 if ($scope.schema) {
-                    var errors = $('#device-msg-editor').jsoneditor('validate');
+                    var errors = $scope.schemaEditor.validate();
                     if (errors.length) {
-                        alert(errors);
+                        $rootScope.alertModal('Error', JSON.stringify(errors));
                     } else {
-                        message = $scope.schemaEdi;
-                        console.log('schema message', JSON.stringify(message));
+                        message = $scope.schemaEditor.getValue();
 
                         $scope.subdevicename = $scope.subdevice.name;
                     }
@@ -156,7 +155,7 @@ angular.module('main.messages')
 
                 }
 
-                console.log('UUID and subdevicename ', uuid, $scope.subdevicename);
+                console.log('UUID and subdevice name ', uuid, $scope.subdevicename);
                 $rootScope.Skynet.message({
                     'devices': uuid,
                     'subdevice': $scope.subdevicename,
@@ -164,9 +163,7 @@ angular.module('main.messages')
                 }).then(function (data) {
                     console.log(data);
                 }, $rootScope.redirectToError);
-                $scope.messageOutput = 'Message Sent: ' + JSON.stringify(message);
+                $rootScope.alertModal('Message Sent', JSON.stringify(message));
             }
-
-            $('body').css('height', '100%');
         };
     });

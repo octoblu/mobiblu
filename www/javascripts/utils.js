@@ -22,7 +22,6 @@ String.prototype.toUnderscore = function(){
         for (var i = 0; i < vars.length; i++) {
             var pair = vars[i].split('=');
             if (pair[0] === variable) {
-                if(pair[0] === 'token') pair[1] += '=';
                 return pair[1];
             }
         }

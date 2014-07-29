@@ -19,7 +19,7 @@ angular.module('main.home')
         };
 
         $scope.goToDevice = function (subdevice) {
-            $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id + '/0');
+            $location.path('/plugins/device/' + subdevice.type + '/' + subdevice.uuid + '/0');
         };
 
     });

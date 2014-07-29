@@ -56,6 +56,10 @@ systemApp.controller('HeaderCtrl',
         };
 
         $scope.$on('$locationChangeSuccess', function () {
+            if(!$rootScope.loggedin){
+                $scope.showLogout = false;
+                $scope.backbtn = false;
+            }
             if ($rootScope.matchRoute('/setting')) {
                 $scope.showLogout = true;
             } else {
@@ -77,14 +81,6 @@ systemApp.controller('HeaderCtrl',
 
 systemApp.controller('FooterCtrl',
     function ($rootScope, $scope) {
-        $scope.init = function () {
-            $rootScope.ready(function () {
-                if (!$rootScope.isAuthenticated()) {
-                    $scope.disabled = true;
-                    return;
-                }
-            });
-        };
 
         $scope.isActive = function (route) {
             if (route === '/') {

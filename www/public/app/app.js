@@ -2,6 +2,7 @@
 
 angular.module('main', [
     'ngRoute',
+    'ngSanitize',
     'ui.route',
     'main.system',
     'main.user',
@@ -25,6 +26,6 @@ angular.module('main.activity', []);
 angular.module('main.home', []);
 angular.module('main.messages', []);
 angular.module('main.setting', []);
-angular.module('main.sensors', ['ngSanitize']);
+angular.module('main.sensors', []);
 angular.module('main.plugins', []);
 angular.module('main.flows', []);

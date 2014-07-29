@@ -12,8 +12,8 @@ angular.module('main.setting')
         $rootScope.loading = true;
 
         // Set up minutes
-        $scope.minutes = [];
-        for (var i = 0; i < (60 * 3); i++) {
+        $scope.minutes = [ 0.15 ];
+        for (var i = 1; i < 179; i++) {
             $scope.minutes.push(i);
         }
 
@@ -85,6 +85,25 @@ angular.module('main.setting')
             } else {
                 $scope.skynettoken_dummy = tokenmask;
             }
+        };
+
+        $scope.bgInfo = function(){
+            $rootScope.alertModal('Background Information',
+                'If background location updates are enabled, ' +
+                    'your device will send data to Meshblu when ' +
+                    'there is a significant change in your background location. ' +
+                    'By default background location is default. '
+            );
+        };
+
+        $scope.updateInfo = function(){
+            $rootScope.alertModal('Sensor Information',
+                    'Sensors ( Compass, Accelerometer, Geolocation )' +
+                    ' are sent to Meshblu on a specific interval ' +
+                        'which you can adjust on the settings page. ' +
+                        'Sensors can also be individually enabled or disabled. ' +
+                        'By default sensor\'s are disabled. '
+            );
         };
 
     });

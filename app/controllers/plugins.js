@@ -86,8 +86,9 @@ angular.module('main.plugins')
                 .then(function (plugin) {
                     $rootScope.loading = false;
                     $scope.plugin = plugin;
-                    var subdeviceID = $scope.addSubdevice();
-                    window.location = 'index.html#!/plugins/device/' + plugin.name + '/' + subdeviceID + '/1';
+
+                    $scope.addDevice();
+
                 }, function (err) {
                     console.log('Error ', err);
                     $scope.$apply(function () {
@@ -145,18 +146,15 @@ angular.module('main.plugins')
         };
 
         $scope.findOne = function (cb) {
+
             $rootScope.pluginReady(function () {
                 $scope.getPlugins();
 
-                for (var x in $scope.plugins) {
-                    var plugin = $scope.plugins[x];
-                    if (plugin.name === $routeParams.pluginName) {
-                        $scope.plugin = plugin;
-                        break;
-                    }
-                }
+                var plugins = _.where($scope.plugins, { name : $routeParams.pluginName });
 
-                if (!$scope.plugin) {
+                if(plugins && plugins[0]){
+                    $scope.plugin = plugins[0];
+                }else{
                     console.log('Cant find plugin :: ' + JSON.stringify($routeParams));
                     return;
                 }
@@ -164,6 +162,7 @@ angular.module('main.plugins')
                 if (!$scope.plugin.subdevices) {
                     $scope.plugin.subdevices = [];
                 }
+                console.log('Plugins::' + JSON.stringify($scope.plugin));
 
                 $rootScope.loading = false;
                 if (typeof cb === 'function') {
@@ -197,9 +196,9 @@ angular.module('main.plugins')
         };
 
         $scope.addSubdevice = function (select) {
-            var id = createID();
+            var uuid = createID();
             var subdevice = {
-                _id: id,
+                uuid: uuid,
                 name: $scope.getSubdevicesName($scope.plugin.name),
                 type: $scope.plugin.name,
                 options: {
@@ -208,7 +207,7 @@ angular.module('main.plugins')
             };
             $scope.plugin.subdevices.push(subdevice);
             if (select) $scope.selectSubdevice(subdevice);
-            return id;
+            return uuid;
         };
 
         $scope.editDevice = function () {
@@ -216,13 +215,8 @@ angular.module('main.plugins')
         };
 
         $scope.deleteDevice = function () {
-            for (var x in $scope.plugin.subdevices) {
-                var device = $scope.plugin.subdevices[x];
-                if (device._id === $scope.subdevice._id) {
-                    $scope.plugin.subdevices.splice(x, 1);
-                    break;
-                }
-            }
+
+            _.remove($scope.plugin.subdevices, { uuid : $scope.subdevice.uuid });
 
             window.octobluMobile.triggerDeviceEvent(
                 $scope.subdevice,
@@ -240,25 +234,35 @@ angular.module('main.plugins')
         $scope.addDevice = function () {
             $scope.addSubdevice(true);
             $scope.writePlugin();
-            $location.path('/plugins/device/' + $scope.subdevice.type + '/' + $scope.subdevice._id + '/1');
+            $timeout(function(){
+                $location.path('/plugins/device/' + $scope.subdevice.type + '/' + $scope.subdevice.uuid + '/1');
+            }, 0);
         };
 
         $scope.goToDevice = function (subdevice) {
             console.log('Subdevice :: ' + JSON.stringify(subdevice));
-            $location.path('/plugins/device/' + subdevice.type + '/' + subdevice._id + '/0');
+            $location.path('/plugins/device/' + subdevice.type + '/' + subdevice.uuid + '/0');
         };
 
         $scope.loadSubdevice = function () {
-            $scope.edit = !!parseInt($routeParams.configure);
-            $scope.findOne(function () {
-                for (var x in $scope.plugin.subdevices) {
-                    var subdevice = $scope.plugin.subdevices[x];
-                    if (subdevice._id === $routeParams.deviceId) {
-                        $scope.selectSubdevice(subdevice);
-                        return;
+            var uuid = $routeParams.deviceId;
+            if(uuid && uuid.length){
+                $scope.edit = !!parseInt($routeParams.configure);
+                $scope.findOne(function () {
+
+                    var subdevice = _.where($scope.plugin.subdevices, { uuid : uuid });
+
+                    if(subdevice && subdevice[0]){
+                        subdevice = subdevice[0];
+                    }else{
+                        $rootScope.redirectToCustomError('Device Not Found');
                     }
-                }
-            });
+                    console.log('subdevice', JSON.stringify(subdevice), JSON.stringify(uuid));
+                    $scope.selectSubdevice(subdevice);
+                });
+            }else{
+                $rootScope.redirectToCustomError('Device Not Found');
+            }
         };
 
         $scope.selectSubdevice = function (subdevice) {
@@ -267,6 +271,8 @@ angular.module('main.plugins')
             var options = subdevice.options || {};
 
             $scope.schemaEditor = {};
+
+            console.log('subdevice ', JSON.stringify(subdevice));
 
             window.octobluMobile.triggerPluginEvent(
                 $scope.plugin,
@@ -284,22 +290,30 @@ angular.module('main.plugins')
         };
 
         $scope.savePlugin = function () {
-            $scope.subdevice.options = $scope.schemaEditor.getValue();
+            if($scope.schemaEditor && $scope.schemaEditor.getValue){
+                $scope.subdevice.options = $scope.schemaEditor.getValue();
+            }
             $scope.writePlugin();
         };
 
         $scope.writePlugin = function () {
             if ($scope.subdevice) {
-                for (var x in $scope.plugin.subdevices) {
-                    var device = $scope.plugin.subdevices[x];
-                    if (device._id === $scope.subdevice._id) {
-                        $scope.plugin.subdevices[x] = $scope.subdevice;
-                        break;
-                    }
+                var x = _.findIndex($scope.plugin.subdevices, { uuid : $scope.subdevice.uuid });
+                if(~x){
+                    $scope.plugin.subdevices[x] = $scope.subdevice;
+                }else{
+                    $scope.plugin.subdevices.push($scope.subdevice);
                 }
             }
 
-            window.octobluMobile.writePlugin($scope.plugin, true, true);
+            window.octobluMobile.writePlugin($scope.plugin, false, true);
+
+            if($scope.subdevice){
+                console.log('Init subdevice', JSON.stringify($scope.subdevice));
+                window.octobluMobile.initDevice($scope.subdevice);
+            }else{
+                window.octobluMobile.initPlugin($scope.plugin);
+            }
         }
 
         $scope.toggleEnabled = function () {

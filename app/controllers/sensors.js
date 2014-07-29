@@ -83,7 +83,7 @@ angular.module('main.sensors')
                         }
                     },
                     function (err) {
-                        alert('Error: ' + err.code);
+                        $rootScope.alertModal('Error', err.toString());
                     });
             }
         };

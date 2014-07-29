@@ -96,6 +96,8 @@ angular.module('main')
             }
         };
 
+        $rootScope.footerDisabled = false;
+
         $rootScope.isAuthenticated = function () {
             if (!$rootScope.loggedin && !$rootScope.matchRoute('/set')) {
                 if (!$rootScope.matchRoute('/login')) {
@@ -197,8 +199,9 @@ angular.module('main')
         };
 
         $rootScope.skynetInit = function () {
-            _skynetInit()
+            return _skynetInit()
                 .then(function () {
+                    var deferred = $q.defer();
 
                     $rootScope.setSettings();
 
@@ -212,6 +215,10 @@ angular.module('main')
                     $rootScope.isAuthenticated();
 
                     $rootScope.loading = false;
+
+                    deferred.resolve();
+
+                    return deferred.promise;
 
                 }, $rootScope.redirectToError);
         };
@@ -236,5 +243,20 @@ angular.module('main')
         $rootScope.setSettings();
 
         $rootScope.isAuthenticated();
+
+
+        $rootScope.alertModal = function(title, msg){
+            $rootScope.globalModal = {};
+            $rootScope.globalModal.title = title;
+            $rootScope.globalModal.msg = msg;
+
+            $('#globalModal').addClass('active');
+        };
+
+        $rootScope.closeModal = function(){
+            $rootScope.globalModal = {};
+            $('#globalModal').removeClass('active');
+
+        };
 
     });

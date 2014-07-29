@@ -26,6 +26,7 @@ angular.module('main.user')
             } else {
                 var uuid = getParam('uuid'), token = getParam('token');
                 if(!uuid && !token){
+                    $rootScope.setSettings();
                     uuid = $rootScope.settings.skynetuuid;
                     token = $rootScope.settings.skynettoken;
                 }
@@ -89,15 +90,6 @@ angular.module('main.user')
             return processCurrentUser(result.data);
         }
 
-        function signupHandler(result) {
-            if (result && !/^3\d{2}$/.test(result.status)) {
-                logoutHandler();
-                throw result.data;
-            }
-
-            return getCurrentUser().then(loginHandler);
-        }
-
         function logoutHandler() {
             angular.copy({}, currentUser);
 
@@ -105,66 +97,73 @@ angular.module('main.user')
             window.localStorage.removeItem('skynettoken');
 
             window.Skynet.logout();
+
+            $rootScope.setSettings();
         }
 
         return service = {
             acceptTerms: function () {
-                return $http.put(baseUrl + '/api/auth/accept_terms',
-                    { accept_terms: true },
-                    function (response) {
+                $rootScope.setSettings();
+                return $http(
+                    {
+                        url: baseUrl + '/api/auth/accept_terms',
+                        method: 'PUT',
+                        headers: {
+                            skynet_auth_uuid: $rootScope.settings.skynetuuid,
+                            skynet_auth_token: $rootScope.settings.skynettoken
+                        },
+                        data: { accept_terms: true }
+                    }).then(function (response) {
                         if (response.status !== 204) {
-                            throw response.data;
+                            $rootScope.redirectToError(response.data);
                         }
-                    }).then(function () {
                         return service.getCurrentUser(true);
-                    });
+                    }, $rootScope.redirectToError);
+            },
+            checkTerms: function () {
+                $rootScope.setSettings();
+                return $http(
+                    {
+                        url: baseUrl + '/api/user/terms_accepted',
+                        method: 'GET',
+                        headers: {
+                            skynet_auth_uuid: $rootScope.settings.skynetuuid,
+                            skynet_auth_token: $rootScope.settings.skynettoken
+                        }
+                    }).then(function (response) {
+                        var deferred = $q.defer();
+
+                        if (response.status !== 204) {
+                            deferred.reject();
+                        }else{
+                            deferred.resolve();
+                        }
+                        return deferred.promise;
+                    }, $rootScope.redirectToError);
             },
             login: function (email, password) {
+
                 return $http.post(baseUrl + '/api/auth', {
                     email: email,
                     password: password
                 }).then(loginHandler, function (err) {
                     logoutHandler(err);
-                    throw err;
+                    $rootScope.redirectToError(err);
                 });
             },
 
             signup: function (email, password) {
-                return $http.post(baseUrl + '/api/auth', {
+                return $http.post(baseUrl + '/signup', {
                     email: email,
                     password: password
-                }).then(signupHandler, function (err) {
+                }).then(loginHandler, function (err) {
                     logoutHandler(err);
-                    throw err;
+                    $rootScope.redirectToError(err);
                 });
             },
 
             logout: function () {
                 return $http.delete(baseUrl + '/api/auth').then(logoutHandler, logoutHandler);
-            },
-
-            resetPassword: function (email) {
-                return $http.post(baseUrl + '/api/reset', {email: email}).then(function (response) {
-                    if (response.status !== 201) {
-                        throw response.data;
-                    }
-                });
-            },
-
-            setPassword: function (resetToken, password) {
-                return $http.put(baseUrl + '/api/reset/' + resetToken, {password: password}).then(function (response) {
-                    if (response.status !== 204) {
-                        throw response.data;
-                    }
-                });
-            },
-
-            updatePassword: function (oldPassword, newPassword) {
-                return $http.put(baseUrl + '/api/auth/password', {oldPassword: oldPassword, newPassword: newPassword}).then(function (response) {
-                    if (response.status !== 204) {
-                        throw response.data;
-                    }
-                });
             },
 
             getCurrentUser: getCurrentUser

@@ -2005,6 +2005,34 @@ obj.each = function (cb) {
     obj.plugins.forEach(cb);
 };
 
+obj.findInstance = function (match) {
+
+    if (!obj.instances.length) {
+        return null;
+    }
+
+    var foundKey = null;
+
+    _.each(_.keys(obj.instances), function (key) {
+        var ins = obj.instances[key];
+        if (ins.uuid === match || ins.name === match) {
+            foundKey = match;
+        }
+    });
+
+    if (foundKey && obj.instances[foundKey]) {
+        return obj.instances[foundKey];
+    } else {
+        return null;
+    }
+};
+
+obj.pluginIsLoaded = function (name) {
+    return _.findIndex(_.keys(obj.instances), function (key) {
+        return obj.instances[key].type === name;
+    });
+};
+
 obj.findPlugin = function (name) {
     // If already cached
     var index = obj.pluginsIndex[name];
@@ -2034,7 +2062,8 @@ obj.getSubdevices = function () {
         var subdevices = [];
         try {
             subdevices = JSON.parse(window.localStorage.getItem('subdevices'));
-        } catch (e) {}
+        } catch (e) {
+        }
 
         return subdevices;
     };
@@ -2059,7 +2088,7 @@ obj.writePlugin = function (json, init, removing) {
                 var found = false;
                 for (var x in json.subdevices) {
                     var d = json.subdevices[x];
-                    if (d._id === item._id) {
+                    if (d.uuid === item.uuid) {
                         found = true;
                         break;
                     }
@@ -2108,12 +2137,12 @@ obj.removePlugin = function (plugin) {
 
     var deleted = false;
     plugin.subdevices
-        .forEach(function(subdevice){
-            delete obj.instances[subdevice.name];
+        .forEach(function (subdevice) {
+            delete obj.instances[subdevice.uuid];
             deleted = true;
         });
 
-    if(deleted)
+    if (deleted)
         deferred.resolve();
     else
         deferred.reject();
@@ -2171,7 +2200,14 @@ obj.retrieveFromStorage = function () {
             return;
         }
 
-        plugins[i].subdevices = plugin.subdevices || [];
+        var subdevices = plugin.subdevices || [];
+
+        subdevices = _.map(subdevices, function (subdevice) {
+            if (!subdevice.uuid) subdevice.uuid = createID();
+            return subdevice;
+        });
+
+        plugins[i].subdevices = subdevices;
 
         obj.pluginsIndex[plugin.name] = i;
     });
@@ -2211,7 +2247,7 @@ obj.retrievePlugins = function () {
     return deferred.promise;
 };
 
-obj.download = function(plugin){
+obj.download = function (plugin) {
     var deferred = Q.defer();
     var entry,
         fileTransfer = new FileTransfer(),
@@ -2237,17 +2273,17 @@ obj.download = function(plugin){
         var file = '/bundle.js';
         fileTransfer.download(
             uri,
-            steroids.app.absoluteUserFilesPath + '/' + directories.join('/') + file,
+                steroids.app.absoluteUserFilesPath + '/' + directories.join('/') + file,
             function (entry) {
                 console.log('download complete: ' + entry.toURL());
 
                 plugin._url = entry.toURL();
                 plugin._path = '/plugins/' + plugin.name + file;
 
-                if(!plugin.subdevices) plugin.subdevices = [];
+                if (!plugin.subdevices) plugin.subdevices = [];
 
                 obj.loadPlugin(plugin)
-                    .done(function(){
+                    .done(function () {
                         deferred.resolve(plugin);
                     }, deferred.reject);
             },
@@ -2274,15 +2310,15 @@ obj.loadScript = function (json) {
     var deferred = Q.defer();
 
     var path = json._path || obj.pluginsDir + json.name + '/bundle.js';
-    var script = $('script[src="'+path+'"]');
-    if(script.size()){
+    var script = $('script[src="' + path + '"]');
+    if (script.size()) {
         script.remove();
-        if(json.subdevices && json.subdevices.length){
+        if (json.subdevices && json.subdevices.length) {
             json.subdevices
-                .forEach(function(subdevice){
-                    if(obj.instances[subdevice.name]) delete obj.instances[subdevice.name];
-                    var camel = subdevice.name.toCamel();
-                    if(window.skynetPlugins[camel]) delete window.skynetPlugins[camel];
+                .forEach(function (subdevice) {
+                    if (obj.instances[subdevice.uuid]) delete obj.instances[subdevice.uuid];
+                    var camel = subdevice.type.toCamel();
+                    if (window.skynetPlugins[camel]) delete window.skynetPlugins[camel];
                 });
         }
     }
@@ -2293,10 +2329,10 @@ obj.loadScript = function (json) {
         })
         .fail(function (jqxhr, settings, exception) {
             console.log('Script (' + path + ') Failed to load :: ' + jqxhr.status + ' Settings : ' + JSON.stringify(settings) + ' Exception : ' + exception.toString());
-            if(jqxhr.status === 404){
+            if (jqxhr.status === 404) {
                 obj.download(json)
                     .done(deferred.resolve, deferred.reject);
-            }else{
+            } else {
                 deferred.reject();
             }
         });
@@ -2318,7 +2354,7 @@ obj.loadPluginScripts = function () {
             var plugin = obj.plugins[x];
 
             if (!plugin) continue;
-            if (obj.instances[plugin.name]) {
+            if (obj.findInstance(plugin.uuid)) {
                 continue;
             }
 
@@ -2370,15 +2406,19 @@ obj.loadPlugin = function (data) {
         console.log('Wrote plugin in load plugin');
     }
     var found = obj.findPlugin(name);
-    if (!~found || !obj.instances[name]) {
+    if (!~found || !~obj.pluginIsLoaded(name)) {
         console.log('Installing Plugin', name);
-        return obj.registerPlugin(name)
+        obj.registerPlugin(name)
             .then(function () {
+                console.log('Registered plugin');
                 found = obj.findPlugin(name);
                 var plugin = obj.plugins[found];
+
                 obj.loadScript(plugin)
-                    .then(obj.initPlugin)
-                    .done(deferred.resolve, deferred.reject);
+                    .then(function () {
+                        obj.initPlugin(plugin);
+                        deferred.resolve();
+                    });
             });
     } else {
         var plugin = obj.plugins[found];
@@ -2396,14 +2436,14 @@ obj.mapPlugins = function () {
     });
 };
 
-obj.initPlugin = function(plugin){
+obj.initPlugin = function (plugin) {
     var deferred = Q.defer()
 
-    if(plugin.enabled){
+    if (plugin.enabled) {
         plugin.subdevices.forEach(function (subdevice) {
             obj.initDevice(subdevice);
         });
-    }else{
+    } else {
         console.log('Plugin Disabled');
     }
 
@@ -2414,7 +2454,7 @@ obj.initPlugin = function(plugin){
 
 // Individual Plugin Object
 obj.initDevice = function (subdevice) {
-    console.log('INIT DEVICE :: ' + subdevice.name);
+    console.log('INIT DEVICE = ' + subdevice.name + ' :: uuid = ' + subdevice.uuid);
 
     var pluginObj;
 
@@ -2427,20 +2467,27 @@ obj.initDevice = function (subdevice) {
     try {
 
         pluginObj = p ? new p.Plugin(
-                obj.Messenger,
+            obj.Messenger,
                 subdevice.options || {},
-                obj.api,
-                subdevice.name
-            ) : null;
+            obj.api,
+            {
+                uuid: subdevice.uuid,
+                name: subdevice.name
+            }
+        ) : null;
 
         var found = obj.findPlugin(subdevice.type);
-        if (~found) {
-            obj.plugins[found].optionsSchema = p.optionsSchema;
-            obj.plugins[found].messageSchema = p.messageSchema;
+        if (p && ~found) {
+            if (p.optionsSchema) {
+                obj.plugins[found].optionsSchema = p.optionsSchema;
+            }
+            if (p.messageSchema) {
+                obj.plugins[found].messageSchema = p.messageSchema;
+            }
         }
 
     } catch (e) {
-        console.log(e);
+        console.log('Error Initing', e);
         pluginObj = null;
     }
 
@@ -2448,25 +2495,26 @@ obj.initDevice = function (subdevice) {
         pluginObj.getDefaultOptions = p.getDefaultOptions;
     }
 
-    obj.instances[subdevice.name] = pluginObj;
+    if(pluginObj)
+        obj.instances[subdevice.uuid] = pluginObj;
 
     return pluginObj;
 
 };
 
-obj.triggerDeviceEvent = function(subdevice, event){
+obj.triggerDeviceEvent = function (subdevice, event) {
 
     var deferred = Q.defer();
 
-    var Plugin = obj.instances[subdevice.name];
+    var Plugin = obj.instances[subdevice.uuid];
 
     if (Plugin) {
 
         if (typeof Plugin[event] === 'function') {
 
-            try{
+            try {
                 Plugin[event].call(Plugin, deferred.resolve);
-            }catch(e){
+            } catch (e) {
                 deferred.resolve('Error Triggering Event');
                 return;
             }
@@ -2476,7 +2524,7 @@ obj.triggerDeviceEvent = function(subdevice, event){
             deferred.resolve('No event found for plugin');
         }
 
-    }else{
+    } else {
         deferred.resolve('No plugin found :: ' + subdevice.name);
     }
 
@@ -2509,7 +2557,7 @@ obj.triggerPluginEvent = function (plugin, event) {
             return deferred.reject('Not a valid event');
     }
 
-    if(!pluginMethod){
+    if (!pluginMethod) {
         var promises = [];
 
         plugin.subdevices
@@ -2519,17 +2567,18 @@ obj.triggerPluginEvent = function (plugin, event) {
 
         Q.all(promises)
             .done(deferred.resolve, deferred.resolve);
-    }else{
+    } else {
+        console.log('Subdevices :: ' + JSON.stringify(plugin.subdevices));
         var first = plugin.subdevices[0] || null;
-        if(first) {
+        if (first) {
             obj.triggerDeviceEvent(first, event)
-                .done(function(err, o){
-                    if(err) console.log('Error', err);
+                .done(function (err, o) {
+                    if (err) console.log('Error', err);
                     console.log('Response', JSON.stringify(o));
-                    deferred.resolve();
+                    deferred.resolve(err, o);
                 }, deferred.resolve);
-        }else{
-            deferred.reject();
+        } else {
+            deferred.resolve();
         }
     }
 
@@ -2545,13 +2594,13 @@ obj.startListen = function () {
 
             try {
 
-                if (typeof data === "string") {
+                if (typeof data === 'string') {
                     data = JSON.parse(data);
                 }
 
                 if (data.subdevice) {
 
-                    var instance = obj.instances[data.subdevice];
+                    var instance = obj.findInstance(data.subdevice);
 
                     if (instance && instance.onMessage) {
 
@@ -2650,8 +2699,8 @@ obj.init = function () {
 var octobluMobile = {
     init: obj.init,
     plugins: {},
-    initPlugin : obj.initPlugin,
-    initDevice : obj.initDevice,
+    initPlugin: obj.initPlugin,
+    initDevice: obj.initDevice,
     getPlugins: obj.getPlugins,
     download: obj.download,
     getSubdevices: obj.getSubdevices,
@@ -2660,7 +2709,7 @@ var octobluMobile = {
     writePlugin: obj.writePlugin,
     loadPlugin: obj.loadPlugin,
     clearStorage: obj.clearStorage,
-    triggerDeviceEvent : obj.triggerDeviceEvent
+    triggerDeviceEvent: obj.triggerDeviceEvent
 };
 
 module.exports = octobluMobile;

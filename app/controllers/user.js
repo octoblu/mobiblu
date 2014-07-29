@@ -16,16 +16,38 @@ angular.module('main.user')
             window.open('http://app.octoblu.com/auth/' + provider + '?js=1&referrer=' + encodeURIComponent('http://localhost/index.html#!/set'), '_self', 'location=yes');
         };
 
+        function afterLogin(){
+            Auth.checkTerms().then(function(){
+                console.log('Terms Accepted');
+
+                $timeout(function(){
+                    $rootScope.setSettings();
+
+                    $rootScope.loading = false;
+                    $location.path('/');
+                }, 0);
+
+            }, function(){
+                console.log('Terms not Accepted');
+                $timeout(function(){
+                    $rootScope.loading = false;
+                    $location.path('/accept_terms');
+                }, 0);
+            });
+
+        }
+
         $scope.loginMethod = function(){
             $rootScope.loading = true;
             Auth.login($scope.user.email, $scope.user.password)
                 .then(function(){
-                    $rootScope.skynetInit();
-                    $timeout(function(){
-                        $scope.error = '';
-                        $rootScope.loading = false;
-                        $location.path('/');
-                    }, 0);
+                    console.log('Logged In');
+                    $rootScope.skynetInit()
+                        .then(function(){
+                            afterLogin();
+                        });
+
+
                 }, function(err){
                     console.log('Error', err);
                     $timeout(function(){
@@ -63,11 +85,10 @@ angular.module('main.user')
                 .then(function(){
                     console.log('Signed up');
                     $scope.error = '';
-                    $scope.loading = false;
-                    $rootScope.skynetInit();
-                    $timeout(function(){
-                        $location.path('/');
-                    }, 0);
+                    $rootScope.skynetInit()
+                        .then(function(){
+                            afterLogin();
+                        });
                 }, function(err){
                     console.log('Error', err);
                     $scope.error = 'Error logging in!';
@@ -90,5 +111,18 @@ angular.module('main.user')
                     alert('Error');
                 });
         };
+
+        $scope.getTerms = function(){
+            $('#terms')
+                .load('https://app.octoblu.com/pages/terms.html', function(){
+
+                    var imgs = $('#terms img');
+                    imgs.each(function(){
+                        var src = $(this).attr('src');
+                        $(this).attr('src', 'http://app.octoblu.com/' + src);
+                    });
+
+                });
+        }
 
     });
