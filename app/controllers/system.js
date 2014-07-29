@@ -81,14 +81,6 @@ systemApp.controller('HeaderCtrl',
 
 systemApp.controller('FooterCtrl',
     function ($rootScope, $scope) {
-        $scope.init = function () {
-            $rootScope.ready(function () {
-                if (!$rootScope.isAuthenticated()) {
-                    $scope.disabled = true;
-                    return;
-                }
-            });
-        };
 
         $scope.isActive = function (route) {
             if (route === '/') {

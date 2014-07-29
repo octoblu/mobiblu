@@ -262,6 +262,8 @@ app.register = function (registered) {
 app.skynet = function () {
     var deferred = Q.defer();
 
+    console.log('Connecting Creds: ', JSON.stringify([app.mobileuuid, app.mobiletoken]));
+
     var conn = skynet.createConnection({
         uuid: app.mobileuuid,
         token: app.mobiletoken
