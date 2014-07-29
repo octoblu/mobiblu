@@ -1,4 +1,4 @@
-<div ng-controller="UserCtrl">
-    <div ng-include src="https://app.octoblu.com/public/pages/term.html"></div>
+<div ng-controller="UserCtrl" ng-init="getTerms()">
+    <div id="terms"></div>
     <button class="btn btn-block btn-positive btn-outlined" ng-click="acceptTerms()">Accept Terms of Service</button>
 </div>

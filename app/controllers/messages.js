@@ -82,7 +82,7 @@ angular.module('main.messages')
             var promise = OctobluRest.getDevices($scope.skynetuuid, $scope.skynettoken);
 
             promise.then(function (res) {
-                var myDevices = res.data;
+                var myDevices = res ? res.data : [];
                 console.log('Retrieved devices');
                 $scope.devices = $scope.getGateways(myDevices);
 

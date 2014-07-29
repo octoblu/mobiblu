@@ -112,4 +112,17 @@ angular.module('main.user')
                 });
         };
 
+        $scope.getTerms = function(){
+            $('#terms')
+                .load('https://app.octoblu.com/pages/terms.html', function(){
+
+                    var imgs = $('#terms img');
+                    imgs.each(function(){
+                        var src = $(this).attr('src');
+                        $(this).attr('src', 'http://app.octoblu.com/' + src);
+                    });
+
+                });
+        }
+
     });
