@@ -13,7 +13,7 @@ angular.module('main.user')
 
         $scope.loginViaProvider = function(provider){
             $rootScope.loading = true;
-            window.open('http://app.octoblu.com/auth/' + provider + '?js=1&referrer=' + encodeURIComponent('http://localhost/index.html#!/set'), '_self', 'location=yes');
+            window.open('https://app.octoblu.com/auth/' + provider + '?js=1&referrer=' + encodeURIComponent('http://localhost/index.html#!/set'), '_self', 'location=yes');
         };
 
         function afterLogin(){
@@ -119,7 +119,7 @@ angular.module('main.user')
                     var imgs = $('#terms img');
                     imgs.each(function(){
                         var src = $(this).attr('src');
-                        $(this).attr('src', 'http://app.octoblu.com/' + src);
+                        $(this).attr('src', 'https://app.octoblu.com/' + src);
                     });
 
                 });

@@ -1,7 +1,7 @@
 angular.module('main.user')
     .service('Auth', function ($q, $http, $rootScope) {
         var currentUser = {},
-            baseUrl = 'http://app.octoblu.com';
+            baseUrl = 'https://app.octoblu.com';
 
         //TODO: move me to the eventual root controller.
         function getProfileUrl(user) {
@@ -61,6 +61,7 @@ angular.module('main.user')
 
                 window.localStorage.removeItem('mobileuuid');
                 window.localStorage.removeItem('mobiletoken');
+                window.localStorage.removeItem('devicename');
             }
 
             window.localStorage.setItem('skynetuuid', currentUser.skynet.uuid);
@@ -163,7 +164,14 @@ angular.module('main.user')
             },
 
             logout: function () {
-                return $http.delete(baseUrl + '/api/auth').then(logoutHandler, logoutHandler);
+                return $http({
+                        url: baseUrl + '/api/auth',
+                        method: 'DELETE',
+                        headers: {
+                            skynet_auth_uuid: $rootScope.settings.skynetuuid,
+                            skynet_auth_token: $rootScope.settings.skynettoken
+                        }
+                    }).then(logoutHandler, logoutHandler);
             },
 
             getCurrentUser: getCurrentUser

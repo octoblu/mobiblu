@@ -2993,11 +2993,15 @@ obj.sendData = function (uuid, token, data) {
     return deferred.promise;
 };
 
-obj.logout = function () {
+obj.logout = function (uuid, token) {
     var deferred = Q.defer();
     $.ajax({
-        url: 'http://app.octoblu.com/api/auth/logout',
-        method: 'GET',
+        url: 'https://app.octoblu.com/api/auth',
+        method: 'DELETE',
+        headers : {
+            skynet_auth_uuid : uuid,
+            skynet_auth_token : token
+        },
         timeout : 5 * 1000
     })
         .success(deferred.resolve)
