@@ -41,7 +41,7 @@ angular.module('main')
         var redirectToError = function (err, type) {
             if (isErrorPage()) return false;
             clearAppTimeouts();
-            console.log('Error! ', err);
+            console.log('Error! ' + err);
             console.log('Redirecting to "' + type + '" Error');
             setTimeout(function () {
                 $rootScope.$apply(function () {
@@ -88,12 +88,12 @@ angular.module('main')
 
         };
 
-        $rootScope.isSettingUser = function(){
+        $rootScope.isSettingUser = function () {
             var uuid = getParam('uuid'), token = getParam('token');
 
-            if(uuid && token){
+            if (uuid && token) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         };
@@ -101,7 +101,7 @@ angular.module('main')
         $rootScope.footerDisabled = false;
 
         $rootScope.isAuthenticated = function () {
-            if (!$rootScope.loggedin && !$rootScope.matchRoute('/set')) {
+            if (!$rootScope.loggedin) {
                 if (!$rootScope.matchRoute('/login')) {
                     console.log('Redirecting to login');
                     $location.path('/login');
@@ -117,16 +117,18 @@ angular.module('main')
         var pluginReady = _.once(function () {
             var deferred = $q.defer();
 
-            if (pluginsLoaded || isErrorPage()) {
+            if (pluginsLoaded) {
 
                 deferred.resolve();
 
             } else {
-                $(document).one('plugins-loaded', function () {
+
+                $(document).on('plugins-loaded', function () {
                     console.log('Plugins Loaded');
                     pluginsLoaded = true;
                     deferred.resolve();
                 });
+
             }
 
             timeouts.push(setTimeout(deferred.reject, 1000 * 15));
@@ -142,24 +144,25 @@ angular.module('main')
 
         var _skynetInit = function () {
             var deferred = $q.defer();
-            if (isErrorPage()) {
+            if (isErrorPage() && !$rootScope.matchRoute('/login')) {
                 deferred.resolve();
             } else {
-                var currentUser = {};
-                if ($rootScope.loggedin || $rootScope.matchRoute('/set')) {
-                    currentUser = Auth.getCurrentUser();
-                }
-                var uuid, token;
-                if (currentUser && currentUser.skynet) {
-                    uuid = currentUser.skynet.uuid;
-                    token = currentUser.skynet.token;
-                }
+                Auth.getCurrentUser()
+                    .then(function (currentUser) {
+                        var uuid, token;
+                        if (currentUser && currentUser.skynet) {
+                            uuid = currentUser.skynet.uuid;
+                            token = currentUser.skynet.token;
+                        }
 
-                $rootScope.Skynet.init(uuid, token)
-                    .timeout(1000 * 15)
-                    .then(function () {
-                        deferred.resolve();
-                    }, $rootScope.redirectToError);
+                        $rootScope.Skynet.init(uuid, token)
+                            .timeout(1000 * 15)
+                            .then(function () {
+                                clearAppTimeouts();
+                                deferred.resolve();
+                            }, $rootScope.redirectToError);
+                    });
+
             }
             return deferred.promise;
         };
@@ -214,6 +217,8 @@ angular.module('main')
 
                     }
 
+                    loaded = true;
+
                     $rootScope.isAuthenticated();
 
                     $rootScope.loading = false;
@@ -225,7 +230,7 @@ angular.module('main')
                 }, $rootScope.redirectToError);
         };
 
-        var _init = function(){
+        var _init = function () {
 
             $rootScope.skynetInit();
 
@@ -233,23 +238,12 @@ angular.module('main')
 
         };
 
-        if($rootScope.isSettingUser()){
-            Auth.getCurrentUser()
-                .then(function(){
-                    $location.path('/');
-                    _init();
-                }, $rootScope.redirectToError);
-        }else{
-            _init();
-        }
-
-
         $rootScope.setSettings();
 
-        $rootScope.isAuthenticated();
+        _init();
 
 
-        $rootScope.alertModal = function(title, msg){
+        $rootScope.alertModal = function (title, msg) {
             $rootScope.globalModal = {};
             $rootScope.globalModal.title = title;
             $rootScope.globalModal.msg = msg;
@@ -257,7 +251,7 @@ angular.module('main')
             $('#globalModal').addClass('active');
         };
 
-        $rootScope.closeModal = function(){
+        $rootScope.closeModal = function () {
             $rootScope.globalModal = {};
             $('#globalModal').removeClass('active');
 

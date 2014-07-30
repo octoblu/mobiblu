@@ -19,42 +19,45 @@ angular.module('main.user')
 
 
         function getCurrentUser(force) {
+            console.log('Getting User');
             if (currentUser.id && !force) {
                 var defer = $q.defer();
                 defer.resolve(currentUser);
                 return defer.promise;
             } else {
-                var uuid = getParam('uuid'), token = getParam('token');
-                if(!uuid && !token){
-                    $rootScope.setSettings();
-                    uuid = $rootScope.settings.skynetuuid;
-                    token = $rootScope.settings.skynettoken;
-                }
+                var uuid = $rootScope.settings.skynetuuid;
+                var token = $rootScope.settings.skynettoken;
                 var req = {
                     url: baseUrl + '/api/auth',
                     method: 'GET',
                     timeout: 5 * 1000
                 };
-                console.log('Set Data Creds in Auth', JSON.stringify([uuid, token]));
+                console.log('Set Data Creds in Auth.js : ' + JSON.stringify([uuid, token]));
                 if(uuid && token) {
                     req.headers = {
                         skynet_auth_uuid: uuid,
                         skynet_auth_token: token
                     };
-                }
-                return $http(req).then(function(result){
+
+                    return $http(req).then(function(result){
                         loginHandler(result);
                     }, function (err) {
                         logoutHandler(err);
                         throw err;
                     });
+                }else{
+                    var defer = $q.defer();
+                    defer.resolve();
+                    return defer.promise;
+                }
+
             }
         }
 
         function processCurrentUser(data) {
             angular.copy(data, currentUser);
 
-            console.log('User', JSON.stringify(currentUser));
+            console.log('User' +  JSON.stringify(currentUser));
             var olduuid = window.localStorage.getItem('skynetuuid');
 
             if (olduuid &&

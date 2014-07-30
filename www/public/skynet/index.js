@@ -48,9 +48,9 @@ app.setData = function (skynetuuid, skynettoken) {
 
     app.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile';
 
-    console.log('Set Owner UUID', JSON.stringify(app.skynetuuid));
+    console.log('Set Owner UUID : ' + JSON.stringify(app.skynetuuid));
 
-    console.log('Set Data Creds', JSON.stringify([app.mobileuuid, app.mobiletoken]));
+    console.log('Set Data Creds : ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
     if (!app.settings ||
         !app.settings.length) app.settings = app.defaultSettings;

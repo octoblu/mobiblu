@@ -12,8 +12,8 @@ String.prototype.toUnderscore = function(){
 };
 
 (function(global){
-    global.getParam = function (variable) {
-        var url = window.location.href;
+    global.getParam = function (variable, url) {
+        if(!url) url = window.location.href;
         if(!~url.indexOf('?')){
             return false;
         }
@@ -22,7 +22,7 @@ String.prototype.toUnderscore = function(){
         for (var i = 0; i < vars.length; i++) {
             var pair = vars[i].split('=');
             if (pair[0] === variable) {
-                return pair[1];
+                return decodeURIComponent(pair[1]);
             }
         }
         return false;

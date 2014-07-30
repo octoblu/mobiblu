@@ -7,29 +7,95 @@ angular.module('main.user')
 
         $scope.user = {};
 
-        $scope.init = function(){
+        $scope.init = function () {
             $scope.error = '';
         };
 
-        $scope.loginViaProvider = function(provider){
-            $rootScope.loading = true;
-            window.open('http://app.octoblu.com/auth/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent('http://localhost/index.html#!/set'), '_self', 'location=yes');
+        $scope.loginViaProvider = function (provider) {
+            var authWindow = window.open('http://app.octoblu.com/auth/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_blank', 'location=no,toolbar=no');
+
+            $(authWindow).on('loadstart', function (e) {
+                var url = e.originalEvent.url;
+                var uuid = /\?uuid=(.+)$/.exec(url);
+
+                console.log('Auth window loading url : ', url);
+
+                if (uuid) {
+                    authWindow.close();
+                    var newskynetuuid = getParam('uuid', url),
+                        newskynettoken = getParam('token', url),
+                        skynetuuid = window.localStorage.getItem('skynetuuid'),
+                        skynettoken = window.localStorage.getItem('skynettoken');
+
+                    var invalidLogin = false;
+                    if (newskynetuuid === 'undefined') {
+                        newskynetuuid = null;
+                        invalidLogin = true;
+                    }
+                    if (newskynettoken === 'undefined') {
+                        newskynettoken = null;
+                        invalidLogin = true;
+                    }
+
+                    console.log('Skynet UUID: ' + skynetuuid);
+                    console.log('Skynet Token: ' + skynettoken);
+                    console.log('NEW Skynet UUID: ' + newskynetuuid);
+                    console.log('NEW Skynet Token: ' + newskynettoken);
+                    // Set new Skynet Tokens
+                    if (newskynetuuid && newskynettoken) {
+                        console.log('Setting new credentials');
+                        // If user changed then do delete the mobileuuid && mobiletoken
+                        if (skynetuuid && skynetuuid !== newskynetuuid) {
+                            console.log('Setting new mobile credentials');
+                            window.localStorage.removeItem("mobileuuid");
+                            window.localStorage.removeItem("mobiletoken");
+                        }
+                        window.localStorage.setItem("skynetuuid", newskynetuuid);
+                        window.localStorage.setItem("skynettoken", newskynettoken);
+                        window.localStorage.setItem('loggedin', true);
+
+                        $rootScope.loggedin = true;
+                        $rootScope.Skynet.login(newskynetuuid, newskynettoken);
+                    } else if (invalidLogin || ( !newskynetuuid && !newskynettoken )) {
+                        console.log('No Credentials' + JSON.stringify([newskynetuuid, newskynettoken]));
+                        window.location = 'error.html';
+                        window.location = 'error.html';
+                        return;
+                    } else {
+                        console.log('No Credentials' + JSON.stringify([newskynetuuid, newskynettoken]));
+                        window.location = 'error.html';
+                        return;
+                    }
+
+                    console.log('About to Re-initialize skynet');
+
+                    $rootScope.setSettings();
+
+                    $rootScope.skynetInit()
+                        .then(function () {
+                            $timeout(function () {
+                                $location.path('/');
+                            }, 0);
+                        });
+                }
+
+            });
         };
 
-        function afterLogin(){
-            Auth.checkTerms().then(function(){
+        function afterLogin() {
+            Auth.checkTerms().then(function () {
                 console.log('Terms Accepted');
 
-                $timeout(function(){
+                $timeout(function () {
                     $rootScope.setSettings();
 
                     $rootScope.loading = false;
                     $location.path('/');
                 }, 0);
 
-            }, function(){
+            }, function () {
                 console.log('Terms not Accepted');
-                $timeout(function(){
+                $timeout(function () {
                     $rootScope.loading = false;
                     $location.path('/accept_terms');
                 }, 0);
@@ -37,43 +103,43 @@ angular.module('main.user')
 
         }
 
-        $scope.loginMethod = function(){
+        $scope.loginMethod = function () {
             $rootScope.loading = true;
             Auth.login($scope.user.email, $scope.user.password)
-                .then(function(){
+                .then(function () {
                     console.log('Logged In');
                     $rootScope.skynetInit()
-                        .then(function(){
+                        .then(function () {
                             afterLogin();
                         });
 
 
-                }, function(err){
+                }, function (err) {
                     console.log('Error', err);
-                    $timeout(function(){
+                    $timeout(function () {
                         $scope.error = 'Error logging in!';
                         $rootScope.loading = false;
                     }, 0);
                 });
         };
 
-        $scope.signupMethod = function(){
+        $scope.signupMethod = function () {
 
             console.log('Signup Method');
 
-            if(!$scope.user.password || !$scope.user.password.length){
+            if (!$scope.user.password || !$scope.user.password.length) {
                 $scope.error = 'Must have password';
                 console.log($scope.error);
                 return;
             }
 
-            if(!$scope.user.email || !$scope.user.email.length){
+            if (!$scope.user.email || !$scope.user.email.length) {
                 $scope.error = 'Must have email';
                 console.log($scope.error);
                 return;
             }
 
-            if($scope.user.confirm_password !== $scope.user.password){
+            if ($scope.user.confirm_password !== $scope.user.password) {
                 $scope.error = 'Passwords Don\'t Match';
                 console.log($scope.error);
                 return;
@@ -82,42 +148,42 @@ angular.module('main.user')
             $scope.loading = true;
 
             Auth.signup($scope.user.email, $scope.user.password)
-                .then(function(){
+                .then(function () {
                     console.log('Signed up');
                     $scope.error = '';
                     $rootScope.skynetInit()
-                        .then(function(){
+                        .then(function () {
                             afterLogin();
                         });
-                }, function(err){
+                }, function (err) {
                     console.log('Error', err);
                     $scope.error = 'Error logging in!';
                 });
         };
 
-        $scope.hideSignup = function(){
+        $scope.hideSignup = function () {
             $scope.signup = false;
         };
 
-        $scope.showSignup = function(){
+        $scope.showSignup = function () {
             $scope.signup = true;
         };
 
-        $scope.acceptTerms = function(){
+        $scope.acceptTerms = function () {
             Auth.acceptTerms()
-                .then(function(){
+                .then(function () {
                     $location.path('/');
-                }, function(){
+                }, function () {
                     alert('Error');
                 });
         };
 
-        $scope.getTerms = function(){
+        $scope.getTerms = function () {
             $('#terms')
-                .load('http://app.octoblu.com/pages/terms.html', function(){
+                .load('http://app.octoblu.com/pages/terms.html', function () {
 
                     var imgs = $('#terms img');
-                    imgs.each(function(){
+                    imgs.each(function () {
                         var src = $(this).attr('src');
                         $(this).attr('src', 'https://app.octoblu.com/' + src);
                     });

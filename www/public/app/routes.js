@@ -9,9 +9,6 @@ angular.module('main').config(['$routeProvider',
             .when('/login', {
                 templateUrl: '/public/views/user/login.html'
             })
-            .when('/set', {
-                templateUrl: '/public/views/home/dashboard.html'
-            })
             .when('/accept_terms', {
                 templateUrl: '/public/views/user/accept_terms.html'
             })

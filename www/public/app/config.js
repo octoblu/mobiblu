@@ -27,4 +27,5 @@ angular.module('main')
             });
 
         }
-    ]);
+    ])
+    .constant('reservedProperties', ['$$hashKey', '_id']);
