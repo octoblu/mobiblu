@@ -86,12 +86,12 @@
 <body>
     <div id="content">
         <header ng-controller="HeaderCtrl" ng-init="init()" class="bar bar-nav">
-            <button ng-show="backbtn" ng-click="goBack()" class="btn btn-link btn-nav pull-left">
+            <button ng-show="backbtn" ng-click="goBack()" class="ng-hide btn btn-link btn-nav pull-left">
                 <span class="icon icon-left-nav"></span>
                 Back
             </button>
             <h1 class="title">Mobiblu</h1>
-            <button ng-show="loggedin && !showLogout" ng-click="settings()" class="btn btn-link btn-nav pull-right">
+            <button ng-show="loggedin && !showLogout" ng-click="settings()" class="ng-hide btn btn-link btn-nav pull-right">
                 Settings
             </button>
             <button ng-show="loggedin && showLogout" ng-click="logout()" class="btn btn-link btn-nav pull-right">

@@ -259,15 +259,19 @@ app.register = function (registered) {
 
 };
 
-app.skynet = function () {
-    var deferred = Q.defer();
+app.skynet = function (callback, errorCallback) {
 
     console.log('Connecting Creds: ', JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
-    var conn = skynet.createConnection({
-        uuid: app.mobileuuid,
-        token: app.mobiletoken
-    });
+    var o = {};
+    if(app.mobileuuid && app.mobiletoken){
+        o = {
+            uuid: app.mobileuuid,
+            token: app.mobiletoken
+        };
+    }
+
+    var conn = skynet.createConnection(o);
 
     conn.on('ready', function (data) {
         app.conn = conn;
@@ -282,17 +286,15 @@ app.skynet = function () {
         app.mobiletoken = data.token;
 
         console.log('Connected to skynet');
-        deferred.resolve();
+        callback(data);
     });
 
     conn.on('notReady', function (error) {
         console.log('Skynet Error during connect');
         app.conn = conn;
-        deferred.reject(error);
+        errorCallback(error, conn);
     });
-
-    return deferred.promise;
-}
+};
 
 app.connect = function () {
 
@@ -305,8 +307,7 @@ app.connect = function () {
         deferred.resolve();
     } else {
 
-        app.skynet()
-            .then(function () {
+        app.skynet(function () {
                 console.log('Connected');
                 app.updateDeviceSetting({}).then(deferred.resolve, deferred.reject);
             }, function (e, conn) {

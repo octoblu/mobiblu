@@ -1,7 +1,7 @@
 angular.module('main.user')
     .service('Auth', function ($q, $http, $rootScope) {
         var currentUser = {},
-            baseUrl = 'https://app.octoblu.com';
+            baseUrl = 'http://app.octoblu.com';
 
         //TODO: move me to the eventual root controller.
         function getProfileUrl(user) {
@@ -56,6 +56,7 @@ angular.module('main.user')
 
             console.log('User', JSON.stringify(currentUser));
             var olduuid = window.localStorage.getItem('skynetuuid');
+
             if (olduuid &&
                 currentUser.skynet.uuid !== olduuid) {
 

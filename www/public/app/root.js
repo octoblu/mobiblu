@@ -31,7 +31,8 @@ angular.module('main')
         $rootScope.errorMsg = null;
 
         var isErrorPage = function () {
-            if ($rootScope.matchRoute('/error')) {
+            if ($rootScope.matchRoute('/error') ||
+                $rootScope.matchRoute('/login')) {
                 return true;
             }
             return false;
@@ -64,6 +65,7 @@ angular.module('main')
         };
 
         $rootScope.$on('$locationChangeSuccess', function () {
+            $rootScope.loading = false;
             clearAppTimeouts();
             timeouts.push(setTimeout(function () {
                 console.log('Loading :: ' + $rootScope.loading);
@@ -224,17 +226,19 @@ angular.module('main')
         };
 
         var _init = function(){
+
             $rootScope.skynetInit();
 
             _skynetLoad();
-        }
+
+        };
 
         if($rootScope.isSettingUser()){
             Auth.getCurrentUser()
                 .then(function(){
                     $location.path('/');
                     _init();
-                });
+                }, $rootScope.redirectToError);
         }else{
             _init();
         }

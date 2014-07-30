@@ -1,6 +1,6 @@
 {
   "name": "Mobiblu",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "authors": [],
   "ignore": [
     "**/.*",
@@ -11,11 +11,11 @@
     "tests"
   ],
   "dependencies": {
-    "steroids-js": "3.1.x",
+    "steroids-js": "3.5.x",
     "angular": "~1.2.16",
     "underscore": "1.5.1",
     "restangular": "1.0.7",
-    "steroids-addons": "https://21358:GAWAEFDBQM2DXBNK2ZSRV6GG2VTZKJC6K6VTWQACCQYVLBDSLMAT35GPANXMXDFFPWTY32FURQ@addons.appgyver.com/steroids-addons.js?version=3.1.1",
+    "steroids-addons": "https://21358:GAWAEFDBQM2DXBNK2ZSRV6GG2VTZKJC6K6VTWQACCQYVLBDSLMAT35GPANXMXDFFPWTY32FURQ@addons.appgyver.com/steroids-addons.js",
     "angular-route": "~1.2.16",
     "angular-ui-utils": "~0.1.1",
     "angular-sanitize": "~1.2.16",

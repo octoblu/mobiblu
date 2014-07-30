@@ -2,7 +2,7 @@ angular.module('main.octoblu')
     .service('OctobluRest', function ($http, $rootScope) {
 
         var self = this,
-            baseURL = 'https://app.octoblu.com';
+            baseURL = 'http://app.octoblu.com';
 
         self.getDevices = function (uuid, token) {
 
