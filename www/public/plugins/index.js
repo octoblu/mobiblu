@@ -1,7 +1,21 @@
 'use strict';
 
 
-var Q = require('Q');
+var Q = Promise;
+
+var defer = function() {
+    var resolve, reject;
+    var promise = new Promise(function() {
+        resolve = arguments[0];
+        reject = arguments[1];
+    });
+    return {
+        resolve: resolve,
+        reject: reject,
+        promise: promise
+    };
+};
+
 var API = require('./api.js');
 
 var obj = {};
@@ -137,7 +151,7 @@ obj.writePlugin = function (json, init, removing) {
 };
 
 obj.removePlugin = function (plugin) {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     var plugins = obj.getPlugins();
 
@@ -237,7 +251,7 @@ obj.retrieveFromStorage = function () {
 
 // Retrieve Plugins from Storage
 obj.retrievePlugins = function () {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     console.log('Retrieving plugins');
 
@@ -266,7 +280,7 @@ obj.retrievePlugins = function () {
 };
 
 obj.download = function (plugin) {
-    var deferred = Q.defer();
+    var deferred = defer();
     var entry,
         fileTransfer = new FileTransfer(),
         directories = ['plugins', plugin.name],
@@ -325,7 +339,7 @@ obj.download = function (plugin) {
 };
 
 obj.loadScript = function (json) {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     var path = json._path || obj.pluginsDir + json.name + '/bundle.js';
     var script = $('script[src="' + path + '"]');
@@ -361,7 +375,7 @@ obj.loadScript = function (json) {
 
 obj.loadPluginScripts = function () {
 
-    var deferred = Q.defer();
+    var deferred = defer();
 
     if (!obj.plugins || !obj.plugins.length) {
         deferred.resolve();
@@ -390,7 +404,7 @@ obj.loadPluginScripts = function () {
 
 obj.registerPlugin = function (name) {
 
-    var deferred = Q.defer();
+    var deferred = defer();
 
     var found = obj.findPlugin(name);
 
@@ -414,7 +428,7 @@ obj.registerPlugin = function (name) {
 };
 
 obj.loadPlugin = function (data) {
-    var deferred = Q.defer();
+    var deferred = defer();
     var name;
     if (typeof data === 'string') {
         name = data;
@@ -455,7 +469,7 @@ obj.mapPlugins = function () {
 };
 
 obj.initPlugin = function (plugin) {
-    var deferred = Q.defer()
+    var deferred = defer()
 
     if (plugin.enabled) {
         plugin.subdevices.forEach(function (subdevice) {
@@ -522,7 +536,7 @@ obj.initDevice = function (subdevice) {
 
 obj.triggerDeviceEvent = function (subdevice, event) {
 
-    var deferred = Q.defer();
+    var deferred = defer();
 
     var Plugin = obj.instances[subdevice.uuid];
 
@@ -552,7 +566,7 @@ obj.triggerDeviceEvent = function (subdevice, event) {
 
 obj.triggerPluginEvent = function (plugin, event) {
 
-    var deferred = Q.defer();
+    var deferred = defer();
     var pluginMethod = false;
 
     switch (event) {
@@ -654,7 +668,7 @@ obj.startListen = function () {
 };
 
 obj.loadLocalPlugins = function () {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     $.getJSON('/data/local_plugins.json')
         .success(function (json) {
@@ -681,7 +695,7 @@ obj.loadLocalPlugins = function () {
 
 // Called Every Time the App is loaded
 obj.init = function () {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     obj.Skynet = window.Skynet;
     obj.skynetObj = obj.Skynet.getCurrentSettings();

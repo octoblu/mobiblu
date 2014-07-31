@@ -5,7 +5,21 @@ var SkynetRest = require('./skynet.js');
 var Topics = require('./topics.js');
 var Labels = require('./labels.js');
 var activity = require('./activity.js');
-var Q = require('Q');
+
+var Q = Promise;
+
+var defer = function() {
+    var resolve, reject;
+    var promise = new Promise(function() {
+        resolve = arguments[0];
+        reject = arguments[1];
+    });
+    return {
+        resolve: resolve,
+        reject: reject,
+        promise: promise
+    };
+};
 
 var app = {};
 
@@ -89,7 +103,7 @@ app.isAuthenticated = function () {
 };
 
 app.isRegistered = function () {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     app.whoami(null, null)
         .timeout(1000 * 5)
@@ -111,7 +125,7 @@ app.isRegistered = function () {
 };
 
 app.registerPushID = function () {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     document.addEventListener('urbanairship.registration',
         function (event) {
@@ -205,7 +219,7 @@ app.registerDevice = function (newDevice) {
 
     console.log('Registering...');
 
-    var deferred = Q.defer();
+    var deferred = defer();
 
     var regData = app.regData();
 
@@ -237,7 +251,7 @@ app.registerDevice = function (newDevice) {
 app.register = function (registered) {
 
 
-    var deferred = Q.defer();
+    var deferred = defer();
 
     if (registered) {
 
@@ -261,21 +275,21 @@ app.register = function (registered) {
 
 app.skynet = function (callback, errorCallback) {
 
-    console.log('Connecting Creds: ', JSON.stringify([app.mobileuuid, app.mobiletoken]));
+    console.log('Connecting Creds: ' +  JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
-    var o = {};
+    var config = {};
     if(app.mobileuuid && app.mobiletoken){
-        o = {
+        config = {
             uuid: app.mobileuuid,
             token: app.mobiletoken
         };
     }
 
-    var conn = skynet.createConnection(o);
+    var conn = skynet.createConnection(config);
 
     conn.on('ready', function (data) {
         app.conn = conn;
-        console.log(data);
+        console.log('Connected data: ' + JSON.stringify(data));
 
         app.socketid = data.socketid;
 
@@ -300,24 +314,19 @@ app.connect = function () {
 
     console.log('Connecting to skynet...');
 
-    var deferred = Q.defer();
+    var deferred = defer();
 
-    if (app.conn) {
-        console.log('Socket already established.');
-        deferred.resolve();
-    } else {
-
-        app.skynet(function () {
-                console.log('Connected');
-                app.updateDeviceSetting({}).then(deferred.resolve, deferred.reject);
-            }, function (e, conn) {
-                if (e) {
-                    console.log(e.toString());
-                }
-                app.registerDevice(true, conn)
-                    .done(deferred.resolve, deferred.reject);
-            });
-    }
+    app.skynet(function () {
+            console.log('Connected');
+            app.updateDeviceSetting({});
+            deferred.resolve();
+        }, function (e, conn) {
+            if (e) {
+                console.log(e.toString());
+            }
+            app.registerDevice(true, conn)
+                .done(deferred.resolve, deferred.reject);
+        });
 
     return deferred.promise;
 };
@@ -515,7 +524,7 @@ app.stopBG = function(){
 
 app.updateDeviceSetting = function (data) {
     if(!data) data = {};
-    var deferred = Q.defer();
+    var deferred = defer();
     // Extend the data option
     data.uuid = app.mobileuuid;
     data.token = app.mobiletoken;
@@ -548,7 +557,7 @@ app.updateDeviceSetting = function (data) {
 };
 
 app.message = function (data) {
-    var deferred = Q.defer();
+    var deferred = defer();
     if (!data.uuid) data.uuid = app.mobileuuid;
     if (!data.token) data.token = app.mobiletoken;
 
@@ -572,7 +581,7 @@ app.subscribe = function (data, fn) {
 };
 
 app.sendData = function(data){
-    var deferred = Q.defer();
+    var deferred = defer();
 
     var defaults = {
         'uuid': app.mobileuuid,
@@ -601,7 +610,7 @@ app.sendData = function(data){
 }
 
 app.triggerTopic = function(name, payload){
-    var deferred = Q.defer();
+    var deferred = defer();
 
     app.message({
         topic : name,
@@ -615,7 +624,7 @@ app.triggerTopic = function(name, payload){
 };
 
 app.whoami = function (uuid, token) {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     app.conn.whoami({
         uuid: uuid || app.mobileuuid,
@@ -626,7 +635,7 @@ app.whoami = function (uuid, token) {
 };
 
 app.getDeviceSetting = function (uuid, token) {
-    var deferred = Q.defer();
+    var deferred = defer();
 
     if (app.settingsUpdated) {
         deferred.resolve({
@@ -667,7 +676,7 @@ app.getDeviceSetting = function (uuid, token) {
 
 app.init = function (skynetuuid, skynettoken) {
     console.log('Init');
-    var deferred = Q.defer();
+    var deferred = defer();
 
     app.setData(skynetuuid, skynettoken);
 
@@ -679,12 +688,18 @@ app.init = function (skynetuuid, skynettoken) {
     } else {
         app.connect()
             .then(function () {
+
                 app.startProcesses();
-                console.log('Connected');
                 $(document).trigger('skynet-loaded');
+
+                console.log('Skynet Module Connected');
+
                 deferred.resolve();
 
-            }, deferred.reject);
+            }, function(){
+                console.log('Unable to load the Skynet Module');
+                deferred.reject();
+            });
     }
 
     return deferred.promise;
@@ -705,6 +720,11 @@ var publicApi = {
     isAuthenticated: app.isAuthenticated,
     logSensorData: app.logSensorData,
     getCurrentSettings: function () {
+
+        if(!app.skynetuuid){
+            app.setData();
+        }
+
         return {
             conn: app.conn,
             devicename: app.devicename,

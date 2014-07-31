@@ -73,9 +73,8 @@ angular.module('main.user')
 
                     $rootScope.skynetInit()
                         .then(function () {
-                            $timeout(function () {
-                                $location.path('/');
-                            }, 0);
+                            console.log('Skynet INIT\'d after login');
+                            $location.path('/');
                         });
                 }
 

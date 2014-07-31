@@ -85,6 +85,7 @@ angular.module('main')
             $rootScope.skynetConn = $rootScope.settings.conn;
 
             $rootScope.Sensors = $rootScope.Skynet.Sensors;
+            console.log('in $rootScope.setSettings() ++ ' + $rootScope.settings.skynetuuid);
 
         };
 
@@ -158,10 +159,14 @@ angular.module('main')
                         $rootScope.Skynet.init(uuid, token)
                             .timeout(1000 * 15)
                             .then(function () {
+                                console.log('_skynetInit successful');
                                 clearAppTimeouts();
                                 deferred.resolve();
-                            }, $rootScope.redirectToError);
-                    });
+                            }, function(){
+                                console.log('Unable to connect to Meshblu');
+                                $rootScope.redirectToError('Unable to connect to Meshblu');
+                            });
+                    }, deferred.reject);
 
             }
             return deferred.promise;
@@ -227,7 +232,9 @@ angular.module('main')
 
                     return deferred.promise;
 
-                }, $rootScope.redirectToError);
+                }, function(){
+                    $location.path('/login');
+                });
         };
 
         var _init = function () {
@@ -241,7 +248,6 @@ angular.module('main')
         $rootScope.setSettings();
 
         _init();
-
 
         $rootScope.alertModal = function (title, msg) {
             $rootScope.globalModal = {};

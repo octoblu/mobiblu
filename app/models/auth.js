@@ -47,7 +47,7 @@ angular.module('main.user')
                     });
                 }else{
                     var defer = $q.defer();
-                    defer.resolve();
+                    defer.reject();
                     return defer.promise;
                 }
 
@@ -81,7 +81,6 @@ angular.module('main.user')
         }
 
         function loginHandler(result) {
-
             if (!result || result.status >= 400) {
                 logoutHandler();
                 if(result){
@@ -95,13 +94,14 @@ angular.module('main.user')
             return processCurrentUser(result.data);
         }
 
-        function logoutHandler() {
+        function logoutHandler(err) {
+            console.log('IN LOGOUT HANDLER :: ' + err.toString());
             angular.copy({}, currentUser);
 
             window.localStorage.removeItem('skynetuuid');
             window.localStorage.removeItem('skynettoken');
 
-            window.Skynet.logout();
+            $rootScope.Skynet.logout();
 
             $rootScope.setSettings();
         }
