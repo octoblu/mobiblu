@@ -31,8 +31,7 @@ angular.module('main')
         $rootScope.errorMsg = null;
 
         var isErrorPage = function () {
-            if ($rootScope.matchRoute('/error') ||
-                $rootScope.matchRoute('/login')) {
+            if ($rootScope.matchRoute('/error')) {
                 return true;
             }
             return false;
@@ -145,7 +144,7 @@ angular.module('main')
 
         var _skynetInit = function () {
             var deferred = $q.defer();
-            if (isErrorPage() && !$rootScope.matchRoute('/login')) {
+            if (isErrorPage()) {
                 deferred.resolve();
             } else {
                 Auth.getCurrentUser()
@@ -186,7 +185,7 @@ angular.module('main')
 
         $rootScope.ready = function (cb) {
             $rootScope.setSettings();
-            if (loaded || isErrorPage()) cb();
+            if (loaded || isErrorPage() || $rootScope.matchRoute('/login')) cb();
             else _skynetLoad().then(cb, $rootScope.redirectToError);
         };
 
