@@ -5,13 +5,14 @@ angular.module('main')
             templateUrl: '/public/angular/directives/toggle-switch/toggle-switch.html',
             scope: {
                 model: '=',
-                change: '='
+                change: '=',
+                key: '='
             },
             link: function (scope) {
                 scope.toggleSwitch = function () {
                     scope.model = scope.model ? false : true;
                     if(scope.change && typeof scope.change === 'function'){
-                        scope.change(scope.model);
+                        scope.change(scope.model, scope.key);
                     }
                 };
             }

@@ -79,6 +79,12 @@ angular.module('main')
 
             $rootScope.loggedin = $rootScope.settings.loggedin;
 
+            $rootScope.skynetuuid = $rootScope.settings.skynetuuid;
+            $rootScope.skynettoken = $rootScope.settings.skynettoken;
+
+            $rootScope.mobileuuid = $rootScope.settings.mobileuuid;
+            $rootScope.mobiletoken = $rootScope.settings.mobiletoken;
+
             $rootScope.isDeveloper = $rootScope.settings.settings ? $rootScope.settings.settings.developer_mode : false;
 
             $rootScope.skynetConn = $rootScope.settings.conn;

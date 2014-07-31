@@ -6,7 +6,10 @@ angular.module('main.setting')
         $rootScope.$on('togglebackbtn', false);
 
         // This will be populated with Restangula
-        $scope.settings = {};
+        $scope.device = {
+            settings : {},
+            name : ''
+        };
 
         var tokenmask = '*************************';
         $rootScope.loading = true;
@@ -23,30 +26,23 @@ angular.module('main.setting')
                 $scope.mobiletoken_dummy = tokenmask;
 
                 var settings = $rootScope.settings;
-                console.log('Settings ' + JSON.stringify(settings.settings));
-                $scope.loggedin = settings.loggedin;
-                $scope.skynetuuid = settings.skynetuuid;
-                $scope.skynettoken = settings.skynettoken;
 
-                $scope.mobileuuid = settings.mobileuuid;
-                $scope.mobiletoken = settings.mobiletoken;
+                console.log('Load-Settings ' + JSON.stringify(settings.settings));
 
-                $scope.devicename = settings.devicename;
-                $scope.settings = settings.settings;
+                $scope.device.name = settings.devicename;
+                $scope.device.settings = settings.settings;
 
                 $rootScope.loading = false;
             });
         };
 
-        var update = function () {
+        var _update = function () {
             var deferred = $q.defer();
 
             var data = {
-                name: $scope.devicename,
-                setting: $scope.settings
+                name: $scope.device.name,
+                setting: $scope.device.settings
             };
-
-            console.log('Settings ' + JSON.stringify(data));
 
             $rootScope.Skynet.updateDeviceSetting(data)
                 .timeout(1000 * 15)
@@ -58,8 +54,13 @@ angular.module('main.setting')
             return deferred.promise;
         };
 
-        $scope.update = function () {
-            update().then(function () {
+        $scope.update = function (val, key) {
+
+            if(typeof val !== 'undefined' && typeof key !== 'undefined'){
+                $scope.device.settings[key] = val;
+            }
+            console.log('Pre-Save-Settings ' + JSON.stringify($scope.device));
+            _update().then(function () {
                 $rootScope.setSettings();
             }, $rootScope.redirectToError);
         };

@@ -1,4 +1,4 @@
-<div ng-app="settingApp">
+<div>
 
     <div ng-controller="SettingCtrl" ng-init="init()">
         <div ng-include src="'/public/views/system/loading.html'"></div>
@@ -7,28 +7,28 @@
 
             <form class="input-group" >
                 <label>Device Name</label>
-                <input type="text" placeholder="Device Name" ng-model="devicename" ng-blur="update()">
+                <input type="text" placeholder="Device Name" ng-model="device.name" ng-blur="update()">
                 <label>Background Updates <i class="fa fa-info-circle" ng-click="bgInfo()"></i></label>
                 <div class="input-row">
-                    <toggle-switch model="settings.bg_updates" change="update"></toggle-switch>
+                    <toggle-switch model="device.settings.bg_updates" change="update" key="'bg_updates'"></toggle-switch>
                 </div>
                 <label>
                     Sensor Frequency (minutes) <i ng-click="updateInfo()" class="fa fa-info-circle"></i>
                     <br>
-                    ( Compass, Accelerometer, Geolocation )
+                    <small>( Compass, Accelerometer, Geolocation )</small>
                 </label>
                 <div class="input-row">
-                    <select ng-model="settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
+                    <select ng-model="device.settings.update_interval" style="height: 40px;" ng-options="minute as minute for minute in minutes" class="form-control" id="update_interval" ng-change="update()"></select>
                 </div>
 
             </form>
 
             <label>Developer Mode</label>
             <div class="input-row">
-                <toggle-switch model="settings.developer_mode" change="update"></toggle-switch>
+                <toggle-switch model="device.settings.developer_mode" change="update" key="'developer_mode'"></toggle-switch>
             </div>
 
-            <div ng-show="settings.developer_mode">
+            <div ng-show="device.settings.developer_mode">
                 <hr>
                 <div class="content-padded">This mode enables you to clear all installed plugins and to bypass our plugin whitelist.</div>
                 <button class="btn btn-negative btn-block btn-outlined" ng-click="clearPlugins()">Clear Plugins</button>

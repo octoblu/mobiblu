@@ -2595,10 +2595,12 @@ app.stopBG = function () {
 
     app.bgGeo.stop();
 
-    activity.logActivity({
-        type: type,
-        html: 'Stopped Background Location'
-    });
+    if(app.bgRunning){
+        activity.logActivity({
+            type: type,
+            html: 'Stopped Background Location'
+        });
+    }
 
     app.bgRunning = false;
 };
@@ -2627,7 +2629,6 @@ app.updateDeviceSetting = function (data) {
         app.startBG();
     }
 
-    app.devicename = data.name;
     console.log('Updating Device');
     app.conn.update(data, function () {
         console.log('Device Updated');
