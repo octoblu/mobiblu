@@ -165,31 +165,27 @@ app.registerPushID = function () {
 
 app.startProcesses = function () {
 
-    if (!app.loaded) {
+    app.loaded = true;
 
-        app.loaded = true;
+    app.registerPushID().then(function () {
+        console.log('Push ID Registered');
+    }, function (err) {
+        console.log(err);
+    });
 
-        app.registerPushID().then(function () {
-            console.log('Push ID Registered');
-        }, function (err) {
-            console.log(err);
+    app.conn.on('message', function (data) {
+        var message;
+        if (typeof data.payload !== 'string') {
+            message = JSON.stringify(data.payload);
+        } else {
+            message = data.payload;
+        }
+        activity.logActivity({
+            type: 'message',
+            html: 'From: ' + data.fromUuid +
+                '<br>Message: ' + message
         });
-
-        app.conn.on('message', function (data) {
-            var message;
-            if (typeof data.payload !== 'string') {
-                message = JSON.stringify(data.payload);
-            } else {
-                message = data.payload;
-            }
-            activity.logActivity({
-                type: 'message',
-                html: 'From: ' + data.fromUuid +
-                    '<br>Message: ' + message
-            });
-        });
-
-    }
+    });
 
     app.logSensorData();
     app.startBG();
@@ -249,7 +245,6 @@ app.registerDevice = function (newDevice) {
 
 app.register = function (registered) {
 
-
     var deferred = defer();
 
     if (registered) {
@@ -285,10 +280,10 @@ app.skynet = function (callback, errorCallback) {
         };
     }
     var conn;
-    if(app.conn) {
+    if (app.conn) {
         conn = app.conn;
         conn.socket.emit('identity', config);
-    }else{
+    } else {
         conn = skynet.createConnection(config);
     }
 
@@ -344,12 +339,10 @@ app.connect = function () {
         }
     }
 
-
     app.skynet(connected, notConnected);
 
     return deferred.promise;
 };
-
 
 app.logSensorData = function () {
     var sensors = [];
@@ -466,7 +459,6 @@ app.startBG = function () {
         // Send POST to SkyNet
         var sendToSkynet = function (response) {
 
-
             app.sendData({
                 'sensorData': {
                     'type': type,
@@ -533,7 +525,7 @@ app.stopBG = function () {
 
     app.bgGeo.stop();
 
-    if(app.bgRunning){
+    if (app.bgRunning) {
         activity.logActivity({
             type: type,
             html: 'Stopped Background Location'
@@ -591,7 +583,6 @@ app.message = function (data) {
 
     return deferred.promise;
 };
-
 
 app.subscribe = function (data, fn) {
     if (!data.uuid) data.uuid = app.mobileuuid;
@@ -764,6 +755,5 @@ var publicApi = {
     getActivity: activity.getActivity,
     logActivity: activity.logActivity
 };
-
 
 module.exports = publicApi;

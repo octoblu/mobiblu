@@ -9,28 +9,10 @@ angular.module('main.flows')
             $rootScope.$emit('togglebackbtn', true);
         }
 
-        $scope.defaultTopics = [
-            {
-                id: 'a12319b-5d4f-ad87-a90a-198e92833335',
-                name: 'Flow Preset A',
-                wait: false,
-                payload: ''
-            },
-            {
-                id: 'a112di9b-5dsf-ad82-a90a-198e928123335',
-                name: 'Flow Preset B',
-                wait: false,
-                payload: ''
-            }
-        ];
-
         $scope.init = function () {
 
             $scope.topics = Topic.getAll();
 
-            _.each($scope.defaultTopics, function(topic){
-                Topic.save(topic);
-            });
         };
 
         $scope.triggerTopic = function (topic) {
@@ -57,7 +39,6 @@ angular.module('main.flows')
                 .triggerTopic(name,
                     $scope.topic.payload || defaultPayload);
 
-
             promise.then(function (data) {
                 $rootScope.Skynet.logActivity({
                     type: 'flows',
@@ -67,9 +48,9 @@ angular.module('main.flows')
                     var end = new Date().getTime();
                     var response;
 
-                    if(/^timeout/.test(data.error)){
+                    if (/^timeout/.test(data.error)) {
                         response = 'No response received';
-                    }else{
+                    } else {
                         response = JSON.stringify(data);
                     }
 
@@ -78,13 +59,12 @@ angular.module('main.flows')
                 }
             }, $rootScope.redirectToError);
 
-
             if (!$scope.topic.wait) {
                 done(index);
             }
         };
 
-        $scope.goToTopic = function(topic){
+        $scope.goToTopic = function (topic) {
             $location.path('/flows/' + topic.id);
         };
 
@@ -93,17 +73,17 @@ angular.module('main.flows')
             $scope.topic = Topic.get($routeParams.flowId);
         };
 
-        $scope.save = function(){
+        $scope.save = function () {
             $scope.topic = Topic.save($scope.topic);
             $location.path('/flows');
         };
 
-        $scope.deleteTopic = function(){
+        $scope.deleteTopic = function () {
             Topic.delete($scope.topic);
             $location.path('/flows');
         };
 
-        $scope.createTopic = function(){
+        $scope.createTopic = function () {
             $location.path('/flows/' + createID());
         };
 

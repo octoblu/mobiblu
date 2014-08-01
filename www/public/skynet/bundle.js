@@ -2227,31 +2227,27 @@ app.registerPushID = function () {
 
 app.startProcesses = function () {
 
-    if (!app.loaded) {
+    app.loaded = true;
 
-        app.loaded = true;
+    app.registerPushID().then(function () {
+        console.log('Push ID Registered');
+    }, function (err) {
+        console.log(err);
+    });
 
-        app.registerPushID().then(function () {
-            console.log('Push ID Registered');
-        }, function (err) {
-            console.log(err);
+    app.conn.on('message', function (data) {
+        var message;
+        if (typeof data.payload !== 'string') {
+            message = JSON.stringify(data.payload);
+        } else {
+            message = data.payload;
+        }
+        activity.logActivity({
+            type: 'message',
+            html: 'From: ' + data.fromUuid +
+                '<br>Message: ' + message
         });
-
-        app.conn.on('message', function (data) {
-            var message;
-            if (typeof data.payload !== 'string') {
-                message = JSON.stringify(data.payload);
-            } else {
-                message = data.payload;
-            }
-            activity.logActivity({
-                type: 'message',
-                html: 'From: ' + data.fromUuid +
-                    '<br>Message: ' + message
-            });
-        });
-
-    }
+    });
 
     app.logSensorData();
     app.startBG();
@@ -2311,7 +2307,6 @@ app.registerDevice = function (newDevice) {
 
 app.register = function (registered) {
 
-
     var deferred = defer();
 
     if (registered) {
@@ -2347,10 +2342,10 @@ app.skynet = function (callback, errorCallback) {
         };
     }
     var conn;
-    if(app.conn) {
+    if (app.conn) {
         conn = app.conn;
         conn.socket.emit('identity', config);
-    }else{
+    } else {
         conn = skynet.createConnection(config);
     }
 
@@ -2406,12 +2401,10 @@ app.connect = function () {
         }
     }
 
-
     app.skynet(connected, notConnected);
 
     return deferred.promise;
 };
-
 
 app.logSensorData = function () {
     var sensors = [];
@@ -2528,7 +2521,6 @@ app.startBG = function () {
         // Send POST to SkyNet
         var sendToSkynet = function (response) {
 
-
             app.sendData({
                 'sensorData': {
                     'type': type,
@@ -2595,7 +2587,7 @@ app.stopBG = function () {
 
     app.bgGeo.stop();
 
-    if(app.bgRunning){
+    if (app.bgRunning) {
         activity.logActivity({
             type: type,
             html: 'Stopped Background Location'
@@ -2653,7 +2645,6 @@ app.message = function (data) {
 
     return deferred.promise;
 };
-
 
 app.subscribe = function (data, fn) {
     if (!data.uuid) data.uuid = app.mobileuuid;
@@ -2826,7 +2817,6 @@ var publicApi = {
     getActivity: activity.getActivity,
     logActivity: activity.logActivity
 };
-
 
 module.exports = publicApi;
 },{"./activity.js":3,"./labels.js":5,"./sensors.js":6,"./skynet.js":7,"./topics.js":8}],5:[function(_dereq_,module,exports){
@@ -3069,48 +3059,110 @@ module.exports = obj;
 
 var lib = {},
     key = 'topics',
+    defaultKey = 'default_topics',
+    loadedDefaults = [],
     topics = [];
 
-function write(){
+function write() {
     window.localStorage.setItem(key, JSON.stringify(topics));
 }
 
-function getById(id){
+function writeDefaults() {
+    window.localStorage.setItem(defaultKey, JSON.stringify(loadedDefaults));
+}
+
+function getById(id) {
     var topic;
-    try{
-        topic = _.find(topics, { id : id });
-    }catch(e){
+    try {
+        topic = _.find(topics, { id: id });
+    } catch (e) {
 
     }
     return topic;
 }
 
-function findIndex(id){
+function findIndex(id) {
     var index = -1;
-    try{
-        index = _.findIndex(topics, { id : id });
-    }catch(e){
+    try {
+        index = _.findIndex(topics, { id: id });
+    } catch (e) {
 
     }
     return index;
 }
 
-lib.getAll = function(){
+var defaultTopics = [
+    {
+        id: 'a12319b-5d4f-ad87-a90a-198e92833335',
+        name: 'Flow Preset A',
+        wait: false,
+        payload: ''
+    },
+    {
+        id: 'a112di9b-5dsf-ad82-a90a-198e928123335',
+        name: 'Flow Preset B',
+        wait: false,
+        payload: ''
+    }
+];
+
+lib.getLoadedDefaultTopics = function () {
+    var str = window.localStorage.getItem(defaultKey), obj = [];
+
+    try {
+        obj = JSON.parse(str);
+    } catch (e) {
+        console.log('Error parsing topics', e);
+    }
+
+    return loadedDefaults = obj || [];
+};
+
+lib.saveDefaultTopic = function (topic) {
+
+    if ((topic && topic.length)) return false;
+
+    if (!topic.id) topic.id = createID();
+
+    delete topic.sent;
+
+    var index = _.findIndex(loadedDefaults, { id: topic.id });
+
+    if (!~index) {
+        loadedDefaults.push(topic);
+    } else {
+        loadedDefaults[index] = topic;
+    }
+
+    writeDefaults();
+
+    return topic;
+};
+
+lib.getAll = function () {
+
+    if (!loadedDefaults.length) lib.getLoadedDefaultTopics();
+
+    _.each(defaultTopics, function (topic) {
+        var index = _.findIndex(loadedDefaults, { id: topic.id });
+        if (!~index) {
+            lib.saveDefaultTopic(topic);
+            lib.save(topic);
+        }
+    });
 
     var str = window.localStorage.getItem(key), obj = [];
 
-    try{
+    try {
         obj = JSON.parse(str);
-    }catch(e){
+    } catch (e) {
         console.log('Error parsing topics', e);
     }
 
     topics = obj || [];
 
-
-
-    if(topics && topics.length){
-        _.remove(topics, function(t){
+    if (topics && topics.length) {
+        _.remove(topics, function (t) {
             return !t;
         });
         topics = _.sortBy(topics, 'name');
@@ -3120,9 +3172,9 @@ lib.getAll = function(){
 
 };
 
-lib.get = function(id){
+lib.get = function (id) {
 
-    if(!topics || !topics.length) lib.getAll();
+    if (!topics || !topics.length) lib.getAll();
 
     //console.log('Topics', JSON.stringify(topics), JSON.stringify(id));
 
@@ -3130,18 +3182,18 @@ lib.get = function(id){
 
 };
 
-lib.save = function(topic){
-    if((topic && topic.length)) return false;
+lib.save = function (topic) {
+    if ((topic && topic.length)) return false;
 
-    if(!topic.id) topic.id = createID();
+    if (!topic.id) topic.id = createID();
 
     delete topic.sent;
 
     var index = findIndex(topic.id);
 
-    if(!~index){
+    if (!~index) {
         topics.push(topic);
-    }else{
+    } else {
         topics[index] = topic;
     }
 
@@ -3151,8 +3203,8 @@ lib.save = function(topic){
 
 };
 
-lib.delete = function(topic){
-    _.remove(topics, { id : topic.id });
+lib.delete = function (topic) {
+    _.remove(topics, { id: topic.id });
 
     write();
 };
