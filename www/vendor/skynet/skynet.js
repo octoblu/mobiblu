@@ -87,7 +87,7 @@ Connection.prototype.setup = function(){
     this.socket.on('identify', this.identify.bind(this));
     this.socket.on('ready', this.emit.bind(this, 'ready'));
     this.socket.on('notReady', this.emit.bind(this, 'notReady'));
-    this.socket.on('tb', this.emit.bind(this, 'textBroadcast'));
+    this.socket.on('tb', this.emit.bind(this, 'tb'));
     this.socket.on('unboundSocket', this.emit.bind(this, 'unboundSocket'));
 
   }.bind(this));
@@ -102,7 +102,7 @@ Connection.prototype._handleAckRequest = function(topic, data){
     if(data.ack && data.fromUuid){
       //TODO clean these up if not used
       self.emit(topic, data, function(response){
-        self.socket.emit('messageAck', {
+        self._messageAck({
           devices: data.fromUuid,
           ack: data.ack,
           payload: response
@@ -137,6 +137,12 @@ Connection.prototype._emitWithAck = function(topic, data, fn){
   return this;
 };
 
+Connection.prototype._messageAck = function(response){
+  this.socket.emit('messageAck', response);
+  return this;
+};
+
+
 
 Connection.prototype.identify = function(){
   this.socket.emit('identity', {
@@ -146,6 +152,7 @@ Connection.prototype.identify = function(){
   });
   return this;
 };
+
 
 Connection.prototype.message = function(data, fn) {
   return this._emitWithAck('message', data, fn);
@@ -186,8 +193,8 @@ Connection.prototype.unregister = function(data, fn) {
 };
 
 Connection.prototype.claimdevice = function(data, fn) {
-    this.socket.emit('claimdevice', data, fn);
-    return this;
+  this.socket.emit('claimdevice', data, fn);
+  return this;
 };
 
 Connection.prototype.whoami = function(data, fn) {
@@ -211,11 +218,17 @@ Connection.prototype.status = function(data) {
 };
 
 Connection.prototype.subscribe = function(data, fn) {
+  if(typeof data === 'string'){
+    data = {uuid: data};
+  }
   this.socket.emit('subscribe', data, fn);
   return this;
 };
 
 Connection.prototype.unsubscribe = function(data, fn) {
+  if(typeof data === 'string'){
+    data = {uuid: data};
+  }
   this.socket.emit('unsubscribe', data, fn);
   return this;
 };
@@ -272,8 +285,17 @@ Connection.prototype.subscribeText = function(data, fn) {
   return this;
 };
 
+Connection.prototype.unsubscribeText = function(data, fn) {
+  if(typeof data === 'string'){
+    data = {uuid: data};
+  }
+  this.socket.emit('unsubscribeText', data, fn);
+  return this;
+};
 
-Connection.prototype.close = function(){
+
+Connection.prototype.close = function(fn){
+  this.socket.close(fn);
   return this;
 };
 
@@ -4303,240 +4325,240 @@ module.exports = (function() {
 /*! http://mths.be/utf8js v2.0.0 by @mathias */
 ;(function(root) {
 
-  // Detect free variables `exports`
-  var freeExports = typeof exports == 'object' && exports;
+	// Detect free variables `exports`
+	var freeExports = typeof exports == 'object' && exports;
 
-  // Detect free variable `module`
-  var freeModule = typeof module == 'object' && module &&
-    module.exports == freeExports && module;
+	// Detect free variable `module`
+	var freeModule = typeof module == 'object' && module &&
+		module.exports == freeExports && module;
 
-  // Detect free variable `global`, from Node.js or Browserified code,
-  // and use it as `root`
-  var freeGlobal = typeof global == 'object' && global;
-  if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
-    root = freeGlobal;
-  }
+	// Detect free variable `global`, from Node.js or Browserified code,
+	// and use it as `root`
+	var freeGlobal = typeof global == 'object' && global;
+	if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
+		root = freeGlobal;
+	}
 
-  /*--------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------*/
 
-  var stringFromCharCode = String.fromCharCode;
+	var stringFromCharCode = String.fromCharCode;
 
-  // Taken from http://mths.be/punycode
-  function ucs2decode(string) {
-    var output = [];
-    var counter = 0;
-    var length = string.length;
-    var value;
-    var extra;
-    while (counter < length) {
-      value = string.charCodeAt(counter++);
-      if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-        // high surrogate, and there is a next character
-        extra = string.charCodeAt(counter++);
-        if ((extra & 0xFC00) == 0xDC00) { // low surrogate
-          output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-        } else {
-          // unmatched surrogate; only append this code unit, in case the next
-          // code unit is the high surrogate of a surrogate pair
-          output.push(value);
-          counter--;
-        }
-      } else {
-        output.push(value);
-      }
-    }
-    return output;
-  }
+	// Taken from http://mths.be/punycode
+	function ucs2decode(string) {
+		var output = [];
+		var counter = 0;
+		var length = string.length;
+		var value;
+		var extra;
+		while (counter < length) {
+			value = string.charCodeAt(counter++);
+			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+				// high surrogate, and there is a next character
+				extra = string.charCodeAt(counter++);
+				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+				} else {
+					// unmatched surrogate; only append this code unit, in case the next
+					// code unit is the high surrogate of a surrogate pair
+					output.push(value);
+					counter--;
+				}
+			} else {
+				output.push(value);
+			}
+		}
+		return output;
+	}
 
-  // Taken from http://mths.be/punycode
-  function ucs2encode(array) {
-    var length = array.length;
-    var index = -1;
-    var value;
-    var output = '';
-    while (++index < length) {
-      value = array[index];
-      if (value > 0xFFFF) {
-        value -= 0x10000;
-        output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-        value = 0xDC00 | value & 0x3FF;
-      }
-      output += stringFromCharCode(value);
-    }
-    return output;
-  }
+	// Taken from http://mths.be/punycode
+	function ucs2encode(array) {
+		var length = array.length;
+		var index = -1;
+		var value;
+		var output = '';
+		while (++index < length) {
+			value = array[index];
+			if (value > 0xFFFF) {
+				value -= 0x10000;
+				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+				value = 0xDC00 | value & 0x3FF;
+			}
+			output += stringFromCharCode(value);
+		}
+		return output;
+	}
 
-  /*--------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------*/
 
-  function createByte(codePoint, shift) {
-    return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
-  }
+	function createByte(codePoint, shift) {
+		return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
+	}
 
-  function encodeCodePoint(codePoint) {
-    if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
-      return stringFromCharCode(codePoint);
-    }
-    var symbol = '';
-    if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
-      symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
-    }
-    else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
-      symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
-      symbol += createByte(codePoint, 6);
-    }
-    else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
-      symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
-      symbol += createByte(codePoint, 12);
-      symbol += createByte(codePoint, 6);
-    }
-    symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
-    return symbol;
-  }
+	function encodeCodePoint(codePoint) {
+		if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
+			return stringFromCharCode(codePoint);
+		}
+		var symbol = '';
+		if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
+			symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
+		}
+		else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
+			symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
+			symbol += createByte(codePoint, 6);
+		}
+		else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
+			symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
+			symbol += createByte(codePoint, 12);
+			symbol += createByte(codePoint, 6);
+		}
+		symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
+		return symbol;
+	}
 
-  function utf8encode(string) {
-    var codePoints = ucs2decode(string);
+	function utf8encode(string) {
+		var codePoints = ucs2decode(string);
 
-    // console.log(JSON.stringify(codePoints.map(function(x) {
-    //  return 'U+' + x.toString(16).toUpperCase();
-    // })));
+		// console.log(JSON.stringify(codePoints.map(function(x) {
+		// 	return 'U+' + x.toString(16).toUpperCase();
+		// })));
 
-    var length = codePoints.length;
-    var index = -1;
-    var codePoint;
-    var byteString = '';
-    while (++index < length) {
-      codePoint = codePoints[index];
-      byteString += encodeCodePoint(codePoint);
-    }
-    return byteString;
-  }
+		var length = codePoints.length;
+		var index = -1;
+		var codePoint;
+		var byteString = '';
+		while (++index < length) {
+			codePoint = codePoints[index];
+			byteString += encodeCodePoint(codePoint);
+		}
+		return byteString;
+	}
 
-  /*--------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------*/
 
-  function readContinuationByte() {
-    if (byteIndex >= byteCount) {
-      throw Error('Invalid byte index');
-    }
+	function readContinuationByte() {
+		if (byteIndex >= byteCount) {
+			throw Error('Invalid byte index');
+		}
 
-    var continuationByte = byteArray[byteIndex] & 0xFF;
-    byteIndex++;
+		var continuationByte = byteArray[byteIndex] & 0xFF;
+		byteIndex++;
 
-    if ((continuationByte & 0xC0) == 0x80) {
-      return continuationByte & 0x3F;
-    }
+		if ((continuationByte & 0xC0) == 0x80) {
+			return continuationByte & 0x3F;
+		}
 
-    // If we end up here, it’s not a continuation byte
-    throw Error('Invalid continuation byte');
-  }
+		// If we end up here, it’s not a continuation byte
+		throw Error('Invalid continuation byte');
+	}
 
-  function decodeSymbol() {
-    var byte1;
-    var byte2;
-    var byte3;
-    var byte4;
-    var codePoint;
+	function decodeSymbol() {
+		var byte1;
+		var byte2;
+		var byte3;
+		var byte4;
+		var codePoint;
 
-    if (byteIndex > byteCount) {
-      throw Error('Invalid byte index');
-    }
+		if (byteIndex > byteCount) {
+			throw Error('Invalid byte index');
+		}
 
-    if (byteIndex == byteCount) {
-      return false;
-    }
+		if (byteIndex == byteCount) {
+			return false;
+		}
 
-    // Read first byte
-    byte1 = byteArray[byteIndex] & 0xFF;
-    byteIndex++;
+		// Read first byte
+		byte1 = byteArray[byteIndex] & 0xFF;
+		byteIndex++;
 
-    // 1-byte sequence (no continuation bytes)
-    if ((byte1 & 0x80) == 0) {
-      return byte1;
-    }
+		// 1-byte sequence (no continuation bytes)
+		if ((byte1 & 0x80) == 0) {
+			return byte1;
+		}
 
-    // 2-byte sequence
-    if ((byte1 & 0xE0) == 0xC0) {
-      var byte2 = readContinuationByte();
-      codePoint = ((byte1 & 0x1F) << 6) | byte2;
-      if (codePoint >= 0x80) {
-        return codePoint;
-      } else {
-        throw Error('Invalid continuation byte');
-      }
-    }
+		// 2-byte sequence
+		if ((byte1 & 0xE0) == 0xC0) {
+			var byte2 = readContinuationByte();
+			codePoint = ((byte1 & 0x1F) << 6) | byte2;
+			if (codePoint >= 0x80) {
+				return codePoint;
+			} else {
+				throw Error('Invalid continuation byte');
+			}
+		}
 
-    // 3-byte sequence (may include unpaired surrogates)
-    if ((byte1 & 0xF0) == 0xE0) {
-      byte2 = readContinuationByte();
-      byte3 = readContinuationByte();
-      codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
-      if (codePoint >= 0x0800) {
-        return codePoint;
-      } else {
-        throw Error('Invalid continuation byte');
-      }
-    }
+		// 3-byte sequence (may include unpaired surrogates)
+		if ((byte1 & 0xF0) == 0xE0) {
+			byte2 = readContinuationByte();
+			byte3 = readContinuationByte();
+			codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
+			if (codePoint >= 0x0800) {
+				return codePoint;
+			} else {
+				throw Error('Invalid continuation byte');
+			}
+		}
 
-    // 4-byte sequence
-    if ((byte1 & 0xF8) == 0xF0) {
-      byte2 = readContinuationByte();
-      byte3 = readContinuationByte();
-      byte4 = readContinuationByte();
-      codePoint = ((byte1 & 0x0F) << 0x12) | (byte2 << 0x0C) |
-        (byte3 << 0x06) | byte4;
-      if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
-        return codePoint;
-      }
-    }
+		// 4-byte sequence
+		if ((byte1 & 0xF8) == 0xF0) {
+			byte2 = readContinuationByte();
+			byte3 = readContinuationByte();
+			byte4 = readContinuationByte();
+			codePoint = ((byte1 & 0x0F) << 0x12) | (byte2 << 0x0C) |
+				(byte3 << 0x06) | byte4;
+			if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
+				return codePoint;
+			}
+		}
 
-    throw Error('Invalid UTF-8 detected');
-  }
+		throw Error('Invalid UTF-8 detected');
+	}
 
-  var byteArray;
-  var byteCount;
-  var byteIndex;
-  function utf8decode(byteString) {
-    byteArray = ucs2decode(byteString);
-    byteCount = byteArray.length;
-    byteIndex = 0;
-    var codePoints = [];
-    var tmp;
-    while ((tmp = decodeSymbol()) !== false) {
-      codePoints.push(tmp);
-    }
-    return ucs2encode(codePoints);
-  }
+	var byteArray;
+	var byteCount;
+	var byteIndex;
+	function utf8decode(byteString) {
+		byteArray = ucs2decode(byteString);
+		byteCount = byteArray.length;
+		byteIndex = 0;
+		var codePoints = [];
+		var tmp;
+		while ((tmp = decodeSymbol()) !== false) {
+			codePoints.push(tmp);
+		}
+		return ucs2encode(codePoints);
+	}
 
-  /*--------------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------*/
 
-  var utf8 = {
-    'version': '2.0.0',
-    'encode': utf8encode,
-    'decode': utf8decode
-  };
+	var utf8 = {
+		'version': '2.0.0',
+		'encode': utf8encode,
+		'decode': utf8decode
+	};
 
-  // Some AMD build optimizers, like r.js, check for specific condition patterns
-  // like the following:
-  if (
-    typeof define == 'function' &&
-    typeof define.amd == 'object' &&
-    define.amd
-  ) {
-    define(function() {
-      return utf8;
-    });
-  } else if (freeExports && !freeExports.nodeType) {
-    if (freeModule) { // in Node.js or RingoJS v0.8.0+
-      freeModule.exports = utf8;
-    } else { // in Narwhal or RingoJS v0.7.0-
-      var object = {};
-      var hasOwnProperty = object.hasOwnProperty;
-      for (var key in utf8) {
-        hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
-      }
-    }
-  } else { // in Rhino or a web browser
-    root.utf8 = utf8;
-  }
+	// Some AMD build optimizers, like r.js, check for specific condition patterns
+	// like the following:
+	if (
+		typeof define == 'function' &&
+		typeof define.amd == 'object' &&
+		define.amd
+	) {
+		define(function() {
+			return utf8;
+		});
+	}	else if (freeExports && !freeExports.nodeType) {
+		if (freeModule) { // in Node.js or RingoJS v0.8.0+
+			freeModule.exports = utf8;
+		} else { // in Narwhal or RingoJS v0.7.0-
+			var object = {};
+			var hasOwnProperty = object.hasOwnProperty;
+			for (var key in utf8) {
+				hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
+			}
+		}
+	} else { // in Rhino or a web browser
+		root.utf8 = utf8;
+	}
 
 }(this));
 
@@ -6528,13 +6550,8 @@ function Buffer (subject, encoding, noZero) {
 
   var type = typeof subject
 
-  // Workaround: node's base64 implementation allows for non-padded strings
-  // while base64-js does not.
   if (encoding === 'base64' && type === 'string') {
-    subject = stringtrim(subject)
-    while (subject.length % 4 !== 0) {
-      subject = subject + '='
-    }
+    subject = base64clean(subject)
   }
 
   // Find the length
@@ -7491,6 +7508,18 @@ Buffer._augment = function (arr) {
   return arr
 }
 
+var INVALID_BASE64_RE = /[^+\/0-9A-z]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '')
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
 function stringtrim (str) {
   if (str.trim) return str.trim()
   return str.replace(/^\s+|\s+$/g, '')
@@ -7627,122 +7656,122 @@ function assert (test, message) {
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
-  'use strict';
+	'use strict';
 
   var Arr = (typeof Uint8Array !== 'undefined')
     ? Uint8Array
     : Array
 
-  var PLUS   = '+'.charCodeAt(0)
-  var SLASH  = '/'.charCodeAt(0)
-  var NUMBER = '0'.charCodeAt(0)
-  var LOWER  = 'a'.charCodeAt(0)
-  var UPPER  = 'A'.charCodeAt(0)
+	var PLUS   = '+'.charCodeAt(0)
+	var SLASH  = '/'.charCodeAt(0)
+	var NUMBER = '0'.charCodeAt(0)
+	var LOWER  = 'a'.charCodeAt(0)
+	var UPPER  = 'A'.charCodeAt(0)
 
-  function decode (elt) {
-    var code = elt.charCodeAt(0)
-    if (code === PLUS)
-      return 62 // '+'
-    if (code === SLASH)
-      return 63 // '/'
-    if (code < NUMBER)
-      return -1 //no match
-    if (code < NUMBER + 10)
-      return code - NUMBER + 26 + 26
-    if (code < UPPER + 26)
-      return code - UPPER
-    if (code < LOWER + 26)
-      return code - LOWER + 26
-  }
+	function decode (elt) {
+		var code = elt.charCodeAt(0)
+		if (code === PLUS)
+			return 62 // '+'
+		if (code === SLASH)
+			return 63 // '/'
+		if (code < NUMBER)
+			return -1 //no match
+		if (code < NUMBER + 10)
+			return code - NUMBER + 26 + 26
+		if (code < UPPER + 26)
+			return code - UPPER
+		if (code < LOWER + 26)
+			return code - LOWER + 26
+	}
 
-  function b64ToByteArray (b64) {
-    var i, j, l, tmp, placeHolders, arr
+	function b64ToByteArray (b64) {
+		var i, j, l, tmp, placeHolders, arr
 
-    if (b64.length % 4 > 0) {
-      throw new Error('Invalid string. Length must be a multiple of 4')
-    }
+		if (b64.length % 4 > 0) {
+			throw new Error('Invalid string. Length must be a multiple of 4')
+		}
 
-    // the number of equal signs (place holders)
-    // if there are two placeholders, than the two characters before it
-    // represent one byte
-    // if there is only one, then the three characters before it represent 2 bytes
-    // this is just a cheap hack to not do indexOf twice
-    var len = b64.length
-    placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
+		// the number of equal signs (place holders)
+		// if there are two placeholders, than the two characters before it
+		// represent one byte
+		// if there is only one, then the three characters before it represent 2 bytes
+		// this is just a cheap hack to not do indexOf twice
+		var len = b64.length
+		placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
 
-    // base64 is 4/3 + up to two characters of the original data
-    arr = new Arr(b64.length * 3 / 4 - placeHolders)
+		// base64 is 4/3 + up to two characters of the original data
+		arr = new Arr(b64.length * 3 / 4 - placeHolders)
 
-    // if there are placeholders, only get up to the last complete 4 chars
-    l = placeHolders > 0 ? b64.length - 4 : b64.length
+		// if there are placeholders, only get up to the last complete 4 chars
+		l = placeHolders > 0 ? b64.length - 4 : b64.length
 
-    var L = 0
+		var L = 0
 
-    function push (v) {
-      arr[L++] = v
-    }
+		function push (v) {
+			arr[L++] = v
+		}
 
-    for (i = 0, j = 0; i < l; i += 4, j += 3) {
-      tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
-      push((tmp & 0xFF0000) >> 16)
-      push((tmp & 0xFF00) >> 8)
-      push(tmp & 0xFF)
-    }
+		for (i = 0, j = 0; i < l; i += 4, j += 3) {
+			tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
+			push((tmp & 0xFF0000) >> 16)
+			push((tmp & 0xFF00) >> 8)
+			push(tmp & 0xFF)
+		}
 
-    if (placeHolders === 2) {
-      tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
-      push(tmp & 0xFF)
-    } else if (placeHolders === 1) {
-      tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
-      push((tmp >> 8) & 0xFF)
-      push(tmp & 0xFF)
-    }
+		if (placeHolders === 2) {
+			tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
+			push(tmp & 0xFF)
+		} else if (placeHolders === 1) {
+			tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
+			push((tmp >> 8) & 0xFF)
+			push(tmp & 0xFF)
+		}
 
-    return arr
-  }
+		return arr
+	}
 
-  function uint8ToBase64 (uint8) {
-    var i,
-      extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
-      output = "",
-      temp, length
+	function uint8ToBase64 (uint8) {
+		var i,
+			extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
+			output = "",
+			temp, length
 
-    function encode (num) {
-      return lookup.charAt(num)
-    }
+		function encode (num) {
+			return lookup.charAt(num)
+		}
 
-    function tripletToBase64 (num) {
-      return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
-    }
+		function tripletToBase64 (num) {
+			return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
+		}
 
-    // go through the array every three bytes, we'll deal with trailing stuff later
-    for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
-      temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
-      output += tripletToBase64(temp)
-    }
+		// go through the array every three bytes, we'll deal with trailing stuff later
+		for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
+			temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+			output += tripletToBase64(temp)
+		}
 
-    // pad the end with zeros, but make sure to not forget the extra bytes
-    switch (extraBytes) {
-      case 1:
-        temp = uint8[uint8.length - 1]
-        output += encode(temp >> 2)
-        output += encode((temp << 4) & 0x3F)
-        output += '=='
-        break
-      case 2:
-        temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
-        output += encode(temp >> 10)
-        output += encode((temp >> 4) & 0x3F)
-        output += encode((temp << 2) & 0x3F)
-        output += '='
-        break
-    }
+		// pad the end with zeros, but make sure to not forget the extra bytes
+		switch (extraBytes) {
+			case 1:
+				temp = uint8[uint8.length - 1]
+				output += encode(temp >> 2)
+				output += encode((temp << 4) & 0x3F)
+				output += '=='
+				break
+			case 2:
+				temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
+				output += encode(temp >> 10)
+				output += encode((temp >> 4) & 0x3F)
+				output += encode((temp << 2) & 0x3F)
+				output += '='
+				break
+		}
 
-    return output
-  }
+		return output
+	}
 
-  exports.toByteArray = b64ToByteArray
-  exports.fromByteArray = uint8ToBase64
+	exports.toByteArray = b64ToByteArray
+	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
 },{}],48:[function(_dereq_,module,exports){

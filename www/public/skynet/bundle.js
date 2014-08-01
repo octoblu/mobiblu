@@ -2236,12 +2236,16 @@ app.startProcesses = function () {
     });
 
     app.conn.on('message', function (data) {
+
         var message;
         if (typeof data.payload !== 'string') {
             message = JSON.stringify(data.payload);
         } else {
             message = data.payload;
         }
+
+        console.log('On Message: ' + message);
+
         activity.logActivity({
             type: 'message',
             html: 'From: ' + data.fromUuid +
@@ -2250,7 +2254,6 @@ app.startProcesses = function () {
     });
 
     app.logSensorData();
-    app.startBG();
 };
 
 app.regData = function () {
@@ -2341,16 +2344,13 @@ app.skynet = function (callback, errorCallback) {
             protocol: 'websocket'
         };
     }
-    var conn;
-    if (app.conn) {
-        conn = app.conn;
-        conn.socket.emit('identity', config);
-    } else {
-        conn = skynet.createConnection(config);
-    }
+
+    var conn = skynet.createConnection(config);
 
     conn.on('ready', function (data) {
+
         app.conn = conn;
+
         console.log('Connected data: ' + JSON.stringify(data));
 
         app.socketid = data.socketid;
@@ -2762,10 +2762,10 @@ app.init = function (skynetuuid, skynettoken) {
         app.connect()
             .then(function () {
 
+                console.log('Skynet Module Connected');
+
                 app.startProcesses();
                 $(document).trigger('skynet-loaded');
-
-                console.log('Skynet Module Connected');
 
                 deferred.resolve();
 

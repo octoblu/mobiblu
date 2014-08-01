@@ -148,11 +148,13 @@ angular.module('main.plugins')
         $scope.findOne = function (cb) {
 
             $rootScope.pluginReady(function () {
+                console.log('Finding one :: ' + $routeParams.pluginName);
                 $scope.getPlugins();
 
                 var plugins = _.where($scope.plugins, { name : $routeParams.pluginName });
 
                 if(plugins && plugins[0]){
+                    console.log('Found one');
                     $scope.plugin = plugins[0];
                 }else{
                     console.log('Cant find plugin :: ' + JSON.stringify($routeParams));
@@ -296,7 +298,9 @@ angular.module('main.plugins')
             $scope.writePlugin();
         };
 
-        $scope.writePlugin = function () {
+        $scope.writePlugin = function (init) {
+            if(typeof init === 'undefined') init = false;
+
             if ($scope.subdevice) {
                 var x = _.findIndex($scope.plugin.subdevices, { uuid : $scope.subdevice.uuid });
                 if(~x){
@@ -306,15 +310,17 @@ angular.module('main.plugins')
                 }
             }
 
-            window.octobluMobile.writePlugin($scope.plugin, false, true);
-
-            if($scope.subdevice){
-                console.log('Init subdevice', JSON.stringify($scope.subdevice));
-                window.octobluMobile.initDevice($scope.subdevice);
-            }else{
-                window.octobluMobile.initPlugin($scope.plugin);
+            window.octobluMobile.writePlugin($scope.plugin, init, true);
+            if(!init){
+                if($scope.subdevice){
+                    console.log('Init subdevice', JSON.stringify($scope.subdevice));
+                    window.octobluMobile.initDevice($scope.subdevice);
+                }else{
+                    window.octobluMobile.initPlugin($scope.plugin);
+                }
             }
-        }
+
+        };
 
         $scope.toggleEnabled = function () {
             $scope.plugin.enabled = !$scope.plugin.enabled;

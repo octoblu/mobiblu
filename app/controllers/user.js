@@ -67,15 +67,26 @@ angular.module('main.user')
                         return;
                     }
 
-                    console.log('About to Re-initialize skynet');
+                    // If enabled this will slow down the process but properly re-establish the connections
+                    var forceRestart = true;
 
                     $rootScope.setSettings();
 
-                    $rootScope.skynetInit()
-                        .then(function () {
-                            console.log('Skynet INIT\'d after login');
-                            $location.path('/');
-                        });
+                    if (forceRestart) {
+
+                        window.location.reload(true);
+
+                    } else {
+
+                        console.log('About to Re-initialize skynet');
+
+                        $rootScope.skynetInit()
+                            .then(function () {
+                                console.log('Skynet INIT\'d after login');
+                                $location.path('/');
+                            });
+                    }
+
                 }
 
             });
@@ -111,7 +122,6 @@ angular.module('main.user')
                         .then(function () {
                             afterLogin();
                         });
-
 
                 }, function (err) {
                     console.log('Error', err);

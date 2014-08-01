@@ -114,16 +114,20 @@ angular.module('main')
                 }
                 return false;
             } else {
+                if ($rootScope.matchRoute('/login')) {
+                    console.log('Redirecting to homepage');
+                    $location.path('/');
+                }
                 return true;
             }
         };
 
         var pluginsLoaded = false;
 
-        var pluginReady = _.once(function () {
+        var pluginReady = function () {
             var deferred = $q.defer();
 
-            if (pluginsLoaded) {
+            if (pluginsLoaded || window.octobluMobile.isLoaded()) {
 
                 deferred.resolve();
 
@@ -137,15 +141,15 @@ angular.module('main')
 
             }
 
-            timeouts.push(setTimeout(deferred.reject, 1000 * 15));
-
             return deferred.promise;
-        });
+        };
 
         $rootScope.pluginReady = function (cb) {
             pluginReady().then(function () {
                 cb();
-            }, $rootScope.redirectToError);
+            }, function(err){
+                $rootScope.redirectToError(err || 'Plugins module didn\'t load');
+            });
         };
 
         var _skynetInit = function () {
@@ -192,7 +196,9 @@ angular.module('main')
         $rootScope.ready = function (cb) {
             $rootScope.setSettings();
             if (loaded || isErrorPage() || $rootScope.matchRoute('/login')) cb();
-            else _skynetLoad().then(cb, $rootScope.redirectToError);
+            else _skynetLoad().then(cb, function(err){
+                $rootScope.redirectToError(err || 'Meshblu can\'t connect');
+            });
         };
 
         var _startListen = function () {

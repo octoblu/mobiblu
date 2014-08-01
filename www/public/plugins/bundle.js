@@ -41,6 +41,8 @@ obj.pluginsDir = '/public/plugins/local_plugins/';
 
 obj.api = null;
 
+obj.loaded = false;
+
 // Utilities
 obj.each = function (cb) {
     obj.plugins.forEach(cb);
@@ -495,7 +497,7 @@ obj.initPlugin = function (plugin) {
 
 // Individual Plugin Object
 obj.initDevice = function (subdevice) {
-    console.log('INIT DEVICE = ' + subdevice.name + ' :: uuid = ' + subdevice.uuid);
+    console.log('INIT DEVICE = ' + subdevice.name + ' :: type = ' + subdevice.type + ':: uuid = ' + subdevice.uuid);
 
     var pluginObj;
 
@@ -536,8 +538,13 @@ obj.initDevice = function (subdevice) {
         pluginObj.getDefaultOptions = p.getDefaultOptions;
     }
 
-    if(pluginObj)
+    if(pluginObj){
+        console.log('Device Init\'d');
         obj.instances[subdevice.uuid] = pluginObj;
+    }else{
+        console.log('Plugin Obj Not Found');
+    }
+
 
     return pluginObj;
 
@@ -566,7 +573,7 @@ obj.triggerDeviceEvent = function (subdevice, event) {
         }
 
     } else {
-        deferred.resolve('No plugin found :: ' + subdevice.name);
+        deferred.resolve('No plugin found :: ' + subdevice.name + ' :: uuid = ' + subdevice.uuid);
     }
 
     return deferred.promise;
@@ -614,8 +621,8 @@ obj.triggerPluginEvent = function (plugin, event) {
         if (first) {
             obj.triggerDeviceEvent(first, event)
                 .done(function (err, o) {
-                    if (err) console.log('Error', err);
-                    console.log('Response', JSON.stringify(o));
+                    if (err) console.log('Event Error: ' + err);
+                    console.log('Response from event: ' + JSON.stringify(o));
                     deferred.resolve(err, o);
                 }, deferred.resolve);
         } else {
@@ -723,9 +730,11 @@ obj.init = function () {
 
     ]).done(function () {
 
-        console.log('Plugins Loaded');
+        console.log('Plugins Done Loading');
 
         obj.startListen();
+
+        obj.loaded = true;
 
         $(document).trigger('plugins-ready');
 
@@ -738,6 +747,9 @@ obj.init = function () {
 };
 
 var octobluMobile = {
+    isLoaded :  function(){
+        return obj.loaded;
+    },
     init: obj.init,
     plugins: {},
     initPlugin: obj.initPlugin,
