@@ -55,8 +55,8 @@ angular.module('main.messages')
         };
 
         $scope.getGateways = function (myDevices) {
-            //var gateways = _.filter(myDevices, {type: 'gateway', online: true });
-            var gateways = myDevices;
+            $scope.devices = myDevices;
+            var gateways = _.filter(myDevices, { type: 'gateway' });
             _.map(gateways, function (gateway) {
                 gateway.subdevices = [];
                 gateway.plugins = [];
@@ -67,15 +67,15 @@ angular.module('main.messages')
                     'method': 'configurationDetails'
                 }).then(function (response) {
                     if (response && response.result) {
-                        gateway.subdevices = response.result.subdevices || [];
-                        gateway.plugins = response.result.plugins || [];
+                        var index = _.findIndex($scope.devices, { uuid : gateway.uuid });
+                        $scope.devices[index].subdevices = response.result.subdevices || [];
+                        $scope.devices[index].plugins = response.result.plugins || [];
                     }
                 }, function () {
                     console.log('couldn\'t get data for: ');
                     console.log(gateway);
                 });
             });
-            return gateways;
         };
 
         $scope.getDevices = function () {
@@ -84,7 +84,7 @@ angular.module('main.messages')
             promise.then(function (res) {
                 var myDevices = res ? res.data : [];
                 console.log('Retrieved devices');
-                $scope.devices = $scope.getGateways(myDevices);
+                $scope.getGateways(myDevices);
 
                 $rootScope.loading = false;
             }, $rootScope.redirectToError);
@@ -94,6 +94,8 @@ angular.module('main.messages')
             if (!device) device = $scope.device;
             if (!subdevice) subdevice = $scope.subdevice;
 
+            if(!$scope.schemaEditor) $scope.schemaEditor = {};
+
             for (var i in device.plugins) {
                 var plugin = device.plugins[i];
                 if (plugin.name === subdevice.type && plugin.messageSchema) {
@@ -102,7 +104,6 @@ angular.module('main.messages')
                 }
             }
 
-            $scope.schemaEditor = {};
         };
 
         $scope.sendMessage = function () {
@@ -116,7 +117,7 @@ angular.module('main.messages')
 
             var message, uuid;
 
-            if (typeof $scope.sendUuid === 'undefined' || $scope.sendUuid === '') {
+            if (_.isEmpty($scope.sendUuid)) {
                 if ($scope.device) {
                     uuid = $scope.device.uuid;
                 } else {
@@ -135,7 +136,7 @@ angular.module('main.messages')
                     } else {
                         message = $scope.schemaEditor.getValue();
 
-                        $scope.subdevicename = $scope.subdevice.name;
+                        $scope.subdevicename = $scope.subdevice.uuid;
                     }
 
                 } else {
@@ -156,14 +157,36 @@ angular.module('main.messages')
                 }
 
                 console.log('UUID and subdevice name ', uuid, $scope.subdevicename);
+                var html = '<strong>To UUID:</strong> ' + uuid;
+
+                if($scope.subdevicename){
+                    html += '<br><br>' +
+                        '<strong>To Subdevice:</strong>' +
+                        '<br>' + $scope.subdevicename;
+                }
+
+                html += '<br><br>' +
+                    '<strong>Sent Data:</strong>' +
+                    '<br>' + JSON.stringify(message);
+
+                $rootScope.alertModal('Message Sent', html);
+
                 $rootScope.Skynet.message({
                     'devices': uuid,
                     'subdevice': $scope.subdevicename,
                     'payload': message
                 }).then(function (data) {
-                    console.log(data);
+
+                    $scope.$apply(function(){
+
+                        $rootScope.globalModal.msg += '<br><br>' +
+                            '<strong>Received Data:</strong>' +
+                            '<br>' + JSON.stringify(data);
+
+                    });
+
+
                 }, $rootScope.redirectToError);
-                $rootScope.alertModal('Message Sent', JSON.stringify(message));
             }
         };
     });

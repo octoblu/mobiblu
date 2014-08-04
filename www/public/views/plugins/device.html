@@ -21,10 +21,10 @@
 
         <form class="input-group" ng-show="edit">
 
-            <div ng-show="subdevice">
+            <div ng-if="subdevice">
 
                 <input type="text" placeholder="Device Name" ng-model="subdevice.name">
-                <div ng-show="schema">
+                <div ng-if="schema">
                     <schema-editor control="schemaEditor" schema="schema" model="subdevice.options" allow-json-edit="true" additional-properties="true"></schema-editor>
                 </div>
 

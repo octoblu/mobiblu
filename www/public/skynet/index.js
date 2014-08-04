@@ -572,11 +572,20 @@ app.message = function (data) {
     var deferred = defer();
     if (!data.uuid) data.uuid = app.mobileuuid;
     if (!data.token) data.token = app.mobiletoken;
+    var toStr = '';
+    if(data.devices){
+        toStr += '<br>' + 'To UUID: ';
+        if(typeof data.devices === 'string'){
+            toStr += data.devices;
+        }else{
+            toStr += JSON.stringify(data.devices);
+        }
+    }
 
     app.conn.message(data, function (d) {
         activity.logActivity({
             type: 'sent_message',
-            html: 'Sending Message: ' + JSON.stringify(data.payload)
+            html: 'Sending Message: ' + JSON.stringify(data.payload) + toStr
         });
         deferred.resolve(d);
     });
@@ -626,8 +635,7 @@ app.triggerTopic = function (name, payload) {
     app.message({
         topic: name,
         payload: payload,
-        uuid: app.skynetuuid,
-        token: app.skynettoken
+        devices: app.skynetuuid
     }).then(deferred.resolve,
         deferred.reject);
 

@@ -50,18 +50,16 @@ obj.each = function (cb) {
 
 obj.findInstance = function (match) {
 
-    if (!obj.instances.length) {
-        return null;
-    }
-
     var foundKey = null;
 
     _.each(_.keys(obj.instances), function (key) {
         var ins = obj.instances[key];
         if (ins.uuid === match || ins.name === match) {
-            foundKey = match;
+            foundKey = key;
         }
     });
+
+    console.log('Found Key', JSON.stringify(foundKey));
 
     if (foundKey && obj.instances[foundKey]) {
         return obj.instances[foundKey];

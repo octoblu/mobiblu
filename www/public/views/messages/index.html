@@ -3,8 +3,6 @@
     <div ng-controller="MessageCtrl" ng-init="init()">
 
         <h3 class="page-title"><i class='fa fa-magic'></i> Message Devices</h3>
-        <span class="content-padding" style="color:green;">{{messageOutput}}</span>
-
         <br />
 
         <div ng-include src="'/public/views/system/loading.html'"></div>
@@ -33,7 +31,7 @@
                 <br />
             </div>
 
-            <div ng-show="schema">
+            <div ng-if="schema">
                 <schema-editor control="schemaEditor" schema="schema" allow-json-edit="true" additional-properties="true"></schema-editor>
             </div>
 
@@ -42,7 +40,7 @@
             <input type="text" placeholder="Message" ng-model="sendText" >
             <br>
             <br>
-            <button ng-click="sendMessage()" class="btn btn-primary btn-block">Send</button>
+            <button ng-click="sendMessage()" class="btn btn-positive btn-outlined btn-block">Send</button>
 
         </div>
 
