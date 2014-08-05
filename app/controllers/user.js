@@ -12,6 +12,7 @@ angular.module('main.user')
         };
 
         $scope.loginViaProvider = function (provider) {
+            $rootScope.loading = true;
             var authWindow = window.open('http://app.octoblu.com/auth/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_blank', 'location=no,toolbar=no');
 
             $(authWindow).on('loadstart', function (e) {
