@@ -131,12 +131,16 @@ angular.module('main.messages')
 
                 if ($scope.schema) {
                     var errors = $scope.schemaEditor.validate();
+
                     if (errors.length) {
                         $rootScope.alertModal('Error', JSON.stringify(errors));
+
                     } else {
                         message = $scope.schemaEditor.getValue();
 
-                        $scope.subdevicename = $scope.subdevice.uuid;
+                        $scope.subdeviceuuid = $scope.subdevice.uuid;
+
+                        $scope.subdevicename = $scope.subdevice.name;
                     }
 
                 } else {
@@ -173,7 +177,7 @@ angular.module('main.messages')
 
                 $rootScope.Skynet.message({
                     'devices': uuid,
-                    'subdevice': $scope.subdevicename,
+                    'subdevice': $scope.subdeviceuuid || $scope.subdevicename,
                     'payload': message
                 }).then(function (data) {
 
