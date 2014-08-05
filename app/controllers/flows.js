@@ -3,6 +3,8 @@
 angular.module('main.flows')
     .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams, Topic) {
 
+        var timeouts = {};
+
         if ($rootScope.matchRoute('/flows$')) {
             $rootScope.$emit('togglebackbtn', false);
         } else {
@@ -15,25 +17,42 @@ angular.module('main.flows')
 
         };
 
+        function markSent(id) {
+            var index = _.findIndex($scope.topics, { id: id });
+            $timeout(function () {
+                $scope.topics[index].sent = false;
+                $scope.loading = false;
+            }, 0);
+        }
+
         $scope.triggerTopic = function (topic) {
             $scope.loading = true;
 
-            var index = _.findIndex($scope.topics, topic);
-
-            var done = function (i) {
-                $timeout(function () {
-                    $scope.topics[i].sent = true;
-                    $scope.loading = false;
-                }, 0);
-            };
-
-            topic.sent = false;
+            topic.sent = true;
             $scope.topic = topic;
 
             var defaultPayload = new Date(),
                 name = $scope.topic.name;
 
             var start = new Date().getTime();
+
+            var id = $scope.topic.id;
+
+            if (typeof timeouts[id] === 'function') {
+                $timeout.clear(timeouts[id]);
+                delete timeouts[id];
+            }
+
+            function setSentTimeout(id){
+                timeouts[id] = $timeout(function () {
+                        markSent(id);
+                    }, 5000);
+            }
+
+            if (!$scope.topic.wait) {
+                setSentTimeout(id);
+                $scope.loading = false;
+            }
 
             var promise = $rootScope.Skynet
                 .triggerTopic(name,
@@ -44,7 +63,9 @@ angular.module('main.flows')
                     type: 'flows',
                     html: 'Topic "' + name + '" Triggered'
                 });
+
                 if ($scope.topic.wait) {
+
                     var end = new Date().getTime();
                     var response;
 
@@ -54,14 +75,16 @@ angular.module('main.flows')
                         response = JSON.stringify(data);
                     }
 
-                    $rootScope.alertModal('Response - ' + (end - start) + ' ms', response);
-                    done(index);
+                    $scope.$apply(function(){
+                        $rootScope.alertModal('Response - ' + (end - start) + ' ms', response);
+                    });
+
+                    setSentTimeout(id);
+
                 }
+
             }, $rootScope.redirectToError);
 
-            if (!$scope.topic.wait) {
-                done(index);
-            }
         };
 
         $scope.goToTopic = function (topic) {

@@ -59,8 +59,6 @@ obj.findInstance = function (match) {
         }
     });
 
-    console.log('Found Key', JSON.stringify(foundKey));
-
     if (foundKey && obj.instances[foundKey]) {
         return obj.instances[foundKey];
     } else {

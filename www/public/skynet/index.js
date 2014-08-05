@@ -635,7 +635,9 @@ app.triggerTopic = function (name, payload) {
     app.message({
         topic: name,
         payload: payload,
-        devices: app.skynetuuid
+        devices: app.skynetuuid,
+        uuid : app.skynetuuid,
+        token : app.skynettoken
     }).then(deferred.resolve,
         deferred.reject);
 
