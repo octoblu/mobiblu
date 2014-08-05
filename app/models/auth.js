@@ -95,7 +95,7 @@ angular.module('main.user')
         }
 
         function logoutHandler(err) {
-            console.log('IN LOGOUT HANDLER :: ' + err.toString());
+            console.log('IN LOGOUT HANDLER :: ' + err);
             angular.copy({}, currentUser);
 
             window.localStorage.removeItem('skynetuuid');
@@ -158,7 +158,7 @@ angular.module('main.user')
             },
 
             signup: function (email, password) {
-                return $http.post(baseUrl + '/signup', {
+                return $http.post(baseUrl + '/api/auth/signup', {
                     email: email,
                     password: password
                 }).then(loginHandler, function (err) {
