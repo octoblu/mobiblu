@@ -1,45 +1,43 @@
-<div>
+<div ng-controller="PluginCtrl" ng-init="loadSubdevice()">
 
-    <div ng-controller="PluginCtrl" ng-init="loadSubdevice()">
+    <p class="content-padded">
 
-        <div ng-include src="'/public/views/system/loading.html'"></div>
-
-        <p class="content-padded">
-        <h3>Device
+    <h3>Device
             <span ng-click="editDevice()" class="pull-right">
                 <span ng-hide="edit"><i class="fa fa-pencil-square-o"></i>&nbsp;Configure</span>
                 <span ng-show="edit" ng-click="savePlugin()"><i class="fa fa-check-square-o"></i>&nbsp;Done</span>
             </span>
-        </h3></p>
+    </h3></p>
 
-        <div ng-hide="edit">
+    <div ng-hide="edit">
 
-            <strong class="clear: both;">Sensor Graph:</strong>
-            <sensor-grapher class="sensor-data smoothie-grapher" device="subdevice.type"></sensor-grapher>
+        <strong class="clear: both;">Sensor Graph:</strong>
+        <sensor-grapher class="sensor-data smoothie-grapher" device="subdevice.type"></sensor-grapher>
+
+    </div>
+
+    <form class="input-group" ng-show="edit">
+
+        <div ng-if="subdevice">
+
+            <input type="text" placeholder="Device Name" ng-model="subdevice.name">
+
+            <div ng-if="schema">
+                <schema-editor control="schemaEditor" schema="schema" model="subdevice.options" allow-json-edit="true"
+                               additional-properties="true"></schema-editor>
+            </div>
+
+            <button class="btn btn-success btn-block btn-outlined" ng-click="savePlugin()">Save</button>
 
         </div>
 
-        <form class="input-group" ng-show="edit">
+    </form>
 
-            <div ng-if="subdevice">
+    <button class="btn btn-block btn-outlined" ng-show="isDeveloper" ng-click="initDevice(subdevice)">Re-Initialize
+    </button>
 
-                <input type="text" placeholder="Device Name" ng-model="subdevice.name">
-                <div ng-if="schema">
-                    <schema-editor control="schemaEditor" schema="schema" model="subdevice.options" allow-json-edit="true" additional-properties="true"></schema-editor>
-                </div>
+    <div ng-include src="'/public/views/system/activity.html'"></div>
 
-                <button class="btn btn-success btn-block btn-outlined" ng-click="savePlugin()">Save</button>
-
-            </div>
-
-        </form>
-
-        <button class="btn btn-block btn-outlined" ng-show="isDeveloper" ng-click="initDevice(subdevice)">Re-Initialize</button>
-
-        <div ng-include src="'/public/views/system/activity.html'"></div>
-
-        <button class="btn btn-negative btn-block btn-outlined" ng-click="deleteDevice()">Delete</button>
-
-    </div>
+    <button class="btn btn-negative btn-block btn-outlined" ng-click="deleteDevice()">Delete</button>
 
 </div>

@@ -181,24 +181,28 @@ angular.module('main')
             return deferred.promise;
         };
 
-        var _skynetLoad = _.once(function () {
+        var _skynetLoad = function () {
 
             var deferred = $q.defer();
 
-            $(document).one('skynet-loaded', function () {
+            $(document).on('skynet-ready', function () {
                 loaded = true;
                 deferred.resolve();
             });
 
             return deferred.promise;
-        });
+        };
 
         $rootScope.ready = function (cb) {
             $rootScope.setSettings();
-            if (loaded || isErrorPage() || $rootScope.matchRoute('/login')) cb();
-            else _skynetLoad().then(cb, function(err){
-                $rootScope.redirectToError(err || 'Meshblu can\'t connect');
-            });
+
+            if (loaded || isErrorPage() || $rootScope.matchRoute('/login')){
+                cb();
+            } else {
+                _skynetLoad().then(cb, function(err){
+                    $rootScope.redirectToError(err || 'Meshblu can\'t connect');
+                });
+            }
         };
 
         var _startListen = function () {
@@ -229,11 +233,13 @@ angular.module('main')
                     if ($rootScope.skynetConn) {
 
                         console.log('SKYNET LOADED');
+                        $(document).trigger('skynet-ready');
+                        loaded = true;
+
                         _startListen();
 
                     }
 
-                    loaded = true;
 
                     $rootScope.isAuthenticated();
 
@@ -271,7 +277,21 @@ angular.module('main')
         $rootScope.closeModal = function () {
             $rootScope.globalModal = {};
             $('#globalModal').removeClass('active');
-
         };
+
+
+        $rootScope.showDevicesModal = function (devices, click) {
+            $rootScope.devicesModal = {};
+            $rootScope.devicesModal.title = 'Choose a Device';
+            $rootScope.devicesModal.devices = devices;
+            $rootScope.devicesModal.click = click;
+
+            $('#devicesModal').addClass('active');
+        };
+
+        $rootScope.closeDevicesModal = function () {
+            $rootScope.devicesModal = {};
+            $('#devicesModal').removeClass('active');
+        }
 
     });

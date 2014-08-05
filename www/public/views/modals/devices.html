@@ -1,0 +1,21 @@
+<div id="devicesModal" class="modal">
+    <header class="bar bar-nav">
+        <span class="icon icon-close pull-right" ng-click="closeDevicesModal()"></span>
+
+        <h1 class="title">{{ devicesModal.title }}</h1>
+    </header>
+
+    <div class="content">
+        <div class="card">
+            <ul class="table-view">
+                <li ng-repeat="device in devicesModal.devices" ng-show="device.uuid && device.name && device.type" class="table-view-cell">
+                    <span ng-click="devicesModal.click(device.uuid)" >
+                       {{ device.name }} > <strong>{{ device.type }}</strong>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-padded" ng-hide="devicesModal.devices && devicesModal.devices.length">No devices found. <a href ng-click="closeDevicesModal()"> Close </a></div>
+</div>

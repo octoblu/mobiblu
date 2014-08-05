@@ -1,22 +1,17 @@
-<div>
+<div ng-controller="PluginCtrl" ng-init="installed()">
 
-    <div ng-controller="PluginCtrl" ng-init="installed()">
+    <p class="content-padded">Installed plugins.</p>
 
-        <div ng-include src="'/public/views/system/loading.html'"></div>
-
-        <p class="content-padded">Installed plugins.</p>
-        <div class="card">
-            <ul class="table-view">
-                <li class="table-view-cell" ng-repeat="plugin in plugins">
-                    <a ng-href="index.html#!/plugins/{{ plugin.name }}"  class="navigate-right">
+    <div class="card">
+        <ul class="table-view">
+            <li class="table-view-cell" ng-repeat="plugin in plugins">
+                <a ng-href="index.html#!/plugins/{{ plugin.name }}" class="navigate-right">
                         <span>
                             {{ plugin.name }}
                         </span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
+                </a>
+            </li>
+        </ul>
     </div>
 
 </div>

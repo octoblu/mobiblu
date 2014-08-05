@@ -1,24 +1,23 @@
-<div>
+<div ng-controller="ErrorCtrl" ng-init="init()" class="text-center">
 
-    <div ng-controller="ErrorCtrl" ng-init="init()" class="text-center">
+    <h3 class="content-padded">
+        <i class="fa fa-3x fa-times-circle-o"></i><br>
+        <span class="text-red">Uh Oh! An Error Occurred</span>
+    </h3>
 
-        <h3 class="content-padded">
-            <i class="fa fa-3x fa-times-circle-o"></i><br>
-            <span class="text-red">Uh Oh! An Error Occurred</span>
-        </h3>
-        <div class="content-padded" ng-show="errorMsg">{{ errorMsg }}
-            <br>
-            <br></div>
+    <div class="content-padded" ng-show="errorMsg">{{ errorMsg }}
+        <br>
+        <br></div>
 
 
-        <div class="content-padded">
-            <p>Check your internet connection.</p>
-            <p>If you are seeing repeated issues. Try logging out and back in.</p>
-        </div>
+    <div class="content-padded">
+        <p>Check your internet connection.</p>
 
-        <a href="index.html" target="_self" class="btn btn-positive btn-block btn-outlined">Try Again <i class="fa fa-refresh"></i></a>
-
-        <a href="index.html#!/login" class="btn btn-negative btn-block btn-outlined">Logout</a>
+        <p>If you are seeing repeated issues. Try logging out and back in.</p>
     </div>
 
+    <a href="index.html" target="_self" class="btn btn-positive btn-block btn-outlined">Try Again <i
+            class="fa fa-refresh"></i></a>
+
+    <a href="index.html#!/login" class="btn btn-negative btn-block btn-outlined">Logout</a>
 </div>

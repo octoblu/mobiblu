@@ -1,27 +1,24 @@
-<div>
+<div ng-controller="SensorCtrl" ng-init="init()">
 
-    <div ng-controller="SensorCtrl" ng-init="init()">
+    <div ng-hide="loading">
 
-        <div ng-include src="'/public/views/system/loading.html'"></div>
+        <h3 class="page-title content-padded"><span class="pull-left icon {{ sensor.icon }}"></span>{{ sensor.label }}
+        </h3>
 
-        <div ng-hide="loading">
+        <form class="input-group">
+            <label>Enable Background Tracking</label>
 
-            <h3 class="page-title content-padded"><span class="pull-left icon {{ sensor.icon }}"></span>{{ sensor.label }}</h3>
-            <form class="input-group">
-                <label>Enable Background Tracking</label>
-                <div class="input-row">
+            <div class="input-row">
 
-                    <toggle-switch model="setting" change="toggleSwitch"></toggle-switch>
+                <toggle-switch model="setting" change="toggleSwitch"></toggle-switch>
 
-                </div>
-                <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
-                <div id="sensorData"></div>
-            </form>
+            </div>
+            <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
+            <div id="sensorData"></div>
+        </form>
 
-            <strong class="clear: both;" class="content-padded">Sensor Graph:</strong>
-            <sensor-grapher class="sensor-data smoothie-grapher" device="sensor.label"></sensor-grapher>
-
-        </div>
+        <strong class="clear: both;" class="content-padded">Sensor Graph:</strong>
+        <sensor-grapher class="sensor-data smoothie-grapher" device="sensor.label"></sensor-grapher>
 
     </div>
 

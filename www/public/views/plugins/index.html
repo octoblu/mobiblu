@@ -1,39 +1,37 @@
-<div>
+<div ng-controller="PluginCtrl" ng-init="init()">
 
-    <div ng-controller="PluginCtrl" ng-init="init()">
+    <div class="card">
+        <ul class="table-view">
+            <li class="table-view-cell media">
+                <a href="index.html#!/plugins/search" class="navigate-right">
+                    <span class="media-object pull-left icon fa fa-search"></span>
 
-        <div ng-include src="'/public/views/system/loading.html'"></div>
+                    <div class="media-body">
+                        Search Devices
+                    </div>
+                </a>
+            </li>
+            <li class="table-view-cell media">
+                <a href="index.html#!/plugins/installed" class="navigate-right">
+                    <span class="media-object pull-left icon fa fa-puzzle-piece"></span>
 
-        <div class="card">
-            <ul class="table-view">
-                <li class="table-view-cell media">
-                    <a href="index.html#!/plugins/search" class="navigate-right">
-                        <span class="media-object pull-left icon fa fa-search"></span>
-                        <div class="media-body">
-                            Search Devices
-                        </div>
-                    </a>
-                </li>
-                <li class="table-view-cell media">
-                    <a href="index.html#!/plugins/installed" class="navigate-right">
-                        <span class="media-object pull-left icon fa fa-puzzle-piece"></span>
-                        <div class="media-body">
-                            Installed Plugins
-                        </div>
-                    </a>
-                </li>
-                <li class="table-view-cell media">
-                    <a href="index.html#!/plugins/devices" class="navigate-right">
-                        <span class="media-object pull-left icon fa fa-cubes"></span>
-                        <div class="media-body">
-                            Installed Devices
-                        </div>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <p class="content-padded">Download plugins to extend the capability of Octoblu Mobile. Easily communicate with devices and communicate directly with Skynet and Octoblu.</p>
+                    <div class="media-body">
+                        Installed Plugins
+                    </div>
+                </a>
+            </li>
+            <li class="table-view-cell media">
+                <a href="index.html#!/plugins/devices" class="navigate-right">
+                    <span class="media-object pull-left icon fa fa-cubes"></span>
 
+                    <div class="media-body">
+                        Installed Devices
+                    </div>
+                </a>
+            </li>
+        </ul>
     </div>
+    <p class="content-padded">Download plugins to extend the capability of Octoblu Mobile. Easily communicate with
+        devices and communicate directly with Skynet and Octoblu.</p>
 
 </div>

@@ -99,12 +99,21 @@
             </button>
         </header>
         <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
+            <a href ng-click="searchForDevices()" class="btn pull-left" ng-show="claimDeviceBtn">
+                Search & Claim Devices
+            </a>
+
             <a href="index.html#!/activity" id="sensor-activity" class="btn pull-right" ng-show="loggedin">
                 Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
             </a>
         </div>
         <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
-        <div class="content" data-ng-view></div>
+        <div class="content">
+
+            <div ng-include src="'/public/views/system/loading.html'"></div>
+
+            <div data-ng-view></div>
+        </div>
 
         <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-show="loggedin">
             <a class="tab-item" href="index.html#!/" ng-class="{active: isActive('/')}" data-ignore="push">
@@ -129,16 +138,9 @@
             </a>
         </nav>
 
-        <div id="globalModal" class="modal">
-            <header class="bar bar-nav">
-                <span class="icon icon-close pull-right" ng-click="closeModal()"></span>
-                <h1 class="title">{{ globalModal.title }}</h1>
-            </header>
+        <div ng-include src="'/public/views/modals/devices.html'"></div>
+        <div ng-include src="'/public/views/modals/global.html'"></div>
 
-            <div class="content">
-                <p class="content-padded" ng-bind-html="globalModal.msg"></p>
-            </div>
-        </div>
     </div>
 </body>
 

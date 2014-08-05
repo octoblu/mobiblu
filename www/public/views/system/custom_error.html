@@ -1,11 +1,8 @@
-<div>
+<div ng-controller="ErrorCtrl" ng-init="init()" class="text-center">
 
-    <div ng-controller="ErrorCtrl" ng-init="init()" class="text-center">
+    <h3 class="content-padded">
+        <i class="fa fa-3x fa-times-circle-o"></i><br>
+    </h3>
 
-        <h3 class="content-padded">
-            <i class="fa fa-3x fa-times-circle-o"></i><br>
-        </h3>
-        <div class="content-padded">{{ errorMsg }}</div>
-    </div>
-
+    <div class="content-padded">{{ errorMsg }}</div>
 </div>
