@@ -231,7 +231,9 @@ app.registerDevice = function (newDevice) {
     app.conn.register(
         regData,
         function (data) {
-            app.conn.identify();
+            if (newDevice) {
+                app.conn.identify();
+            }
             console.log('Registration Response: ', JSON.stringify(data));
             window.localStorage.setItem('mobileuuid', data.uuid);
             window.localStorage.setItem('mobiletoken', data.token);
@@ -332,7 +334,7 @@ app.connect = function () {
             console.log('Error Connecting to Skynet: ' + e.toString());
         }
         if (conn) {
-            app.registerDevice(true, conn)
+            app.registerDevice()
                 .done(deferred.resolve, deferred.reject);
         } else {
             deferred.reject(e);
