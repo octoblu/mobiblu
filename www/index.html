@@ -99,8 +99,8 @@
             </button>
         </header>
         <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
-            <a href ng-click="searchForDevices()" class="btn pull-left" ng-show="claimDeviceBtn">
-                Search & Claim Devices
+            <a href ng-click="searchForDevices()" class="btn pull-left" ng-show="loggedin && claimDeviceBtn">
+                Claim Devices
             </a>
 
             <a href="index.html#!/activity" id="sensor-activity" class="btn pull-right" ng-show="loggedin">

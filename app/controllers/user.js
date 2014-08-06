@@ -38,35 +38,42 @@ angular.module('main.user')
                         invalidLogin = true;
                     }
 
+
+
                     console.log('Skynet UUID: ' + skynetuuid);
                     console.log('Skynet Token: ' + skynettoken);
                     console.log('NEW Skynet UUID: ' + newskynetuuid);
                     console.log('NEW Skynet Token: ' + newskynettoken);
-                    // Set new Skynet Tokens
-                    if (newskynetuuid && newskynettoken) {
-                        console.log('Setting new credentials');
-                        // If user changed then do delete the mobileuuid && mobiletoken
-                        if (skynetuuid && skynetuuid !== newskynetuuid) {
-                            console.log('Setting new mobile credentials');
-                            window.localStorage.removeItem("mobileuuid");
-                            window.localStorage.removeItem("mobiletoken");
-                        }
-                        window.localStorage.setItem("skynetuuid", newskynetuuid);
-                        window.localStorage.setItem("skynettoken", newskynettoken);
-                        window.localStorage.setItem('loggedin', true);
 
-                        $rootScope.loggedin = true;
-                        $rootScope.Skynet.login(newskynetuuid, newskynettoken);
-                    } else if (invalidLogin || ( !newskynetuuid && !newskynettoken )) {
-                        console.log('No Credentials' + JSON.stringify([newskynetuuid, newskynettoken]));
+                    try{
+                        // Set new Skynet Tokens
+                        if (newskynetuuid && newskynettoken) {
+                            console.log('Setting new credentials');
+                            // If user changed then do delete the mobileuuid && mobiletoken
+                            if (skynetuuid && skynetuuid !== newskynetuuid) {
+                                console.log('Setting new mobile credentials');
+                                window.localStorage.removeItem("mobileuuid");
+                                window.localStorage.removeItem("mobiletoken");
+                            }
+                            window.localStorage.setItem("skynetuuid", newskynetuuid);
+                            window.localStorage.setItem("skynettoken", newskynettoken);
+                            window.localStorage.setItem('loggedin', true);
+
+                            $rootScope.loggedin = true;
+                            $rootScope.Skynet.login(newskynetuuid, newskynettoken);
+                        } else if (invalidLogin || ( !newskynetuuid && !newskynettoken )) {
+                            console.log('No Credentials' + JSON.stringify([newskynetuuid, newskynettoken]));
+                            window.location = 'error.html';
+                            return;
+                        } else {
+                            console.log('No Credentials Backup' + JSON.stringify([newskynetuuid, newskynettoken]));
+                            window.location = 'error.html';
+                            return;
+                        }
+                    }catch(e){
                         window.location = 'error.html';
-                        window.location = 'error.html';
-                        return;
-                    } else {
-                        console.log('No Credentials' + JSON.stringify([newskynetuuid, newskynettoken]));
-                        window.location = 'error.html';
-                        return;
                     }
+
 
                     // If enabled this will slow down the process but properly re-establish the connections
                     var forceRestart = true;

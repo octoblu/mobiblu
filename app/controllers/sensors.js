@@ -40,6 +40,10 @@ angular.module('main.sensors')
             $rootScope.$emit('togglebackbtn', false);
         }
 
+        $scope.initList = function(){
+            $rootScope.loading = false;
+        };
+
         $scope.init = function () {
             $rootScope.ready(function () {
                 var settings = $rootScope.settings;

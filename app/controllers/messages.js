@@ -96,6 +96,8 @@ angular.module('main.messages')
 
             if(!$scope.schemaEditor) $scope.schemaEditor = {};
 
+            $scope.schema = null;
+
             for (var i in device.plugins) {
                 var plugin = device.plugins[i];
                 if (plugin.name === subdevice.type && plugin.messageSchema) {
