@@ -549,6 +549,8 @@ app.updateDeviceSetting = function (data) {
     data.platform = window.device.platform;
     data.name = app.devicename = data.name || app.devicename;
 
+    if(!data.flows) data.flows = Topics.getAll();
+
     window.localStorage.setItem('devicename', data.name);
 
     data.type = 'octobluMobile';
@@ -629,7 +631,7 @@ app.sendData = function (data) {
     });
 
     return deferred.promise;
-}
+};
 
 app.triggerTopic = function (name, payload) {
     var deferred = defer();

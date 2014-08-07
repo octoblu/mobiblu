@@ -113,7 +113,7 @@ obj.deleteDevice = function (device, settings) {
     }
 
     $.ajax({
-        url: baseURL + '/devices/' + uuid,
+        url: baseURL + '/devices/' + device.uuid,
         method: 'DELETE',
         headers: {
             skynet_auth_uuid: uuid,
