@@ -29,7 +29,7 @@ function Connection(opt){
   this.options.options.transports = this.options.options.transports || ['websocket'];
   this.options.forceNew = (opt.forceNew != null) ? opt.forceNew : false;
 
-  this.options.server = this.options.server || 'ws://skynet.im';
+  this.options.server = this.options.server || 'ws://meshblu.octoblu.com';
   this.options.port = this.options.port || 80;
 
 
@@ -42,9 +42,9 @@ function Connection(opt){
   // }
   var network = this.options.server + ':' + this.options.port;
   console.log('trying', network);
-  this.socket = socketIoClient(network, this.options.options); // || "ws://skynet.im");
+  this.socket = socketIoClient(network, this.options.options); // || "ws://meshblu.octoblu.com");
 
-  // this.socket = io.connect(this.options.server || "http://skynet.im", {
+  // this.socket = io.connect(this.options.server || "http://meshblu.octoblu.com", {
   //   port: this.options.port || 80,
   //   forceNew: this.options.forceNew,
   //   multiplex: !this.options.forceNew,

@@ -492,7 +492,7 @@ app.startBG = function () {
 
         // BackgroundGeoLocation is highly configurable.
         app.bgGeo.configure(callbackFn, failureFn, {
-            url: 'http://skynet.im/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
+            url: 'http://meshblu.octoblu.com/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
             params: { // HTTP POST params sent to your server when persisting locations.
                 uuid: app.mobileuuid,
                 token: app.mobiletoken,

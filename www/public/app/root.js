@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $location, $q, Auth) {
+    .run(function ($rootScope, $location, $q, Auth, SkynetRest) {
 
         var loaded = false;
 
@@ -280,18 +280,114 @@ angular.module('main')
         };
 
 
-        $rootScope.showDevicesModal = function (devices, click) {
-            $rootScope.devicesModal = {};
-            $rootScope.devicesModal.title = 'Choose a Device';
-            $rootScope.devicesModal.devices = devices;
-            $rootScope.devicesModal.click = click;
+        $rootScope.showDevicesModal = function (obj) {
+
+            function onError(action, err, info) {
+                if(!info) info = '';
+                info = '<br>' + info;
+                console.log('ERROR ' + action + ' device: ' + JSON.stringify(err));
+                $rootScope.$apply(function () {
+                    $rootScope.closeDevicesModal();
+                    $rootScope.redirectToCustomError('Unable to ' + action + ' that device. ' + info);
+                });
+            }
+
+            function onSuccess(action, result){
+                console.log(action + ' device result' + JSON.stringify(result));
+                if (result.err) {
+                    onError(action, result.err, info);
+                } else {
+                    $rootScope.$apply(function () {
+                        $rootScope.closeDevicesModal();
+                        if(action === 'delete') {
+                            action += 'd';
+                        }else{
+                            action += 'ed';
+                        }
+                        $rootScope.alertModal('Device ' + action, 'Device successfully ' + action + '!');
+                    });
+                }
+            }
+
+            obj = _.extend({
+                title : 'Devices',
+                devices : [],
+                editDevice: function (device) {
+                    var action = 'edit', info = 'You may not have permission to edit that device.';
+                    SkynetRest.editDevice(device, $rootScope.settings)
+                        .then(function (result) {
+                            onSuccess(action, result);
+                        }, function(err){
+                            onError(action, err, info);
+                        });
+                },
+                claimDevice: function (device) {
+                    var action = 'claim', info = 'You may not have permission to claim that device.';
+                    SkynetRest.claimDevice(device.uuid, $rootScope.settings)
+                        .then(function (result) {
+                            onSuccess(action, result);
+                        }, function(err){
+                            onError(action, err, info);
+                        });
+                },
+                deleteDevice: function (device) {
+                    var action = 'delete', info = 'You may not have permission to delete that device.';
+
+                    SkynetRest.deleteDevice(device, $rootScope.settings)
+                        .then(function (result) {
+                            onSuccess(action, result);
+                        }, function(err){
+                            onError(action, err, info);
+                        });
+                }
+            }, obj);
+
+            obj.editMode = false;
+            obj.device = null;
+
+            obj.showEdit = function(device){
+                $rootScope.devicesModal.editMode = true;
+                $rootScope.devicesModal.device = device;
+            };
+
+            $rootScope.devicesModal = obj;
 
             $('#devicesModal').addClass('active');
         };
 
+        $rootScope.searchForDevices = function (method) {
+            $rootScope.loading = true;
+            if(typeof SkynetRest[method] !== 'function'){
+                return false;
+            }
+            if($rootScope.devicesModal){
+                $rootScope.devicesModal.editMode = false;
+                $rootScope.devicesModal.devices = [];
+            }
+            $rootScope.devicesMethod = method;
+            SkynetRest[method]($rootScope.settings)
+                .then(function (result) {
+                    console.log('Devices result', result);
+                    $rootScope.$apply(function () {
+                        $rootScope.loading = false;
+                    });
+
+                    $rootScope.ready(function () {
+                        var devices = result ? result.devices : [];
+                        $rootScope.showDevicesModal({
+                            devices: devices
+                        });
+                    });
+                }, function (err) {
+                    console.log('ERROR getting devices', err);
+                });
+        };
+
+
         $rootScope.closeDevicesModal = function () {
+            $rootScope.devicesMethod = null;
+
             $rootScope.devicesModal = {};
             $('#devicesModal').removeClass('active');
-        }
-
+        };
     });

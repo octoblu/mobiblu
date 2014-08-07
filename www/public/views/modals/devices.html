@@ -6,16 +6,47 @@
     </header>
 
     <div class="content">
-        <div class="card">
+
+        <div class="segmented-control">
+                <span class="control-item" ng-click="searchForDevices('localDevices')" ng-class="{ active : devicesMethod === 'localDevices'}">
+                    Local Devices
+                </span>
+                <span class="control-item" ng-click="searchForDevices('myDevices')" ng-class="{ active : devicesMethod === 'myDevices'}">
+                    My Devices
+                </span>
+        </div>
+
+        <div class="card" ng-hide="devicesModal.editMode">
             <ul class="table-view">
-                <li ng-repeat="device in devicesModal.devices" ng-show="device.uuid && device.name && device.type" class="table-view-cell">
-                    <span ng-click="devicesModal.click(device.uuid)" >
-                       {{ device.name }} > <strong>{{ device.type }}</strong>
+                <li ng-repeat="device in devicesModal.devices" ng-show="device.uuid && device.name" class="table-view-cell">
+                    <span ng-click="devicesModal.showEdit(device)" class="navigate-right" >
+                       {{ device.name }}
                     </span>
                 </li>
             </ul>
         </div>
+
+        <div class="content-padded" ng-show="devicesModal.editMode">
+            <form class="input-group">
+                <div class="input-row">
+                    <label>Name</label>
+                    <input type="text" ng-model="devicesModal.device.name">
+                </div>
+                <div class="input-row">
+                    <label>Type</label>
+                    <input type="text" ng-model="devicesModal.device.type">
+                </div>
+            </form>
+            <br>
+            <button class="btn btn-positive btn-block btn-outlined" ng-click="devicesModal.editDevice(devicesModal.device)">Save</button>
+            <button class="btn btn-block btn-outlined" ng-show="devicesMethod === 'localDevices'" ng-click="devicesModal.claimDevice(devicesModal.device)">Claim</button>
+            <button class="btn btn-negative btn-block btn-outlined" ng-show="devicesModal.device.uuid !== settings.mobileuuid" ng-click="devicesModal.deleteDevice(devicesModal.device)">Delete</button>
+
+        </div>
+
+        <div class="content-padded" ng-show="devicesMethod && !devicesModal.devices.length">No devices found. <a href ng-click="closeDevicesModal()"> Close </a></div>
+        <div class="content-padded" ng-show="!devicesMethod">Please select either My Devices or Local Devices</div>
     </div>
 
-    <div class="content-padded" ng-hide="devicesModal.devices && devicesModal.devices.length">No devices found. <a href ng-click="closeDevicesModal()"> Close </a></div>
+
 </div>

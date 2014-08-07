@@ -36,52 +36,6 @@ systemApp.controller('SubHeaderCtrl',
 
         };
 
-        $scope.searchForDevices = function () {
-            $rootScope.loading = true;
-            SkynetRest.localdevices($rootScope.settings)
-                .then(function (result) {
-                    console.log('Local devices result', result);
-                    $scope.$apply(function () {
-                        $rootScope.loading = false;
-                        $scope.showDevices(result);
-                    });
-                }, function (err) {
-                    console.log('ERROR get local devices', err);
-                });
-        };
-
-        $scope.showDevices = function (result) {
-            var devices = result ? result.devices : [];
-            $rootScope.showDevicesModal(devices, $scope.claimDevice);
-        };
-
-        $scope.claimDevice = function (uuid) {
-            if (!uuid) return;
-
-            function onError(err) {
-                console.log('ERROR claiming devices', err);
-                $scope.$apply(function () {
-                    $rootScope.closeDevicesModal();
-                    $rootScope.redirectToError('Unable to claim that device');
-                });
-            }
-
-            $rootScope.ready(function () {
-                SkynetRest.claimdevice(uuid, $rootScope.settings)
-                    .then(function (result) {
-                        console.log('Claim device result' + JSON.stringify(result));
-                        if (result.err) {
-                            onError(result.err);
-                        } else {
-                            $scope.$apply(function () {
-                                $rootScope.closeDevicesModal();
-                                $rootScope.alertModal('Device Claimed', 'Device Successfully Claimed!');
-                            });
-                        }
-                    }, onError);
-            });
-        };
-
         $scope.showClaimDevice();
     });
 

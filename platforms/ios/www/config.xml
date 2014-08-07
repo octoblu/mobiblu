@@ -2,7 +2,7 @@
 <widget id="com.octoblu.mobilehub" version="3.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Octoblu Mobile</name>
     <description>
-        Octoblu Mobile Hub for communicating with skynet.im and octoblu.com
+        Octoblu Mobile Hub for communicating with meshblu.octoblu.com and octoblu.com
     </description>
     <author email="info@octoblu.com" href="http://app.octoblu.com/">
         Octoblu Inc, Team

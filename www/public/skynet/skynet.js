@@ -15,7 +15,7 @@ var defer = function () {
 };
 
 
-var baseURL = 'http://skynet.im';
+var baseURL = 'http://meshblu.octoblu.com';
 var obj = {};
 
 obj.getDevice = function (uuid, token) {
@@ -55,7 +55,7 @@ obj.sendData = function (uuid, token, data) {
     return deferred.promise;
 };
 
-obj.localdevices = function (settings) {
+obj.localDevices = function (settings) {
     var deferred = defer();
     $.ajax({
         url: baseURL + '/localdevices',
@@ -71,7 +71,23 @@ obj.localdevices = function (settings) {
     return deferred.promise;
 };
 
-obj.claimdevice = function (uuid, settings) {
+obj.myDevices = function (settings) {
+    var deferred = defer();
+    $.ajax({
+        url: baseURL + '/mydevices',
+        method: 'GET',
+        headers: {
+            skynet_auth_uuid: settings.skynetuuid,
+            skynet_auth_token: settings.skynettoken
+        },
+        timeout : 5 * 1000
+    })
+        .success(deferred.resolve)
+        .error(deferred.reject);
+    return deferred.promise;
+};
+
+obj.claimDevice = function (uuid, settings) {
     var deferred = defer();
     $.ajax({
         url: baseURL + '/claimdevice/' + uuid,
@@ -79,6 +95,53 @@ obj.claimdevice = function (uuid, settings) {
         headers: {
             skynet_auth_uuid: settings.skynetuuid,
             skynet_auth_token: settings.skynettoken
+        },
+        timeout : 5 * 1000
+    })
+        .success(deferred.resolve)
+        .error(deferred.reject);
+    return deferred.promise;
+};
+
+obj.deleteDevice = function (device, settings) {
+    var deferred = defer();
+    var uuid = settings.skynetuuid,
+        token = settings.skynettoken;
+    if(device.uuid && device.token){
+        uuid = device.uuid;
+        token = device.token;
+    }
+
+    $.ajax({
+        url: baseURL + '/devices/' + uuid,
+        method: 'DELETE',
+        headers: {
+            skynet_auth_uuid: uuid,
+            skynet_auth_token: token
+        },
+        timeout : 5 * 1000
+    })
+        .success(deferred.resolve)
+        .error(deferred.reject);
+    return deferred.promise;
+};
+
+obj.editDevice = function (device, settings) {
+    var deferred = defer();
+
+    var uuid = settings.skynetuuid,
+        token = settings.skynettoken;
+    if(device.uuid && device.token){
+        uuid = device.uuid;
+        token = device.token;
+    }
+    $.ajax({
+        url: baseURL + '/devices/' + device.uuid,
+        method: 'PUT',
+        params : device,
+        headers: {
+            skynet_auth_uuid: uuid,
+            skynet_auth_token: token
         },
         timeout : 5 * 1000
     })

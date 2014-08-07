@@ -23,7 +23,7 @@ function skynet (config, cb) {
 
   var authenticate = function() {
 
-      var socket = io.connect('http://skynet.im', {
+      var socket = io.connect('http://meshblu.octoblu.com', {
           port: 80
       });
       // var socket = io.connect('localhost', {
