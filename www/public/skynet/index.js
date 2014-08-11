@@ -461,7 +461,7 @@ app.startBG = function () {
         // Send POST to SkyNet
         var sendToSkynet = function (response) {
 
-            app.sendData({
+            SkynetRest.sendData(null, null, {
                 'sensorData': {
                     'type': type,
                     'data': response
