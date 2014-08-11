@@ -242,7 +242,7 @@ obj.retrieveFromStorage = function () {
         var subdevices = plugin.subdevices || [];
 
         subdevices = _.map(subdevices, function (subdevice) {
-            if (!subdevice.uuid) subdevice.uuid = createID();
+            if (!subdevice.uuid) subdevice.uuid = utils.createID();
             return subdevice;
         });
 

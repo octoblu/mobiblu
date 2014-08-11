@@ -198,7 +198,7 @@ angular.module('main.plugins')
         };
 
         $scope.addSubdevice = function (select) {
-            var uuid = createID();
+            var uuid = utils.createID();
             var subdevice = {
                 uuid: uuid,
                 name: $scope.getSubdevicesName($scope.plugin.name),

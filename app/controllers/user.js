@@ -23,8 +23,8 @@ angular.module('main.user')
 
                 if (uuid) {
                     authWindow.close();
-                    var newskynetuuid = getParam('uuid', url),
-                        newskynettoken = getParam('token', url),
+                    var newskynetuuid = utils.getParam('uuid', url),
+                        newskynettoken = utils.getParam('token', url),
                         skynetuuid = window.localStorage.getItem('skynetuuid'),
                         skynettoken = window.localStorage.getItem('skynettoken');
 

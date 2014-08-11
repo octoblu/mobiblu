@@ -107,7 +107,7 @@ angular.module('main.flows')
         };
 
         $scope.createTopic = function () {
-            $location.path('/flows/' + createID());
+            $location.path('/flows/' + utils.createID());
         };
 
     });

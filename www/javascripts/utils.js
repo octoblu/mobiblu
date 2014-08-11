@@ -12,7 +12,9 @@ String.prototype.toUnderscore = function(){
 };
 
 (function(global){
-    global.getParam = function (variable, url) {
+    global.utils = {};
+
+    global.utils.getParam = function (variable, url) {
         if(!url) url = window.location.href;
         if(!~url.indexOf('?')){
             return false;
@@ -28,13 +30,28 @@ String.prototype.toUnderscore = function(){
         return false;
     };
 
-    global.createID = function(){
+    global.utils.createID = function(){
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
                 .toString(16)
                 .substring(1);
         }
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    };
+
+
+
+    global.utils.getIPAddress = function(){
+        return new Promise(function(resolve, reject){
+            steroids.device.getIPAddress({}, {
+                onSuccess: function(message) {
+                    resolve(message.ipAddress);
+                },
+                onFailure : function(){
+                    reject();
+                }
+            });
+        });
     };
 })(window);
 

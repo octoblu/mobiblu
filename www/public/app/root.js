@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $location, $q, Auth, SkynetRest) {
+    .run(function ($rootScope, $timeout, $location, $q, Auth, SkynetRest) {
 
         var loaded = false;
 
@@ -95,7 +95,7 @@ angular.module('main')
         };
 
         $rootScope.isSettingUser = function () {
-            var uuid = getParam('uuid'), token = getParam('token');
+            var uuid = utils.getParam('uuid'), token = utils.getParam('token');
 
             if (uuid && token) {
                 return true;
@@ -147,7 +147,7 @@ angular.module('main')
         $rootScope.pluginReady = function (cb) {
             pluginReady().then(function () {
                 cb();
-            }, function(err){
+            }, function (err) {
                 $rootScope.redirectToError(err || 'Plugins module didn\'t load');
             });
         };
@@ -171,7 +171,7 @@ angular.module('main')
                                 console.log('_skynetInit successful');
                                 clearAppTimeouts();
                                 deferred.resolve();
-                            }, function(){
+                            }, function () {
                                 console.log('Unable to connect to Meshblu');
                                 $rootScope.redirectToError('Unable to connect to Meshblu');
                             });
@@ -196,10 +196,12 @@ angular.module('main')
         $rootScope.ready = function (cb) {
             $rootScope.setSettings();
 
-            if (loaded || isErrorPage() || $rootScope.matchRoute('/login')){
-                cb();
+            if (loaded || isErrorPage() || $rootScope.matchRoute('/login')) {
+                cb($rootScope.skynetConn);
             } else {
-                _skynetLoad().then(cb, function(err){
+                _skynetLoad().then(function () {
+                    cb($rootScope.skynetConn);
+                }, function (err) {
                     $rootScope.redirectToError(err || 'Meshblu can\'t connect');
                 });
             }
@@ -240,7 +242,6 @@ angular.module('main')
 
                     }
 
-
                     $rootScope.isAuthenticated();
 
                     $rootScope.loading = false;
@@ -249,7 +250,7 @@ angular.module('main')
 
                     return deferred.promise;
 
-                }, function(){
+                }, function () {
                     $location.path('/login');
                 });
         };
@@ -279,11 +280,14 @@ angular.module('main')
             $('#globalModal').removeClass('active');
         };
 
-
         $rootScope.showDevicesModal = function (obj) {
 
+            if (!obj.skipSearch) {
+                return $rootScope.searchForDevices('myDevices');
+            }
+
             function onError(action, err, info) {
-                if(!info) info = '';
+                if (!info) info = '';
                 info = '<br>' + info;
                 console.log('ERROR ' + action + ' device: ' + JSON.stringify(err));
                 $rootScope.$apply(function () {
@@ -292,16 +296,17 @@ angular.module('main')
                 });
             }
 
-            function onSuccess(action, result){
+            function onSuccess(action, result, info) {
                 console.log(action + ' device result' + JSON.stringify(result));
-                if (result.err) {
-                    onError(action, result.err, info);
+                var error = result.err || result.error;
+                if (error) {
+                    onError(action, error, info);
                 } else {
                     $rootScope.$apply(function () {
                         $rootScope.closeDevicesModal();
-                        if(action === 'delete') {
+                        if (action === 'delete') {
                             action += 'd';
-                        }else{
+                        } else {
                             action += 'ed';
                         }
                         $rootScope.alertModal('Device ' + action, 'Device successfully ' + action + '!');
@@ -310,42 +315,72 @@ angular.module('main')
             }
 
             obj = _.extend({
-                title : 'Devices',
-                devices : [],
+                title: 'Devices',
+                devices: [],
                 editDevice: function (device) {
                     var action = 'edit', info = 'You may not have permission to edit that device.';
-                    SkynetRest.editDevice(device, $rootScope.settings)
+
+                    SkynetRest.editDevice(device)
                         .then(function (result) {
-                            onSuccess(action, result);
-                        }, function(err){
+                            onSuccess(action, result, info);
+                        }, function (err) {
                             onError(action, err, info);
                         });
                 },
                 claimDevice: function (device) {
                     var action = 'claim', info = 'You may not have permission to claim that device.';
-                    SkynetRest.claimDevice(device.uuid, $rootScope.settings)
-                        .then(function (result) {
-                            onSuccess(action, result);
-                        }, function(err){
-                            onError(action, err, info);
-                        });
+
+                    $rootScope.ready(function () {
+                        $rootScope.Skynet.claimDevice(device.uuid)
+                            .timeout(5 * 1000)
+                            .then(function (result) {
+                                onSuccess(action, result, info);
+                            }, function (err) {
+                                onError(action, err, info);
+                            });
+                    });
                 },
                 deleteDevice: function (device) {
                     var action = 'delete', info = 'You may not have permission to delete that device.';
 
-                    SkynetRest.deleteDevice(device, $rootScope.settings)
+                    SkynetRest.deleteDevice(device)
                         .then(function (result) {
-                            onSuccess(action, result);
-                        }, function(err){
+                            onSuccess(action, result, info);
+                        }, function (err) {
                             onError(action, err, info);
                         });
+                },
+                canDelete: function () {
+                    var device = $rootScope.devicesModal.device || {},
+                        owner = $rootScope.settings.skynetuuid,
+                        mobileUuid = $rootScope.settings.mobileuuid;
+
+                    var validOwners = [owner, mobileUuid];
+                    if (~validOwners.indexOf(device.uuid)) {
+                        return false;
+                    }
+                    if (!~validOwners.indexOf(device.owner)) {
+                        return false;
+                    }
+                    return true;
+                },
+                canSave: function () {
+                    var device = $rootScope.devicesModal.device || {},
+                        owner = $rootScope.settings.skynetuuid,
+                        mobileUuid = $rootScope.settings.mobileuuid;
+
+                    var validOwners = [owner, mobileUuid];
+                    if (!~validOwners.indexOf(device.owner)) {
+                        return false;
+                    }
+                    return true;
                 }
             }, obj);
 
             obj.editMode = false;
             obj.device = null;
 
-            obj.showEdit = function(device){
+            obj.showEdit = function (device) {
                 $rootScope.devicesModal.editMode = true;
                 $rootScope.devicesModal.device = device;
             };
@@ -353,36 +388,40 @@ angular.module('main')
             $rootScope.devicesModal = obj;
 
             $('#devicesModal').addClass('active');
+
+            $timeout(function () {
+                $rootScope.loading = false;
+            }, 100);
+
         };
 
         $rootScope.searchForDevices = function (method) {
             $rootScope.loading = true;
-            if(typeof SkynetRest[method] !== 'function'){
-                return false;
-            }
-            if($rootScope.devicesModal){
+
+            if ($rootScope.devicesModal) {
                 $rootScope.devicesModal.editMode = false;
                 $rootScope.devicesModal.devices = [];
             }
             $rootScope.devicesMethod = method;
-            SkynetRest[method]($rootScope.settings)
-                .then(function (result) {
+            $rootScope.ready(function () {
+                if (typeof $rootScope.Skynet[method] !== 'function') {
+                    console.log('Not Valid Function: ' + method);
+                    return false;
+                }
+
+                $rootScope.Skynet[method]().then(function (result) {
                     console.log('Devices result', result);
-                    $rootScope.$apply(function () {
-                        $rootScope.loading = false;
-                    });
 
                     $rootScope.ready(function () {
                         var devices = result ? result.devices : [];
                         $rootScope.showDevicesModal({
-                            devices: devices
+                            devices: devices,
+                            skipSearch: true
                         });
                     });
-                }, function (err) {
-                    console.log('ERROR getting devices', err);
                 });
+            });
         };
-
 
         $rootScope.closeDevicesModal = function () {
             $rootScope.devicesMethod = null;

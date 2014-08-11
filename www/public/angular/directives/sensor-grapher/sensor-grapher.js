@@ -18,8 +18,12 @@ angular.module('main')
                         '#2aa198',
                         '#859900'
                     ],
-                    messageLines = {
-                    };
+                    messageLines = {};
+
+                messageLines[scope.device] = {
+                    line: new TimeSeries(),
+                    color: lineColors.pop()
+                };
                 scope.graphWidth = $(document).width();
                 scope.graphHeight = 120;
 
@@ -30,6 +34,8 @@ angular.module('main')
                         lineWidth: 1, millisPerLine: 250, verticalSections: 6 },
                     labels: { fillStyle: '#fdf6e3' }
                 });
+
+                smoothie.addTimeSeries(messageLines[scope.device].line, { strokeStyle: messageLines[scope.device].color, lineWidth: 3 });
 
                 smoothie.streamTo(element.find('canvas')[0]);
 
@@ -66,7 +72,7 @@ angular.module('main')
 
                 var intervalPromise = $interval(function () {
                     _.each(_.keys(messageLines), function (key) {
-                        var count = 0;
+                        var count = 1;
                         _.each(messages[key], function(message){
                             if (typeof message === 'number') {
                                 messageLines[key].line.append(new Date().getTime(), message);

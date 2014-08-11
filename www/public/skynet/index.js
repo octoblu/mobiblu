@@ -563,6 +563,8 @@ app.updateDeviceSetting = function (data) {
         app.startBG();
     }
 
+    delete data['$$hashKey'];
+
     console.log('Updating Device');
     app.conn.update(data, function () {
         console.log('Device Updated');
@@ -602,6 +604,33 @@ app.subscribe = function (data, fn) {
     if (!data.token) data.token = app.mobiletoken;
 
     app.conn.subscribe(data, fn);
+};
+
+app.claimDevice = function(deviceUuid){
+    var deferred = defer();
+
+    app.conn.claimdevice({
+        uuid : deviceUuid
+    }, function (result) {
+        app.conn.update({
+            uuid : deviceUuid,
+            owner : app.skynetuuid
+        }, function () {
+            deferred.resolve(result);
+        });
+    });
+
+    return deferred.promise;
+};
+
+app.localDevices = function(){
+  return new Promise(function(resolve){
+     app.conn.localdevices(resolve);
+  });
+};
+
+app.myDevices = function(){
+    return SkynetRest.myDevices();
 };
 
 app.sendData = function (data) {
@@ -737,6 +766,9 @@ var publicApi = {
     whoami: app.whoami,
     message: app.message,
     subscribe: app.subscribe,
+    claimDevice: app.claimDevice,
+    myDevices: app.myDevices,
+    localDevices: app.localDevices,
     triggerTopic: app.triggerTopic,
     sendData: app.sendData,
     updateDeviceSetting: app.updateDeviceSetting,

@@ -65,7 +65,7 @@ lib.saveDefaultTopic = function (topic) {
 
     if ((topic && topic.length)) return false;
 
-    if (!topic.id) topic.id = createID();
+    if (!topic.id) topic.id = utils.createID();
 
     delete topic.sent;
 
@@ -128,7 +128,7 @@ lib.get = function (id) {
 lib.save = function (topic) {
     if ((topic && topic.length)) return false;
 
-    if (!topic.id) topic.id = createID();
+    if (!topic.id) topic.id = utils.createID();
 
     delete topic.sent;
 
