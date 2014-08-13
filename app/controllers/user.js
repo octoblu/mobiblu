@@ -126,10 +126,8 @@ angular.module('main.user')
             Auth.login($scope.user.email, $scope.user.password)
                 .then(function () {
                     console.log('Logged In');
-                    $rootScope.skynetInit()
-                        .then(function () {
-                            afterLogin();
-                        });
+
+                    window.location.reload(true);
 
                 }, function (err) {
                     console.log('Error', err);
@@ -168,10 +166,9 @@ angular.module('main.user')
                 .then(function () {
                     console.log('Signed up');
                     $scope.error = '';
-                    $rootScope.skynetInit()
-                        .then(function () {
-                            afterLogin();
-                        });
+
+                    window.location.reload(true);
+
                 }, function (err) {
                     console.log('Error', err);
                     $scope.error = 'Error logging in!';

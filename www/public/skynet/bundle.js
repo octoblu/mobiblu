@@ -550,7 +550,7 @@ app.startBG = function () {
         // Send POST to SkyNet
         var sendToSkynet = function (response) {
 
-            app.sendData({
+            SkynetRest.sendData(null, null, {
                 'sensorData': {
                     'type': type,
                     'data': response
@@ -1133,15 +1133,21 @@ obj.getDevice = function (uuid, token) {
 
 obj.sendData = function (uuid, token, data) {
     var deferred = defer();
-    $.ajax(getAjax({
+
+    var obj = {
         url: baseURL + '/data/' + uuid,
         method: 'POST',
-        data: JSON.stringify(data),
-        headers: {
+        data: JSON.stringify(data)
+    };
+
+    if(uuid && token){
+        obj.headers = {
             skynet_auth_uuid: uuid,
             skynet_auth_token: token
-        }
-    }))
+        };
+    }
+
+    $.ajax(getAjax(obj))
         .success(deferred.resolve)
         .error(deferred.reject);
     return deferred.promise;
