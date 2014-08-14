@@ -87,7 +87,8 @@ angular.module('main.sensors')
                         }
                     },
                     function (err) {
-                        $rootScope.alertModal('Error', err.toString());
+                        console.log('Error: ', err);
+                        $rootScope.alertModal('Error', 'There was an error processing your "' + $scope.sensor.label + '" sensor.');
                     });
             }
         };
