@@ -58,20 +58,11 @@ angular.module('main.user')
             angular.copy(data, currentUser);
 
             console.log('User' +  JSON.stringify(currentUser));
-            var olduuid = window.localStorage.getItem('skynetuuid');
-
-            if (olduuid &&
-                currentUser.skynet.uuid !== olduuid) {
-
-                window.localStorage.removeItem('mobileuuid');
-                window.localStorage.removeItem('mobiletoken');
-                window.localStorage.removeItem('devicename');
-            }
 
             window.localStorage.setItem('skynetuuid', currentUser.skynet.uuid);
             window.localStorage.setItem('skynettoken', currentUser.skynet.token);
 
-            window.localStorage.setItem('loggedin', true);
+            window.localStorage.setItem('loggedin', 'true');
 
             window.Skynet.login(currentUser.skynet.uuid, currentUser.skynet.token);
 
@@ -97,9 +88,6 @@ angular.module('main.user')
         function logoutHandler(err) {
             console.log('IN LOGOUT HANDLER :: ' + err);
             angular.copy({}, currentUser);
-
-            window.localStorage.removeItem('skynetuuid');
-            window.localStorage.removeItem('skynettoken');
 
             $rootScope.Skynet.logout();
 

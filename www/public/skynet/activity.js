@@ -8,12 +8,7 @@ var limit = 100;
 
 obj.getActivity = function(type, limit){
 
-    var activity = [];
-    try{
-        activity = JSON.parse(window.localStorage.getItem('skynetactivity'));
-    }catch(e){
-
-    }
+    var activity = window.mobibluStorage.getItem('skynetactivity') || [];
 
     if(!activity){
         return [];
@@ -34,7 +29,7 @@ obj.clearActivityCount = function(){
     obj.x = 0;
     obj.sensActBadge.text(obj.x.toString());
     obj.sensActBadge.removeClass('badge-negative');
-    window.localStorage.setItem('activitycount', obj.x);
+    window.mobibluStorage.setItem('activitycount', obj.x);
 };
 
 obj.logActivity = function(data){
@@ -65,10 +60,8 @@ obj.logActivity = function(data){
                 obj.sensActBadge.removeClass('badge-negative');
             }
 
-            var string = JSON.stringify(obj.skynetActivity);
-
-            window.localStorage.setItem('skynetactivity', string);
-            window.localStorage.setItem('activitycount', obj.x);
+            window.mobibluStorage.setItem('skynetactivity', obj.skynetActivity);
+            window.mobibluStorage.setItem('activitycount', obj.x);
             $(document).trigger('skynetactivity', data);
 
         });
@@ -77,7 +70,7 @@ obj.logActivity = function(data){
 obj.init = function(){
 
     obj.sensActBadge = $('#sensor-activity-badge'),
-        obj.x = window.localStorage.getItem('activitycount') || 0;
+    obj.x = window.mobibluStorage.getItem('activitycount') || 0;
     obj.skynetActivity = obj.getActivity();
 
 };

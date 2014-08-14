@@ -27,7 +27,7 @@ angular.module('main.setting')
 
                 var settings = $rootScope.settings;
 
-                console.log('Load-Settings ' + JSON.stringify(settings.settings));
+                console.log('Load-Settings ' + JSON.stringify([settings.devicename, settings.settings]));
 
                 $scope.device.name = settings.devicename;
                 $scope.device.settings = settings.settings;
