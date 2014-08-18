@@ -10,21 +10,36 @@ angular.module('main.sensors')
             {
                 type: 'accelerometer',
                 label: 'Accelerometer',
-                icon: 'fa fa-rss'
+                icon: 'fa fa-rss',
+                graph: false
             },
             {
                 type: 'compass',
                 label: 'Compass',
-                icon: 'fa fa-compass'
+                icon: 'fa fa-compass',
+                graph: 'compass'
             },
             {
                 type: 'geolocation',
                 label: 'Geolocation',
-                icon: 'fa fa-crosshairs'
+                icon: 'fa fa-crosshairs',
+                graph: 'map',
+                defaults: {
+                    maxZoom: 14,
+                    path: {
+                        weight: 10,
+                        color: '#800000',
+                        opacity: 1
+                    }
+                },
+                center: {},
+                paths: {
+                }
             }
         ];
 
         $scope.sensor = null;
+        $scope.sensorObj = null;
 
         if ($routeParams.sensorType) {
             for (var x in $scope.sensorTypes) {
@@ -40,7 +55,7 @@ angular.module('main.sensors')
             $rootScope.$emit('togglebackbtn', false);
         }
 
-        $scope.initList = function(){
+        $scope.initList = function () {
             $rootScope.loading = false;
         };
 
@@ -50,6 +65,13 @@ angular.module('main.sensors')
                 $rootScope.loading = false;
                 $scope.settings = settings.settings;
                 $scope.setting = settings.settings[$scope.sensor.type];
+
+                if ($scope.sensor && typeof $rootScope.Sensors[$scope.sensor.label] === 'function') {
+                    $scope.sensorObj = $rootScope.Sensors[$scope.sensor.label](3000);
+
+                    graphSensor($scope.sensorObj.retrieve());
+                }
+
             });
         };
 
@@ -67,14 +89,50 @@ angular.module('main.sensors')
                 }, $rootScope.redirectToError);
         };
 
+        function graphSensor(stored) {
+            if ($scope.sensor.graph === 'map') {
+
+                $scope.sensor.paths.path = {
+                    color: 'red',
+                    weight: 8,
+                    latlngs: _.map(stored, function (item) {
+                        return { lat: item.coords.latitude, lng: item.coords.longitude };
+                    })
+                };
+
+                if (stored[0]) {
+                    $scope.sensor.center = {
+                        lat: stored[0].coords.latitude,
+                        lng: stored[0].coords.longitude,
+                        zoom: 8
+                    }
+                }
+
+            }
+        }
+
+        $scope.closeGraphModal = function(){
+            $('#graphModal').removeClass('active');
+        };
+
+        $scope.openGraphModal = function(){
+            $('#graphModal').addClass('active');
+        };
+
+        $scope.clearSensorGraph = function() {
+            if ($scope.sensorObj) {
+                $scope.sensorObj.clearStorage();
+                graphSensor([]);
+            }
+        };
+
         $scope.sendTracking = function () {
-            if ($scope.sensor && typeof $rootScope.Sensors[$scope.sensor.label] === 'function') {
-                var sensorObj = $rootScope.Sensors[$scope.sensor.label](3000);
-                sensorObj.start(function (sensorData) {
+            if($scope.sensorObj){
+                $scope.sensorObj.start(function (sensorData, stored) {
                         var el = document.getElementById('sensorData');
                         if (el) {
-                            var html = sensorObj.prettify(sensorData);
-                            el.innerHTML = sensorObj.stream ? html + el.innerHTML : html;
+                            var html = $scope.sensorObj.prettify(sensorData);
+                            el.innerHTML = $scope.sensorObj.stream ? html + el.innerHTML : html;
 
                             $rootScope.Skynet.sendData({
                                 'sensorData': {
@@ -85,6 +143,8 @@ angular.module('main.sensors')
                                 el.innerHTML = html + '<strong>Skynet Updated</strong><hr>';
                             });
                         }
+
+                        graphSensor(stored);
                     },
                     function (err) {
                         console.log('Error: ', err);
@@ -100,4 +160,3 @@ angular.module('main.sensors')
         };
 
     });
-
