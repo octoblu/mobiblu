@@ -28,17 +28,12 @@ angular.module('main.user')
                         skynetuuid = window.localStorage.getItem('skynetuuid'),
                         skynettoken = window.localStorage.getItem('skynettoken');
 
-                    var invalidLogin = false;
                     if (newskynetuuid === 'undefined') {
                         newskynetuuid = null;
-                        invalidLogin = true;
                     }
                     if (newskynettoken === 'undefined') {
                         newskynettoken = null;
-                        invalidLogin = true;
                     }
-
-
 
                     console.log('Skynet UUID: ' + skynetuuid);
                     console.log('Skynet Token: ' + skynettoken);
@@ -49,22 +44,13 @@ angular.module('main.user')
                         // Set new Skynet Tokens
                         if (newskynetuuid && newskynettoken) {
                             console.log('Setting new credentials');
-                            // If user changed then do delete the mobileuuid && mobiletoken
-                            if (skynetuuid && skynetuuid !== newskynetuuid) {
-                                console.log('Setting new mobile credentials');
-                                window.localStorage.removeItem("mobileuuid");
-                                window.localStorage.removeItem("mobiletoken");
-                            }
-                            window.localStorage.setItem("skynetuuid", newskynetuuid);
-                            window.localStorage.setItem("skynettoken", newskynettoken);
+
+                            window.localStorage.setItem('skynetuuid', newskynetuuid);
+                            window.localStorage.setItem('skynettoken', newskynettoken);
                             window.localStorage.setItem('loggedin', true);
 
                             $rootScope.loggedin = true;
                             $rootScope.Skynet.login(newskynetuuid, newskynettoken);
-                        } else if (invalidLogin || ( !newskynetuuid && !newskynettoken )) {
-                            console.log('No Credentials' + JSON.stringify([newskynetuuid, newskynettoken]));
-                            window.location = 'error.html';
-                            return;
                         } else {
                             console.log('No Credentials Backup' + JSON.stringify([newskynetuuid, newskynettoken]));
                             window.location = 'error.html';

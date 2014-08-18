@@ -7,11 +7,11 @@ var lib = {},
     topics = [];
 
 function write() {
-    window.localStorage.setItem(key, JSON.stringify(topics));
+    window.mobibluStorage.setItem(key, topics);
 }
 
 function writeDefaults() {
-    window.localStorage.setItem(defaultKey, JSON.stringify(loadedDefaults));
+    window.mobibluStorage.setItem(defaultKey, loadedDefaults);
 }
 
 function getById(id) {
@@ -50,7 +50,7 @@ var defaultTopics = [
 ];
 
 lib.getLoadedDefaultTopics = function () {
-    var str = window.localStorage.getItem(defaultKey), obj = [];
+    var str = window.mobibluStorage.getItem(defaultKey), obj = [];
 
     try {
         obj = JSON.parse(str);
@@ -94,13 +94,7 @@ lib.getAll = function () {
         }
     });
 
-    var str = window.localStorage.getItem(key), obj = [];
-
-    try {
-        obj = JSON.parse(str);
-    } catch (e) {
-        console.log('Error parsing topics', e);
-    }
+    var obj = window.mobibluStorage.getItem(key) || [];
 
     topics = obj || [];
 
@@ -122,7 +116,6 @@ lib.get = function (id) {
     //console.log('Topics', JSON.stringify(topics), JSON.stringify(id));
 
     return getById(id);
-
 };
 
 lib.save = function (topic) {

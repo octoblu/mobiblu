@@ -98,11 +98,7 @@ obj.getPlugins = function () {
 
 obj.getSubdevices = function () {
     var getSubdevicesFromStorage = function () {
-        var subdevices = [];
-        try {
-            subdevices = JSON.parse(window.localStorage.getItem('subdevices'));
-        } catch (e) {
-        }
+        var subdevices = window.mobibluStorage.getItem('subdevices');
 
         return subdevices;
     };
@@ -195,8 +191,8 @@ obj.writePluginsToStorage = function () {
         subdevices = subdevices.concat(obj.plugins[x].subdevices || []);
     }
     obj.subdevices = subdevices;
-    window.localStorage.setItem('subdevices', JSON.stringify(subdevices));
-    window.localStorage.setItem('plugins', JSON.stringify(obj.plugins));
+    window.mobibluStorage.setItem('subdevices', subdevices);
+    window.mobibluStorage.setItem('plugins', obj.plugins);
 };
 
 obj.clearStorage = function () {
@@ -211,25 +207,12 @@ obj.clearStorage = function () {
 
 obj.retrieveFromStorage = function () {
 
-    var plugins = [];
+    // This loaded an array of the available plugin's plugin.json file
+    var plugins = window.mobibluStorage.getItem('plugins') || [];
 
-    try {
+    console.log('Plugins: ', plugins);
 
-        // This loaded an array of the available plugin's plugin.json file
-        var pluginsJSON = window.localStorage.getItem('plugins');
-
-        if (pluginsJSON && pluginsJSON.length) {
-            plugins = JSON.parse(pluginsJSON);
-        }
-
-        var subdevices = window.localStorage.getItem('subdevices');
-
-        obj.subdevices = JSON.parse(subdevices) || [];
-
-    } catch (e) {
-        alert('Error Reading Plugins');
-        return [];
-    }
+    obj.subdevices = window.mobibluStorage.getItem('subdevices') || [];
 
     plugins.forEach(function (plugin, i) {
 

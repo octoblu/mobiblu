@@ -44,23 +44,38 @@ app.setData = function (skynetuuid, skynettoken) {
 
     // Set new Skynet Tokens
     if (skynetuuid && skynettoken) {
+
+        window.mobibluStorage.writeConfig({
+            user: skynetuuid
+        });
+
         console.log('Credentials set');
         // Octoblu User Data
         app.skynetuuid = skynetuuid;
         app.skynettoken = skynettoken;
         // Logged In
-        app.loggedin = !!window.localStorage.getItem('loggedin');
-        //Push ID
-        app.pushID = window.localStorage.getItem('pushID');
-        // Mobile App Data
-        app.mobileuuid = window.localStorage.getItem('mobileuuid');
-        app.mobiletoken = window.localStorage.getItem('mobiletoken');
+        app.loggedin = window.localStorage.getItem('loggedin');
 
+        if(app.loggedin === 'true'){
+            app.loggedin = true;
+        }else if(app.loggedin === 'false'){
+            app.loggedin = false;
+        }else{
+            app.loggedin = !!app.loggedin;
+        }
+        //Push ID
+        app.pushID = window.mobibluStorage.getItem('pushID');
+        // Mobile App Data
+        app.mobileuuid = window.mobibluStorage.getItem('mobileuuid');
+        app.mobiletoken = window.mobibluStorage.getItem('mobiletoken');
+
+        var devicename = window.mobibluStorage.getItem('devicename');
+
+        console.log('Device Name: ' + JSON.stringify(devicename));
+
+        app.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile';
     }
 
-    var devicename = window.localStorage.getItem('devicename');
-
-    app.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile';
 
     console.log('Set Owner UUID : ' + JSON.stringify(app.skynetuuid));
 
@@ -87,12 +102,8 @@ app.logout = function () {
     window.loggedin = app.loggedin = false;
 
     window.localStorage.removeItem('loggedin');
-
-    window.localStorage.removeItem('skynetactivity');
-
-    window.localStorage.removeItem('plugins');
-
-    window.localStorage.removeItem('subdevices');
+    window.localStorage.removeItem('skynetuuid');
+    window.localStorage.removeItem('skynettoken');
 
     app.setData();
 };
@@ -133,7 +144,7 @@ app.registerPushID = function () {
                 deferred.reject('Urbanairship Registration Error');
             } else {
                 app.pushID = event.pushID;
-                window.localStorage.setItem('pushID', app.pushID);
+                window.mobibluStorage.setItem('pushID', app.pushID);
 
                 steroids.addons.urbanairship
                     .notifications.onValue(function (notification) {
@@ -235,9 +246,9 @@ app.registerDevice = function (newDevice) {
                 app.conn.identify();
             }
             console.log('Registration Response: ', JSON.stringify(data));
-            window.localStorage.setItem('mobileuuid', data.uuid);
-            window.localStorage.setItem('mobiletoken', data.token);
-            window.localStorage.setItem('devicename', data.name);
+            window.mobibluStorage.setItem('mobileuuid', data.uuid);
+            window.mobibluStorage.setItem('mobiletoken', data.token);
+            window.mobibluStorage.setItem('devicename', data.name);
 
             app.mobileuuid = data.uuid;
             app.mobiletoken = data.token;
@@ -295,8 +306,8 @@ app.skynet = function (callback, errorCallback) {
 
         app.socketid = data.socketid;
 
-        window.localStorage.setItem('mobileuuid', data.uuid);
-        window.localStorage.setItem('mobiletoken', data.token);
+        window.mobibluStorage.setItem('mobileuuid', data.uuid);
+        window.mobibluStorage.setItem('mobiletoken', data.token);
 
         app.mobileuuid = data.uuid;
         app.mobiletoken = data.token;
@@ -551,7 +562,7 @@ app.updateDeviceSetting = function (data) {
 
     if(!data.flows) data.flows = Topics.getAll();
 
-    window.localStorage.setItem('devicename', data.name);
+    window.mobibluStorage.setItem('devicename', data.name);
 
     data.type = 'octobluMobile';
 
@@ -565,7 +576,7 @@ app.updateDeviceSetting = function (data) {
 
     delete data['$$hashKey'];
 
-    console.log('Updating Device');
+    console.log('Updating Device: ' + JSON.stringify(data));
     app.conn.update(data, function () {
         console.log('Device Updated');
         deferred.resolve();
