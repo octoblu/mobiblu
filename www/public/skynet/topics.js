@@ -50,15 +50,9 @@ var defaultTopics = [
 ];
 
 lib.getLoadedDefaultTopics = function () {
-    var str = window.mobibluStorage.getItem(defaultKey), obj = [];
+    var obj = window.mobibluStorage.getItem(defaultKey) || [];
 
-    try {
-        obj = JSON.parse(str);
-    } catch (e) {
-        console.log('Error parsing topics', e);
-    }
-
-    return loadedDefaults = obj || [];
+    return loadedDefaults = obj;
 };
 
 lib.saveDefaultTopic = function (topic) {
@@ -113,8 +107,6 @@ lib.get = function (id) {
 
     if (!topics || !topics.length) lib.getAll();
 
-    //console.log('Topics', JSON.stringify(topics), JSON.stringify(id));
-
     return getById(id);
 };
 
@@ -136,7 +128,6 @@ lib.save = function (topic) {
     write();
 
     return topic;
-
 };
 
 lib.delete = function (topic) {

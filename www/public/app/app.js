@@ -4,6 +4,7 @@ angular.module('main', [
     'ngRoute',
     'ngSanitize',
     'ui.route',
+    'leaflet-directive',
     'main.system',
     'main.user',
     'main.skynet',

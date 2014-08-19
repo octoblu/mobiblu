@@ -479,12 +479,15 @@ app.startBG = function () {
                 }
             }).then(function () {
 
+                Sensors[type].store(response);
+
                 activity.logActivity({
                     type: type,
                     html: 'Successfully updated background location'
                 });
 
                 app.bgGeo.finish();
+
 
             }, app.bgGeo.finish);
 

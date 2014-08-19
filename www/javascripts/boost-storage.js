@@ -24,11 +24,16 @@
         // If not JSON
         if(!obj.match(/^[\{\[](.|\n)*[\}\]]$/)) return obj;
 
+        if(_.isObject(obj)){
+            return obj;
+        }
+
         // Otherwise parse obj
         try{
             val = JSON.parse(obj);
         }catch(e){
             console.log('Error Parsing:', e);
+            console.log(JSON.stringify(obj));
         }
 
         return val;
