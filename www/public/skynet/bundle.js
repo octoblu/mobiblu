@@ -1494,7 +1494,6 @@ lib.save = function (topic) {
     write();
 
     return topic;
-
 };
 
 lib.delete = function (topic) {

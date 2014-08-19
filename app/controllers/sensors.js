@@ -109,7 +109,7 @@ angular.module('main.sensors')
                 }
 
             }else if($scope.sensor.graph === 'compass'){
-                $scope.sensor.heading = _.random(0, 360); // stored[0] ? stored[0].magneticHeading : 0; 
+                $scope.sensor.heading = stored[0] ? stored[0].magneticHeading : 0;
             }
         }
 
