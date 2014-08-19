@@ -11,8 +11,8 @@ angular.module('main')
                     offset = -45;
                 scope.$watch('heading', function(heading){
                     if(!el) return;
-                    var deg = Math.round(heading * 100) / 100;
-                    var compass = deg + offset;
+                    scope.heading = Math.round(heading * 100) / 100;
+                    var compass = scope.heading + offset;
                     el.css({
                         '-webkit-transform': 'rotate(' + compass + 'deg)',
                         '-moz-transform': 'rotate(' + compass + 'deg)',
