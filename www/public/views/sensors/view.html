@@ -29,6 +29,9 @@
                 <div ng-if="sensor.graph === 'map'">
                     <leaflet defaults="sensor.defaults" center="sensor.center" paths="sensor.paths" height="100%" width="100%" ></leaflet>
                 </div>
+                <div ng-if="sensor.graph === 'compass'">
+                    <compass heading="sensor.heading"></compass>
+                </div>
             </div>
         </div>
 

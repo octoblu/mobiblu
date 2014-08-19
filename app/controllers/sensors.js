@@ -2,7 +2,7 @@
 
 angular.module('main.sensors')
     .controller('SensorCtrl',
-    function ($rootScope, $scope, $filter, $routeParams) {
+    function ($rootScope, $scope, $filter, $timeout, $routeParams) {
 
         $rootScope.loading = true;
 
@@ -108,6 +108,8 @@ angular.module('main.sensors')
                     }
                 }
 
+            }else if($scope.sensor.graph === 'compass'){
+                $scope.sensor.heading =  stored[0] ? stored[0].magneticHeading : 0; // _.random(0, 360);
             }
         }
 
@@ -117,6 +119,7 @@ angular.module('main.sensors')
 
         $scope.openGraphModal = function(){
             $('#graphModal').addClass('active');
+            $('#graphModal').height($('#content>.content').height());
         };
 
         $scope.clearSensorGraph = function() {
@@ -148,7 +151,9 @@ angular.module('main.sensors')
                     },
                     function (err) {
                         console.log('Error: ', err);
-                        $rootScope.alertModal('Error', 'There was an error processing your "' + $scope.sensor.label + '" sensor.');
+                        $timeout(function(){
+                            $rootScope.alertModal('Error', 'There was an error processing your "' + $scope.sensor.label + '" sensor.');
+                        });
                     });
             }
         };
