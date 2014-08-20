@@ -64,7 +64,7 @@ app.setData = function (skynetuuid, skynettoken) {
             app.loggedin = !!app.loggedin;
         }
         //Push ID
-        app.pushID = window.mobibluStorage.getItem('pushID');
+        app.pushID = window.localStorage.getItem('pushID');
         // Mobile App Data
         app.mobileuuid = window.mobibluStorage.getItem('mobileuuid');
         app.mobiletoken = window.mobibluStorage.getItem('mobiletoken');
@@ -140,11 +140,15 @@ app.registerPushID = function () {
     document.addEventListener('urbanairship.registration',
         function (event) {
             if (event.error) {
-                console.log('Urbanairship Registration Error');
-                deferred.reject('Urbanairship Registration Error');
+                var msg = 'Urbanairship Registration Error';
+                activity.logActivity({
+                    type: 'push',
+                    error: event.error
+                });
+                deferred.reject(msg);
             } else {
                 app.pushID = event.pushID;
-                window.mobibluStorage.setItem('pushID', app.pushID);
+                window.localStorage.setItem('pushID', app.pushID);
 
                 steroids.addons.urbanairship
                     .notifications.onValue(function (notification) {
@@ -233,7 +237,7 @@ app.registerDevice = function (newDevice) {
     var regData = app.regData();
 
     if (newDevice) {
-        delete regData.uuid;
+        delete regData.uuid;s
         delete regData.token;
     }
 
@@ -759,6 +763,11 @@ app.init = function (skynetuuid, skynettoken) {
 
                 console.log('Skynet Module Connected');
 
+                activity.logActivity({
+                    type: 'meshblu',
+                    html : 'Connected to Meshblu'
+                });
+
                 app.startProcesses();
                 $(document).trigger('skynet-loaded');
 
@@ -766,6 +775,12 @@ app.init = function (skynetuuid, skynettoken) {
 
             }, function () {
                 console.log('Unable to load the Skynet Module');
+
+                activity.logActivity({
+                    type: 'meshblu',
+                    html : 'Failed to connect to Meshblu'
+                });
+
                 deferred.reject();
             });
     }

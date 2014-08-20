@@ -297,6 +297,10 @@ obj.download = function (plugin) {
 
                 obj.loadPlugin(plugin)
                     .done(function () {
+                        obj.Skynet.updateDeviceSetting({
+                            plugins: obj.plugins,
+                            subdevices: obj.subdevices
+                        });
                         deferred.resolve(plugin);
                     }, deferred.reject);
             },
