@@ -22,4 +22,5 @@
     <preference name="com.urbanairship.development_app_secret" value="T_Sk_ZY7ROOf0dKB89WW7w" />
     <preference name="com.urbanairship.in_production" value="true" />
     <preference name="com.urbanairship.gcm_sender" value="octoblu-mobiblu" />
+    <preference name="com.urbanairship.enable_push_onlaunch" value="true" />
 </widget>
