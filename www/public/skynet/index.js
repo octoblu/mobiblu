@@ -112,6 +112,10 @@ app.isAuthenticated = function() {
     return !!(app.loggedin && app.skynetuuid && app.skynettoken);
 };
 
+app.hasAuth = function() {
+    return !!(app.skynetuuid && app.skynettoken);
+};
+
 app.isRegistered = function() {
     var deferred = defer();
 
@@ -137,48 +141,78 @@ app.isRegistered = function() {
 app.registerPushID = function() {
     var deferred = defer();
 
+    var listening = false;
+
+    function listenForPush(){
+        if(listening) return;
+
+        if(!window.PushNotification) return;
+
+        if(!app.pushID) return;
+
+        listening = true;
+
+        window.PushNotification.isPushEnabled(function (enabled) {
+            if (!enabled) return console.log('Push Notifications not enabled');
+
+            console.log("Push is enabled! Fire away!");
+
+            document.addEventListener('urbanairship.push',
+                function (event) {
+                    console.log('Incoming push: ' + event.message);
+
+                    activity.logActivity({
+                        type: 'push',
+                        html: 'Received Push Notification: ' + event.message
+                    });
+
+                }, false);
+        });
+    }
+
     document.addEventListener('urbanairship.registration',
         function(event) {
             if (event.error) {
+                // Not Registered
                 var msg = 'Urbanairship Registration Error';
+
                 activity.logActivity({
                     type: 'push',
                     error: event.error
                 });
+
                 deferred.reject(msg);
+
             } else {
+
+                // Registered
                 app.pushID = event.pushID;
                 window.localStorage.setItem('pushID', app.pushID);
 
-                app.updateDeviceSetting({})
-                    .then(function() {
-                        activity.logActivity({
-                            type: 'push',
-                            html: 'Push ID Registered'
-                        });
-                        deferred.resolve();
-                    }, function() {
-                        activity.logActivity({
-                            type: 'push',
-                            error: new Error('Push ID Updated Failed')
-                        });
-                        deferred.reject('Push ID Updated Failed');
-                    });
-            }
-        }, false);
+                // Start Listen
+                listenForPush();
 
-    if (app.pushID &&
-            steroids.addons && steroids.addons.urbanairship) {
-
-        // Listen for Push Notification
-        steroids.addons.urbanairship
-            .notifications.onValue(function(notification) {
                 activity.logActivity({
                     type: 'push',
-                    html: notification.message
+                    html: 'Push ID Registered'
                 });
-            });
-    }
+
+                app.updateDeviceSetting({})
+                    .then(function() {
+                        deferred.resolve();
+                    }, function() {
+                        var msg = 'Push ID Updated Failed';
+                        activity.logActivity({
+                            type: 'push',
+                            error: new Error(msg)
+                        });
+                        deferred.reject(msg);
+                    });
+            }
+
+        }, false);
+
+    listenForPush();
 
     return deferred.promise;
 };
@@ -244,7 +278,6 @@ app.registerDevice = function(newDevice) {
 
     if (newDevice) {
         delete regData.uuid;
-        s
         delete regData.token;
     }
 
@@ -474,7 +507,7 @@ app.startBG = function() {
     if (!app.getBGPlugin()) return;
     console.log('Started BG Location');
 
-    if (!app.settings.bg_updates) app.stopBG();
+    if (!app.settings.bg_updates) return app.stopBG();
 
     var type = 'Background Geolocation';
 
@@ -811,6 +844,7 @@ var publicApi = {
     logout: app.logout,
     login: app.login,
     isAuthenticated: app.isAuthenticated,
+    hasAuth : app.hasAuth,
     logSensorData: app.logSensorData,
     getCurrentSettings: function() {
 

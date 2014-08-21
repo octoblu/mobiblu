@@ -30,7 +30,7 @@ angular.module('main.user')
                 var req = {
                     url: baseUrl + '/api/auth',
                     method: 'GET',
-                    timeout: 5 * 1000
+                    timeout: 15 * 1000
                 };
                 console.log('Set Data Creds in Auth.js : ' + JSON.stringify([uuid, token]));
                 if(uuid && token) {
@@ -39,12 +39,13 @@ angular.module('main.user')
                         skynet_auth_token: token
                     };
 
-                    return $http(req).then(function(result){
-                        loginHandler(result);
-                    }, function (err) {
-                        logoutHandler(err);
-                        throw err;
-                    });
+                    return $http(req)
+                                .then(function(result){
+                                    loginHandler(result);
+                                }, function (err) {
+                                    logoutHandler(err);
+                                    throw err;
+                                });
                 }else{
                     var defer = $q.defer();
                     defer.reject();

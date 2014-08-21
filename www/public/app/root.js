@@ -154,8 +154,8 @@ angular.module('main')
 
         var _skynetInit = function () {
             var deferred = $q.defer();
-            if (isErrorPage()) {
-                deferred.resolve();
+            if (isErrorPage() && $rootScope.matchRoute('/login')) {
+                deferred.reject();
             } else {
                 Auth.getCurrentUser()
                     .then(function (currentUser) {
@@ -175,6 +175,7 @@ angular.module('main')
                                 console.log('Unable to connect to Meshblu');
                                 $rootScope.redirectToError('Unable to connect to Meshblu');
                             });
+
                     }, deferred.reject);
 
             }
@@ -250,16 +251,20 @@ angular.module('main')
 
                     return deferred.promise;
 
-                }, function () {
-                    $location.path('/login');
+                }, function(){
+                    console.log('Rejected _skynetInit();');
                 });
         };
 
         var _init = function () {
 
-            $rootScope.skynetInit();
+            if($rootScope.Skynet.hasAuth()){
+                $rootScope.skynetInit();
 
-            _skynetLoad();
+                _skynetLoad();
+            }else{
+                $location.path('/login');
+            }
 
         };
 

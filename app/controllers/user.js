@@ -39,47 +39,50 @@ angular.module('main.user')
                     console.log('Skynet Token: ' + skynettoken);
                     console.log('NEW Skynet UUID: ' + newskynetuuid);
                     console.log('NEW Skynet Token: ' + newskynettoken);
-
-                    try{
                         // Set new Skynet Tokens
-                        if (newskynetuuid && newskynettoken) {
-                            console.log('Setting new credentials');
+                    if (newskynetuuid && newskynettoken) {
+                        console.log('Setting new credentials');
 
-                            window.localStorage.setItem('skynetuuid', newskynetuuid);
-                            window.localStorage.setItem('skynettoken', newskynettoken);
-                            window.localStorage.setItem('loggedin', true);
+                        window.localStorage.setItem('skynetuuid', newskynetuuid);
+                        window.localStorage.setItem('skynettoken', newskynettoken);
+                        window.localStorage.setItem('loggedin', true);
 
-                            $rootScope.loggedin = true;
-                            $rootScope.Skynet.login(newskynetuuid, newskynettoken);
-                        } else {
-                            console.log('No Credentials Backup' + JSON.stringify([newskynetuuid, newskynettoken]));
-                            window.location = 'error.html';
-                            return;
-                        }
-                    }catch(e){
+                        $rootScope.loggedin = true;
+                        $rootScope.Skynet.login(newskynetuuid, newskynettoken);
+                    } else {
+                        console.log('No Credentials Backup' + JSON.stringify([newskynetuuid, newskynettoken]));
                         window.location = 'error.html';
+                        return;
                     }
-
 
                     // If enabled this will slow down the process but properly re-establish the connections
                     var forceRestart = true;
 
-                    $rootScope.setSettings();
+                    $timeout(function(){
+                        $rootScope.$on('$locationChangeSuccess', function () {
+                            $rootScope.loading = false;
 
-                    if (forceRestart) {
+                            if (forceRestart) {
 
-                        window.location.reload(true);
+                                console.log('Reloading app (in user.js)');
 
-                    } else {
+                                window.location.reload(true);
 
-                        console.log('About to Re-initialize skynet');
+                            } else {
 
-                        $rootScope.skynetInit()
-                            .then(function () {
-                                console.log('Skynet INIT\'d after login');
-                                $location.path('/');
-                            });
-                    }
+                                console.log('About to Re-initialize skynet');
+
+                                $rootScope.skynetInit()
+                                    .then(function () {
+                                        console.log('Skynet INIT\'d after login');
+                                        $location.path('/');
+                                    });
+                            }
+                        });
+
+                        $location.path('/');
+
+                    }, 0);
 
                 }
 

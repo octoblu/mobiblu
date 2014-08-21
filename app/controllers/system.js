@@ -143,7 +143,7 @@ systemApp.controller('ErrorCtrl',
     function ($rootScope, $scope) {
 
         $scope.init = function () {
-            console.log('On Error Page');
+            console.log('On Error Page', $rootScope.errorMsg);
             if (!$rootScope.errorMsg) {
                 return $rootScope.errorMsg = '';
             }
