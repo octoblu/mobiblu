@@ -1,5 +1,25 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.octoblu.mobiblu" version="3.1.2" xmlns="http://www.w3.org/ns/widgets">
+<widget id="com.octoblu.mobiblu.test" version="3.1.2" xmlns="http://www.w3.org/ns/widgets">
+    <!--
+      The following preferences are explained in more detail in the config.android.xml guide:
+        http://guides.appgyver.com/steroids/guides/project_configuration/config-xml-android/
+      -->
+    <access origin="*" />
+
+    <preference name="fullscreen" value="false" />
+
+    <preference name="com.urbanairship.production_app_key" value="BbFhUoxdQS6KondqSehTy0w" />
+    <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
+    <preference name="com.urbanairship.development_app_key" value="N_z6j9tTRrCbxq59pTeFbg" />
+    <preference name="com.urbanairship.development_app_secret" value="T_Sk_ZY7ROOf0dKB89WW7w" />
+    <preference name="com.urbanairship.in_production" value="true" />
+    <preference name="com.urbanairship.gcm_sender" value="octoblu-mobiblu" />
+
+    <plugin name="InAppBrowser" value="org.apache.cordova.InAppBrowser" />
+
+</widget>
+
+<widget id="com.octoblu.mobiblu.production" version="3.1.2" xmlns="http://www.w3.org/ns/widgets">
     <!--
       The following preferences are explained in more detail in the config.android.xml guide:
         http://guides.appgyver.com/steroids/guides/project_configuration/config-xml-android/

@@ -234,7 +234,7 @@ app.registerPushID = function() {
 
         listening = true;
 
-        PushNotification.isPushEnabled(function (enabled) {
+        window.PushNotification.isPushEnabled(function (enabled) {
             if (!enabled) return console.log('Push Notifications not enabled');
 
             console.log("Push is enabled! Fire away!");
@@ -275,9 +275,9 @@ app.registerPushID = function() {
                 listenForPush();
 
                 activity.logActivity({
-                        type: 'push',
-                        html: 'Push ID Registered'
-                    });
+                    type: 'push',
+                    html: 'Push ID Registered'
+                });
 
                 app.updateDeviceSetting({})
                     .then(function() {
