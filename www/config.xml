@@ -12,9 +12,9 @@
 
     <plugin name="InAppBrowser" value="CDVInAppBrowser" />
 
-    <feature name="http://appgyver.com/steroids/addons/urbanairship">
+    <!-- <feature name="http://appgyver.com/steroids/addons/urbanairship">
         <param name="enabled" value="true" />
-    </feature>
+    </feature> -->
 
     <preference name="com.urbanairship.production_app_key" value="BbFhUoxdQS6KondqSehTy0w" />
     <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
@@ -22,5 +22,5 @@
     <preference name="com.urbanairship.development_app_secret" value="T_Sk_ZY7ROOf0dKB89WW7w" />
     <preference name="com.urbanairship.in_production" value="true" />
     <preference name="com.urbanairship.gcm_sender" value="octoblu-mobiblu" />
-    <preference name="com.urbanairship.enable_push_onlaunch" value="true" />
+    <preference name="com.urbanairship.enable_push_onlaunch" value="true | false" />
 </widget>
