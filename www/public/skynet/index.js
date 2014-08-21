@@ -143,31 +143,65 @@ app.registerPushID = function() {
 
     var listening = false;
 
-    function listenForPush(){
-        if(listening) return;
-
-        if(!window.PushNotification) return;
-
-        if(!app.pushID) return;
-
-        listening = true;
-
-        window.PushNotification.isPushEnabled(function (enabled) {
-            if (!enabled) return console.log('Push Notifications not enabled');
-
-            console.log("Push is enabled! Fire away!");
-
-            document.addEventListener('urbanairship.push',
-                function (event) {
-                    console.log('Incoming push: ' + event.message);
-
-                    activity.logActivity({
-                        type: 'push',
-                        html: 'Received Push Notification: ' + event.message
-                    });
-
-                }, false);
+    function isEnabled(){
+        return new Promise(function(resolve, reject){
+            window.PushNotification
+                .isPushEnabled(function(status){
+                    if(status){
+                        resolve();
+                    }else{
+                        reject();
+                    }
+                });
         });
+    }
+
+    function getPushID(){
+        return new Promise(function(resolve, reject){
+            if(app.pushID) return resolve();
+            window.PushNotification
+                .getPushID(function(pushID){
+                    app.pushID = pushID;
+                    window.localStorage.setItem('pushID', app.pushID);
+                    if(pushID){
+                        resolve(pushID);
+                    }else{
+                        reject();
+                    }
+                });
+        });
+    }
+
+    function enable(){
+        return new Promise(function(resolve, reject){
+            window.PushNotification
+                .enablePush(resolve);
+        });
+    }
+
+    function start(){
+        if(listening) return console.log('Listening for Push Notifications');
+
+        if(!window.PushNotification) return console.log('No Push Notification Object');
+
+        console.log('Starting Push Flow');
+        isEnabled()
+            .then(getPushID, function(){
+                return enable().then(getPushID);
+            })
+            .then(function(){
+                listening = true;
+                document.addEventListener('urbanairship.push',
+                    function (event) {
+                        console.log('Incoming push: ' + event.message);
+
+                        activity.logActivity({
+                            type: 'push',
+                            html: 'Received Push Notification: ' + event.message
+                        });
+
+                    }, false);
+            });
     }
 
     document.addEventListener('urbanairship.registration',
@@ -190,7 +224,7 @@ app.registerPushID = function() {
                 window.localStorage.setItem('pushID', app.pushID);
 
                 // Start Listen
-                listenForPush();
+                start();
 
                 activity.logActivity({
                     type: 'push',
@@ -212,7 +246,7 @@ app.registerPushID = function() {
 
         }, false);
 
-    listenForPush();
+    start();
 
     return deferred.promise;
 };
