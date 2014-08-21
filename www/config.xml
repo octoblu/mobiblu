@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.octoblu.mobilehub" version="3.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.octoblu.mobiblu" version="3.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Mobiblu</name>
     <description>
         Use Mobiblu for communicating with SkyNet.im and Octoblu
     </description>
     <author email="info@octoblu.com" href="http://octoblu.com/">
-        Octoblu Inc, Team
+        Octoblu, Inc
     </author>
     <access origin="*" />
     <plugin name="Device" value="org.apache.cordova.Device"/>
@@ -15,4 +15,11 @@
     <feature name="http://appgyver.com/steroids/addons/urbanairship">
         <param name="enabled" value="true" />
     </feature>
+
+    <preference name="com.urbanairship.production_app_key" value="BbFhUoxdQS6KondqSehTy0w" />
+    <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
+    <preference name="com.urbanairship.development_app_key" value="N_z6j9tTRrCbxq59pTeFbg" />
+    <preference name="com.urbanairship.development_app_secret" value="T_Sk_ZY7ROOf0dKB89WW7w" />
+    <preference name="com.urbanairship.in_production" value="true" />
+    <preference name="com.urbanairship.gcm_sender" value="octoblu-mobiblu" />
 </widget>
