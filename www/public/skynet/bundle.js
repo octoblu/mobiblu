@@ -229,11 +229,35 @@ app.registerPushID = function() {
         return new Promise(function(resolve, reject){
             window.PushNotification
                 .isPushEnabled(function(status){
-                    if(status){
+                    console.log('Push Status: ' +  JSON.stringify(status));
+                    if(status || status === 'OK'){
                         resolve();
                     }else{
                         reject();
                     }
+                });
+        });
+    }
+
+    function registerPushID(pushID){
+        app.pushID = pushID;
+        window.localStorage.setItem('pushID', app.pushID);
+
+        return new Promise(function(resolve, reject){
+            app.updateDeviceSetting({})
+                .then(function() {
+                    activity.logActivity({
+                        type: 'push',
+                        html: 'Push ID Registered'
+                    });
+                    resolve();
+                }, function() {
+                    var msg = 'Push ID Updated Failed';
+                    activity.logActivity({
+                        type: 'push',
+                        error: new Error(msg)
+                    });
+                    reject();
                 });
         });
     }
@@ -243,8 +267,13 @@ app.registerPushID = function() {
             if(app.pushID) return resolve();
             window.PushNotification
                 .getPushID(function(pushID){
-                    app.pushID = pushID;
-                    window.localStorage.setItem('pushID', app.pushID);
+                    console.log('Push ID: ' + pushID);
+
+                    activity.logActivity({
+                        type: 'push',
+                        html : 'Push ID: ' + JSON.stringify(pushID)
+                    });
+
                     if(pushID){
                         resolve(pushID);
                     }else{
@@ -261,29 +290,47 @@ app.registerPushID = function() {
         });
     }
 
+    function listen(){
+        if(listening) return console.log('Starting Push Notifications Logic');
+
+        console.log('Listening for Push Notifications');
+        listening = true;
+        document.addEventListener('urbanairship.push',
+            function (event) {
+                console.log('Incoming push: ' + event.message);
+
+                activity.logActivity({
+                    type: 'push',
+                    html: 'Received Push Notification: ' + event.message
+                });
+
+            }, false);
+    }
+
     function start(){
-        if(listening) return console.log('Listening for Push Notifications');
+        if(listening) return console.log('Starting Push Notifications Logic');
 
         if(!window.PushNotification) return console.log('No Push Notification Object');
 
         console.log('Starting Push Flow');
         isEnabled()
             .then(getPushID, function(){
-                return enable().then(getPushID);
+                return enable()
+                        .then(getPushID, function(){
+                            activity.logActivity({
+                                type: 'push',
+                                error: 'Unable to get Push ID'
+                            });
+                        })
+                        .then(registerPushID, function(){
+                            activity.logActivity({
+                                type: 'push',
+                                error: 'Unable to register Push ID'
+                            });
+                        })
+                        .done(listen);
             })
-            .then(function(){
-                listening = true;
-                document.addEventListener('urbanairship.push',
-                    function (event) {
-                        console.log('Incoming push: ' + event.message);
-
-                        activity.logActivity({
-                            type: 'push',
-                            html: 'Received Push Notification: ' + event.message
-                        });
-
-                    }, false);
-            });
+            .done(listen);
     }
 
     document.addEventListener('urbanairship.registration',
@@ -301,29 +348,17 @@ app.registerPushID = function() {
 
             } else {
 
+                activity.logActivity({
+                    type: 'push',
+                    html : 'Push ID Registered: ' + event.pushID
+                });
+
                 // Registered
                 app.pushID = event.pushID;
                 window.localStorage.setItem('pushID', app.pushID);
 
                 // Start Listen
                 start();
-
-                activity.logActivity({
-                    type: 'push',
-                    html: 'Push ID Registered'
-                });
-
-                app.updateDeviceSetting({})
-                    .then(function() {
-                        deferred.resolve();
-                    }, function() {
-                        var msg = 'Push ID Updated Failed';
-                        activity.logActivity({
-                            type: 'push',
-                            error: new Error(msg)
-                        });
-                        deferred.reject(msg);
-                    });
             }
 
         }, false);

@@ -2,7 +2,7 @@
 <widget id="com.octoblu.mobiblu" version="3.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Mobiblu</name>
     <description>
-        Use Mobiblu for communicating with SkyNet.im and Octoblu
+        Use Mobiblu for communicating with Meshblu and Octoblu
     </description>
     <author email="info@octoblu.com" href="http://octoblu.com/">
         Octoblu, Inc
