@@ -27,4 +27,8 @@
 
     <plugin name="BackgroundGeoLocation" value="BackgroundGeoLocation" onload="true"/>
 
+    <preference name="com.urbanairship.production_app_key" value="BbFhUoxdQS6KondqSehTy0w" />
+    <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
+    <preference name="com.urbanairship.in_production" value="true" />
+
 </widget>

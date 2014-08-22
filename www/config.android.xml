@@ -10,4 +10,12 @@
 
     <plugin name="InAppBrowser" value="org.apache.cordova.InAppBrowser" />
 
+    <preference name="com.urbanairship.production_app_key" value="BbFhUoxdQS6KondqSehTy0w" />
+    <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
+    <preference name="com.urbanairship.development_app_key" value="N_z6j9tTRrCbxq59pTeFbg" />
+    <preference name="com.urbanairship.development_app_secret" value="T_Sk_ZY7ROOf0dKB89WW7w" />
+    <preference name="com.urbanairship.in_production" value="true" />
+    <preference name="com.urbanairship.gcm_sender" value="octoblu-mobiblu" />
+    <preference name="com.urbanairship.enable_push_onlaunch" value="true" />
+
 </widget>
