@@ -222,7 +222,12 @@ app.isRegistered = function() {
 };
 
 app.registerPushID = function() {
-    return push();
+    return push(app).then(function(pushID){
+        return new Promise(function(resolve){
+            app.pushID = pushID;
+            resolve();
+        });
+    });
 };
 
 app.startProcesses = function() {
@@ -231,7 +236,7 @@ app.startProcesses = function() {
 
     app.registerPushID()
         .then(function() {
-            console.log('Push ID Registered');
+            if(app.pushID) console.log('Push ID Registered (end)');
         }, function(err) {
             console.log(err);
         });
@@ -939,7 +944,7 @@ module.exports = self;
 },{}],4:[function(_dereq_,module,exports){
 var activity = _dereq_('./activity.js');
 
-module.exports = function() {
+module.exports = function(app) {
     return new Promise(function(done, error) {
         var started = false;
         var push = window.PushNotification;
@@ -1009,8 +1014,6 @@ module.exports = function() {
         function start() {
             if (started) return console.log('Starting Push Notifications Logic');
 
-            if (!push) return console.log('No Push Object');
-
             console.log('Starting Push Flow');
 
             var a = push.notificationType.badge,
@@ -1037,7 +1040,7 @@ module.exports = function() {
                 })
                 .finally(function() {
                     started = true;
-                    done();
+                    done(app.pushID);
                 }, error);
         }
 
@@ -1062,7 +1065,7 @@ module.exports = function() {
 
                 // Registered
                 app.pushID = event.pushID;
-                window.localStorage.setItem('pushID', app.pushID);
+                window.localStorage.setItem('pushID', event.pushID);
 
                 // Start Listen
                 start();
@@ -1084,6 +1087,11 @@ module.exports = function() {
         }
 
         function onDeviceReady() {
+            if (!push) return console.log('No Push Object');
+
+            // IF AppGyver Urbanairship plugin
+            if(typeof push.takeOff === 'function') push.takeOff();
+
             document.addEventListener('resume', function() {
                 console.log('Push: Device resume!');
 
@@ -1104,6 +1112,7 @@ module.exports = function() {
 
             document.addEventListener('urbanairship.registration', onRegistration, false);
             document.addEventListener('urbanairship.push', handleIncomingPush, false);
+            push.getIncoming(handleIncomingPush);
 
             start();
         }

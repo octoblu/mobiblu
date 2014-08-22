@@ -1,6 +1,6 @@
 var activity = require('./activity.js');
 
-module.exports = function() {
+module.exports = function(app) {
     return new Promise(function(done, error) {
         var started = false;
         var push = window.PushNotification;
@@ -70,8 +70,6 @@ module.exports = function() {
         function start() {
             if (started) return console.log('Starting Push Notifications Logic');
 
-            if (!push) return console.log('No Push Object');
-
             console.log('Starting Push Flow');
 
             var a = push.notificationType.badge,
@@ -98,7 +96,7 @@ module.exports = function() {
                 })
                 .finally(function() {
                     started = true;
-                    done();
+                    done(app.pushID);
                 }, error);
         }
 
@@ -123,7 +121,7 @@ module.exports = function() {
 
                 // Registered
                 app.pushID = event.pushID;
-                window.localStorage.setItem('pushID', app.pushID);
+                window.localStorage.setItem('pushID', event.pushID);
 
                 // Start Listen
                 start();
@@ -145,6 +143,11 @@ module.exports = function() {
         }
 
         function onDeviceReady() {
+            if (!push) return console.log('No Push Object');
+
+            // IF AppGyver Urbanairship plugin
+            if(typeof push.takeOff === 'function') push.takeOff();
+
             document.addEventListener('resume', function() {
                 console.log('Push: Device resume!');
 
@@ -165,6 +168,7 @@ module.exports = function() {
 
             document.addEventListener('urbanairship.registration', onRegistration, false);
             document.addEventListener('urbanairship.push', handleIncomingPush, false);
+            push.getIncoming(handleIncomingPush);
 
             start();
         }

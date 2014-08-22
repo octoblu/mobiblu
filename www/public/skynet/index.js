@@ -140,7 +140,12 @@ app.isRegistered = function() {
 };
 
 app.registerPushID = function() {
-    return push();
+    return push(app).then(function(pushID){
+        return new Promise(function(resolve){
+            app.pushID = pushID;
+            resolve();
+        });
+    });
 };
 
 app.startProcesses = function() {
@@ -149,7 +154,7 @@ app.startProcesses = function() {
 
     app.registerPushID()
         .then(function() {
-            console.log('Push ID Registered');
+            if(app.pushID) console.log('Push ID Registered (end)');
         }, function(err) {
             console.log(err);
         });
