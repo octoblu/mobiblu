@@ -20,10 +20,11 @@ module.exports = function(app) {
 
         function registerPushID(pushID) {
 
-
-
-
             return new Promise(function(resolve, reject) {
+                if(!pushID) {
+                    console.log('Push ID Invalid');
+                    return reject();
+                }
                 // If updated don't update again
                 if(app.pushID && app.pushID === pushID) return resolve();
 
@@ -51,7 +52,7 @@ module.exports = function(app) {
 
         function getPushID() {
             return new Promise(function(resolve, reject) {
-                if (app.pushID) return resolve(app.pushID);
+                if (app.pushID) return resolve();
                 push.getPushID(function(pushID) {
                     console.log('Push ID: ' + pushID);
 
@@ -60,7 +61,7 @@ module.exports = function(app) {
                             type: 'push',
                             html: 'Push ID Registered'
                         });
-                        resolve(pushID);
+                        registerPushID(pushID).then(resolve, reject);
                     } else {
                         reject();
                     }
@@ -94,9 +95,7 @@ module.exports = function(app) {
                 .finally(function() {
                     started = true;
                     done(app.pushID);
-                    return registerPushID(app.pushID);
                 })
-                .catch(error);
         }
 
         function onRegistration(event) {
@@ -112,11 +111,7 @@ module.exports = function(app) {
                 deferred.reject(msg);
 
             } else {
-
-                registerPushID(event.pushID);
-
-                // Start Listen
-                start();
+                registerPushID(event.pushID).then(start);
             }
         }
 
