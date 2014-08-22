@@ -147,11 +147,35 @@ app.registerPushID = function() {
         return new Promise(function(resolve, reject){
             window.PushNotification
                 .isPushEnabled(function(status){
-                    if(status){
+                    console.log('Push Status: ' +  JSON.stringify(status));
+                    if(status || status === 'OK'){
                         resolve();
                     }else{
                         reject();
                     }
+                });
+        });
+    }
+
+    function registerPushID(pushID){
+        app.pushID = pushID;
+        window.localStorage.setItem('pushID', app.pushID);
+
+        return new Promise(function(resolve, reject){
+            app.updateDeviceSetting({})
+                .then(function() {
+                    activity.logActivity({
+                        type: 'push',
+                        html: 'Push ID Registered'
+                    });
+                    resolve();
+                }, function() {
+                    var msg = 'Push ID Updated Failed';
+                    activity.logActivity({
+                        type: 'push',
+                        error: new Error(msg)
+                    });
+                    reject();
                 });
         });
     }
@@ -161,8 +185,7 @@ app.registerPushID = function() {
             if(app.pushID) return resolve();
             window.PushNotification
                 .getPushID(function(pushID){
-                    app.pushID = pushID;
-                    window.localStorage.setItem('pushID', app.pushID);
+                    console.log('Push ID: ' + pushID);
                     if(pushID){
                         resolve(pushID);
                     }else{
@@ -180,16 +203,19 @@ app.registerPushID = function() {
     }
 
     function start(){
-        if(listening) return console.log('Listening for Push Notifications');
+        if(listening) return console.log('Starting Push Notifications Logic');
 
         if(!window.PushNotification) return console.log('No Push Notification Object');
 
         console.log('Starting Push Flow');
         isEnabled()
             .then(getPushID, function(){
-                return enable().then(getPushID);
+                return enable()
+                        .then(getPushID)
+                        .then(registerPushID);
             })
             .then(function(){
+                console.log('Listening for Push Notifications');
                 listening = true;
                 document.addEventListener('urbanairship.push',
                     function (event) {
@@ -225,23 +251,6 @@ app.registerPushID = function() {
 
                 // Start Listen
                 start();
-
-                activity.logActivity({
-                    type: 'push',
-                    html: 'Push ID Registered'
-                });
-
-                app.updateDeviceSetting({})
-                    .then(function() {
-                        deferred.resolve();
-                    }, function() {
-                        var msg = 'Push ID Updated Failed';
-                        activity.logActivity({
-                            type: 'push',
-                            error: new Error(msg)
-                        });
-                        deferred.reject(msg);
-                    });
             }
 
         }, false);
