@@ -70,6 +70,7 @@ module.exports = function(app) {
         function start() {
             if (started) return console.log('Starting Push Notifications Logic');
 
+
             console.log('Starting Push Flow');
 
             var a = push.notificationType.badge,
