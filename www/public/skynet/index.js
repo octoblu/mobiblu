@@ -157,6 +157,10 @@ app.startProcesses = function() {
             if(app.pushID) console.log('Push ID Registered (end)');
         }, function(err) {
             console.log(err);
+            activity.logActivity({
+                type: 'push',
+                error: 'Unable to enable Push Notifications'
+            });
         });
 
     app.conn.on('message', function(data) {

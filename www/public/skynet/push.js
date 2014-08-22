@@ -19,22 +19,30 @@ module.exports = function(app) {
         }
 
         function registerPushID(pushID) {
-            app.pushID = pushID;
-            window.localStorage.setItem('pushID', app.pushID);
+
+
+
 
             return new Promise(function(resolve, reject) {
+                // If updated don't update again
+                if(app.pushID && app.pushID === pushID) return resolve();
+
+                // Set Push ID
+                app.pushID = pushID;
+                window.localStorage.setItem('pushID', app.pushID);
+
+                // Update Meshblu with Push ID
                 app.updateDeviceSetting({})
                     .then(function() {
                         activity.logActivity({
                             type: 'push',
-                            html: 'Push ID Registered'
+                            html: 'Device Updated with Push ID'
                         });
                         resolve();
                     }, function() {
-                        var msg = 'Push ID Updated Failed';
                         activity.logActivity({
                             type: 'push',
-                            error: new Error(msg)
+                            error: 'Push ID Updated Failed'
                         });
                         reject();
                     });
@@ -43,16 +51,15 @@ module.exports = function(app) {
 
         function getPushID() {
             return new Promise(function(resolve, reject) {
-                if (app.pushID) return resolve();
+                if (app.pushID) return resolve(app.pushID);
                 push.getPushID(function(pushID) {
                     console.log('Push ID: ' + pushID);
 
-                    activity.logActivity({
-                        type: 'push',
-                        html: 'Push ID: ' + JSON.stringify(pushID)
-                    });
-
                     if (pushID) {
+                        activity.logActivity({
+                            type: 'push',
+                            html: 'Push ID Registered'
+                        });
                         resolve(pushID);
                     } else {
                         reject();
@@ -82,23 +89,14 @@ module.exports = function(app) {
             isEnabled()
                 .then(getPushID, function() {
                     return enable()
-                        .then(getPushID, function() {
-                            activity.logActivity({
-                                type: 'push',
-                                error: 'Unable to get Push ID'
-                            });
-                        })
-                        .then(registerPushID, function() {
-                            activity.logActivity({
-                                type: 'push',
-                                error: 'Unable to register Push ID'
-                            });
-                        });
+                        .then(getPushID, error);
                 })
                 .finally(function() {
                     started = true;
                     done(app.pushID);
-                }, error);
+                    return registerPushID(app.pushID);
+                })
+                .catch(error);
         }
 
         function onRegistration(event) {
@@ -115,14 +113,7 @@ module.exports = function(app) {
 
             } else {
 
-                activity.logActivity({
-                    type: 'push',
-                    html: 'Push ID Registered: ' + event.pushID
-                });
-
-                // Registered
-                app.pushID = event.pushID;
-                window.localStorage.setItem('pushID', event.pushID);
+                registerPushID(event.pushID);
 
                 // Start Listen
                 start();
@@ -138,7 +129,7 @@ module.exports = function(app) {
 
             activity.logActivity({
                 type: 'push',
-                html: 'Received Push Notification: ' + event.message
+                html: '<strong>Received Push Notification</strong>: ' + event.message
             });
 
         }
