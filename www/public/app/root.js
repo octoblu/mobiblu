@@ -95,7 +95,8 @@ angular.module('main')
         };
 
         $rootScope.isSettingUser = function () {
-            var uuid = utils.getParam('uuid'), token = utils.getParam('token');
+            var uuid = utils.getParam('uuid'),
+                token = utils.getParam('token');
 
             if (uuid && token) {
                 return true;
