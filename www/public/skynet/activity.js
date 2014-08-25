@@ -6,6 +6,8 @@ var obj = {};
 
 var limit = 100;
 
+var debug = true;
+
 obj.getActivity = function(type, limit){
 
     var activity = window.mobibluStorage.getItem('skynetactivity') || [];
@@ -33,6 +35,9 @@ obj.clearActivityCount = function(){
 };
 
 obj.logActivity = function(data){
+    if(data.debug && !debug){
+        return;
+    }
     Labels.getLabel(data.type)
         .then(function(type){
             data.type = type;

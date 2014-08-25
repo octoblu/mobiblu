@@ -45,6 +45,7 @@ var bg = {
                     Sensors[type].store(response);
 
                     activity.logActivity({
+                        debug : true,
                         type: type,
                         html: 'Successfully updated background location'
                     });
@@ -55,6 +56,7 @@ var bg = {
                 // ON ERROR
                 function(){
                     activity.logActivity({
+                        debug: true,
                         type: type,
                         error: 'Failed to update background location'
                     });
@@ -73,6 +75,12 @@ var bg = {
                     error: err
                 });
             };
+
+            activity.logActivity({
+                debug: true,
+                type: type,
+                html: 'Started Background Location'
+            });
 
             // BackgroundGeoLocation is highly configurable.
             bgGeo.configure(callbackFn, failureFn, {
@@ -112,6 +120,7 @@ var bg = {
 
         if (app.bgRunning) {
             activity.logActivity({
+                debug: true,
                 type: type,
                 html: 'Stopped Background Location'
             });

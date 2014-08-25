@@ -7,6 +7,8 @@ var obj = {};
 
 var limit = 100;
 
+var debug = true;
+
 obj.getActivity = function(type, limit){
 
     var activity = window.mobibluStorage.getItem('skynetactivity') || [];
@@ -34,6 +36,9 @@ obj.clearActivityCount = function(){
 };
 
 obj.logActivity = function(data){
+    if(data.debug && !debug){
+        return;
+    }
     Labels.getLabel(data.type)
         .then(function(type){
             data.type = type;
@@ -101,14 +106,14 @@ function getBGPlugin() {
     return true;
 }
 
-module.exports = {
+var bg = {
 
-    startBG : function(app, activity) {
+    startBG : function (app, activity) {
         if (!getBGPlugin()) return;
 
         console.log('Started BG Location');
 
-        if (!app.settings.bg_updates) return app.stopBG();
+        if (!app.settings.bg_updates) return bg.stopBG();
 
         // If BG Updates is turned off
         Sensors.Geolocation(1000).start(function() {
@@ -127,6 +132,7 @@ module.exports = {
                     Sensors[type].store(response);
 
                     activity.logActivity({
+                        debug : true,
                         type: type,
                         html: 'Successfully updated background location'
                     });
@@ -137,6 +143,7 @@ module.exports = {
                 // ON ERROR
                 function(){
                     activity.logActivity({
+                        debug: true,
                         type: type,
                         error: 'Failed to update background location'
                     });
@@ -155,6 +162,12 @@ module.exports = {
                     error: err
                 });
             };
+
+            activity.logActivity({
+                debug: true,
+                type: type,
+                html: 'Started Background Location'
+            });
 
             // BackgroundGeoLocation is highly configurable.
             bgGeo.configure(callbackFn, failureFn, {
@@ -184,7 +197,7 @@ module.exports = {
 
     },
 
-    stopBG : function(app, activity) {
+    stopBG : function (app, activity) {
 
         if (!getBGPlugin()) return;
 
@@ -194,6 +207,7 @@ module.exports = {
 
         if (app.bgRunning) {
             activity.logActivity({
+                debug: true,
                 type: type,
                 html: 'Stopped Background Location'
             });
@@ -203,6 +217,8 @@ module.exports = {
     }
 
 };
+
+module.exports = bg;
 },{"./activity.js":1,"./sensors.js":6,"./skynet.js":7}],3:[function(_dereq_,module,exports){
 'use strict';
 
