@@ -1,7 +1,9 @@
 'use strict';
 
 $(document).ready(function(){
-    $(document).on('skynet-loaded', function(){
+    $(document).on('skynet-loaded', initPlugins);
+
+    function initPlugins(){
         if(window.octobluMobile){
             window.octobluMobile.init()
                 .then(function(){
@@ -11,5 +13,5 @@ $(document).ready(function(){
                     console.log('Error Initializing Plugins');
                 });
         }
-    });
+    }
 });

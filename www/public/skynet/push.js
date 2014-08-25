@@ -1,6 +1,6 @@
-var activity = require('./activity.js');
+'use strict';
 
-module.exports = function(app) {
+module.exports = function(app, activity) {
     return new Promise(function(done, error) {
         var started = false;
         var push = window.PushNotification;
@@ -70,7 +70,7 @@ module.exports = function(app) {
         }
 
         function enable() {
-            return new Promise(function(resolve, reject) {
+            return new Promise(function(resolve) {
                 push.enablePush(resolve);
             });
         }
@@ -95,7 +95,7 @@ module.exports = function(app) {
                 .finally(function() {
                     started = true;
                     done(app.pushID);
-                })
+                });
         }
 
         function onRegistration(event) {
@@ -107,8 +107,6 @@ module.exports = function(app) {
                     type: 'push',
                     error: event.error
                 });
-
-                deferred.reject(msg);
 
             } else {
                 registerPushID(event.pushID).then(start);
@@ -144,7 +142,7 @@ module.exports = function(app) {
                 // Re-register for urbanairship events if they were removed in pause event
                 document.addEventListener('urbanairship.registration', onRegistration, false);
                 document.addEventListener('urbanairship.push', handleIncomingPush, false);
-            }, false)
+            }, false);
 
             document.addEventListener('pause', function() {
                 console.log('Push: Device pause!');

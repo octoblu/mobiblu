@@ -6,6 +6,7 @@ var Topics = require('./topics.js');
 var Labels = require('./labels.js');
 var activity = require('./activity.js');
 var push = require('./push.js');
+var geo = require('./geo.js');
 
 var defer = function() {
     var resolve, reject;
@@ -84,8 +85,6 @@ app.setData = function(skynetuuid, skynettoken) {
 
     app.settingsUpdated = false;
 
-    app.sensorIntervals = {};
-
     app.socketid = null;
 
     return true;
@@ -138,7 +137,7 @@ app.isRegistered = function() {
 };
 
 app.registerPushID = function() {
-    return push(app).then(function(pushID){
+    return push(app, activity).then(function(pushID){
         return new Promise(function(resolve){
             app.pushID = pushID;
             resolve();
@@ -146,7 +145,7 @@ app.registerPushID = function() {
     });
 };
 
-app.startProcesses = function() {
+app.listenForEvents = function() {
 
     app.loaded = true;
 
@@ -179,7 +178,7 @@ app.startProcesses = function() {
         });
     });
 
-    app.logSensorData();
+    Sensors.logSensorData(app, activity);
 };
 
 app.regData = function() {
@@ -234,7 +233,7 @@ app.registerDevice = function(newDevice) {
             deferred.resolve();
         });
     return deferred.promise;
-}
+};
 
 app.register = function(registered) {
 
@@ -334,202 +333,10 @@ app.connect = function() {
     return deferred.promise;
 };
 
-app.logSensorData = function() {
-    var sensors = [];
 
-    // Clear Session Timeouts
-    if (app.sensorIntervals) {
-        console.log('Clearing Sensors');
-        _.each(_.keys(app.sensorIntervals), function(key) {
-            clearInterval(app.sensorIntervals[key]);
-        });
-    }
-
-    var startSensor = function(sensor, type) {
-        var sent = false;
-        sensor.start(
-            // Handle Success
-            function(sensorData) {
-                // Make sure it hasn't already been sent
-                if (sent) return;
-                sent = true;
-
-                // Emit data
-                app.sendData({
-                    'sensorData': {
-                        'type': type,
-                        'data': sensorData
-                    }
-                }).then(function() {
-                    activity.logActivity({
-                        type: type,
-                        data: sensorData,
-                        html: sensor.prettify(sensorData)
-                    });
-                });
-
-            },
-            // Handle Errors
-            function(err) {
-                activity.logActivity({
-                    type: type,
-                    error: err
-                });
-            }
-        );
-    };
-
-    app.getDeviceSetting()
-        .then(function() {
-            // Push Sensors
-
-            var wait = 1;
-
-            if (app.settings) {
-                // Geolocation
-                if (app.settings.geolocation)
-                    sensors.push('Geolocation');
-                // Compass
-                if (app.settings.compass)
-                    sensors.push('Compass');
-                // Accelerometer
-                if (app.settings.accelerometer)
-                    sensors.push('Accelerometer');
-
-                if (app.settings.update_interval) {
-                    wait = app.settings.update_interval;
-                } else if (app.settings.update_interval === 0) {
-                    wait = 0.15;
-                }
-            }
-            console.log('Active Sensors (' + wait + '), ' + JSON.stringify(sensors));
-            // Convert min to ms
-            wait = wait * 60 * 1000;
-
-            var throttled = {};
-
-            sensors.forEach(function(sensorType) {
-
-                if (sensorType && typeof Sensors[sensorType] === 'function') {
-
-                    throttled[sensorType] = _.throttle(startSensor, wait);
-                    // Trigger Sensor Data every wait
-                    var sensorObj = Sensors[sensorType](1000);
-                    app.sensorIntervals[sensorType] = setInterval(function() {
-                        throttled[sensorType](sensorObj, sensorType);
-                    }, wait);
-
-                }
-
-            });
-        });
-};
-
-app.getBGPlugin = function() {
-    app.bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
-
-    if (!app.bgGeo) {
-        console.log('No BG Plugin');
-        return false;
-    }
-
-    return true;
-};
-
-app.startBG = function() {
-    if (!app.getBGPlugin()) return;
-    console.log('Started BG Location');
-
-    if (!app.settings.bg_updates) return app.stopBG();
-
-    var type = 'Background Geolocation';
-
-    // If BG Updates is turned off
-    Sensors.Geolocation(1000).start(function() {
-        // Send POST to SkyNet
-        var sendToSkynet = function(response) {
-
-            SkynetRest.sendData(null, null, {
-                'sensorData': {
-                    'type': type,
-                    'data': response
-                }
-            }).then(function() {
-
-                Sensors[type].store(response);
-
-                activity.logActivity({
-                    type: type,
-                    html: 'Successfully updated background location'
-                });
-
-                app.bgGeo.finish();
-
-
-            }, app.bgGeo.finish);
-
-        };
-
-        var callbackFn = function(location) {
-            sendToSkynet(location);
-        };
-
-        var failureFn = function(err) {
-            activity.logActivity({
-                type: type,
-                error: err
-            });
-        };
-
-        // BackgroundGeoLocation is highly configurable.
-        app.bgGeo.configure(callbackFn, failureFn, {
-            url: 'http://meshblu.octoblu.com/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
-            params: { // HTTP POST params sent to your server when persisting locations.
-                uuid: app.mobileuuid,
-                token: app.mobiletoken,
-                type: 'octobluMobile'
-            },
-            headers: {
-                skynet_auth_uuid: app.mobileuuid,
-                skynet_auth_token: app.mobiletoken
-            },
-            desiredAccuracy: 10,
-            stationaryRadius: 20,
-            distanceFilter: 30,
-            debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
-        });
-
-        app.bgRunning = true;
-
-        app.bgGeo.start();
-
-    }, function(err) {
-        console.log('Error', err);
-    });
-
-};
-
-app.stopBG = function() {
-    var type = 'Background Geolocation';
-
-    if (!app.getBGPlugin()) return;
-
-    console.log('Stopping BG Location');
-
-    app.bgGeo.stop();
-
-    if (app.bgRunning) {
-        activity.logActivity({
-            type: type,
-            html: 'Stopped Background Location'
-        });
-    }
-
-    app.bgRunning = false;
-};
 
 app.updateDeviceSetting = function(data) {
-    if (!data) data = {};
+    if (!_.isObject(data)) data = {};
     var deferred = defer();
     // Extend the data option
     data.uuid = app.mobileuuid;
@@ -549,9 +356,9 @@ app.updateDeviceSetting = function(data) {
     if (data.setting) app.settings = data.setting;
 
     if (app.bgRunning && !app.settings.bg_updates) {
-        app.stopBG();
+        geo.stopBG();
     } else if (!app.bgRunning) {
-        app.startBG();
+        geo.startBG();
     }
 
     delete data['$$hashKey'];
@@ -727,6 +534,8 @@ app.init = function(skynetuuid, skynettoken) {
 
     activity.init();
 
+    geo.init(app, activity);
+
     if (!app.isAuthenticated()) {
         console.log('Not Authenticated');
         deferred.resolve();
@@ -741,7 +550,9 @@ app.init = function(skynetuuid, skynettoken) {
                     html: 'Connected to Meshblu'
                 });
 
-                app.startProcesses();
+                app.listenForEvents();
+
+                // Used to Trigger the plugins
                 $(document).trigger('skynet-loaded');
 
                 deferred.resolve();
@@ -778,7 +589,9 @@ var publicApi = {
     login: app.login,
     isAuthenticated: app.isAuthenticated,
     hasAuth: app.hasAuth,
-    logSensorData: app.logSensorData,
+    logSensorData: function(){
+        return Sensors.logSensorData(app, activity);
+    },
     getCurrentSettings: function() {
 
         if (!app.skynetuuid) {
