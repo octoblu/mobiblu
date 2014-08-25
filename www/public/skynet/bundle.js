@@ -520,8 +520,6 @@ app.connect = function() {
     function connected() {
         console.log('Connected');
 
-        //app.updateDeviceSetting({});
-
         deferred.resolve();
     }
 

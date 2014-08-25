@@ -19,14 +19,14 @@ function getBGPlugin() {
     return true;
 }
 
-module.exports = {
+var bg = {
 
-    startBG : function(app, activity) {
+    startBG : function (app, activity) {
         if (!getBGPlugin()) return;
 
         console.log('Started BG Location');
 
-        if (!app.settings.bg_updates) return app.stopBG();
+        if (!app.settings.bg_updates) return bg.stopBG();
 
         // If BG Updates is turned off
         Sensors.Geolocation(1000).start(function() {
@@ -102,7 +102,7 @@ module.exports = {
 
     },
 
-    stopBG : function(app, activity) {
+    stopBG : function (app, activity) {
 
         if (!getBGPlugin()) return;
 
@@ -121,3 +121,5 @@ module.exports = {
     }
 
 };
+
+module.exports = bg;
