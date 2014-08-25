@@ -7,8 +7,6 @@ var Labels = require('./labels.js');
 var activity = require('./activity.js');
 var push = require('./push.js');
 
-var Q = Promise;
-
 var defer = function() {
     var resolve, reject;
     var promise = new Promise(function() {
