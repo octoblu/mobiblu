@@ -268,7 +268,8 @@ app.skynet = function(callback, errorCallback) {
         config = {
             uuid: app.mobileuuid,
             token: app.mobiletoken,
-            protocol: 'websocket'
+            port: 80,
+            server: 'ws://meshblu.octoblu.com'
         };
     }
 
@@ -312,7 +313,9 @@ app.connect = function() {
 
     function connected() {
         console.log('Connected');
+
         app.updateDeviceSetting({});
+
         deferred.resolve();
     }
 

@@ -6,23 +6,23 @@ var Sensors = require('./sensors.js');
 
 var type = 'Background Geolocation';
 
-var app, activity;
+var app, activity, bgGeo;
+
+function getBGPlugin() {
+    bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
+
+    if (!bgGeo) {
+        console.log('No BG Plugin');
+        return false;
+    }
+
+    return true;
+}
 
 module.exports = {
 
-    getBGPlugin : function() {
-        app.bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
-
-        if (!app.bgGeo) {
-            console.log('No BG Plugin');
-            return false;
-        }
-
-        return true;
-    },
-
     startBG : function() {
-        if (!app.getBGPlugin()) return;
+        if (!getBGPlugin()) return;
         console.log('Started BG Location');
 
         if (!app.settings.bg_updates) return app.stopBG();
@@ -46,10 +46,10 @@ module.exports = {
                         html: 'Successfully updated background location'
                     });
 
-                    app.bgGeo.finish();
+                    bgGeo.finish();
 
 
-                }, app.bgGeo.finish);
+                }, bgGeo.finish);
 
             };
 
@@ -65,7 +65,7 @@ module.exports = {
             };
 
             // BackgroundGeoLocation is highly configurable.
-            app.bgGeo.configure(callbackFn, failureFn, {
+            bgGeo.configure(callbackFn, failureFn, {
                 url: 'http://meshblu.octoblu.com/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
                 params: { // HTTP POST params sent to your server when persisting locations.
                     uuid: app.mobileuuid,
@@ -84,7 +84,7 @@ module.exports = {
 
             app.bgRunning = true;
 
-            app.bgGeo.start();
+            bgGeo.start();
 
         }, function(err) {
             console.log('Error', err);
@@ -94,11 +94,11 @@ module.exports = {
 
     stopBG : function() {
 
-        if (!app.getBGPlugin()) return;
+        if (!getBGPlugin()) return;
 
         console.log('Stopping BG Location');
 
-        app.bgGeo.stop();
+        bgGeo.stop();
 
         if (app.bgRunning) {
             activity.logActivity({
