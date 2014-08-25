@@ -314,8 +314,6 @@ app.connect = function() {
     function connected() {
         console.log('Connected');
 
-        app.updateDeviceSetting({});
-
         deferred.resolve();
     }
 
@@ -357,9 +355,9 @@ app.updateDeviceSetting = function(data) {
     if (data.setting) app.settings = data.setting;
 
     if (app.bgRunning && !app.settings.bg_updates) {
-        geo.stopBG();
+        geo.stopBG(app, activity);
     } else if (!app.bgRunning) {
-        geo.startBG();
+        geo.startBG(app, activity);
     }
 
     delete data['$$hashKey'];
@@ -534,8 +532,6 @@ app.init = function(skynetuuid, skynettoken) {
     app.setData(skynetuuid, skynettoken);
 
     activity.init();
-
-    geo.init(app, activity);
 
     if (!app.isAuthenticated()) {
         console.log('Not Authenticated');

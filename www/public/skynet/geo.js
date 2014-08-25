@@ -6,7 +6,7 @@ var Sensors = require('./sensors.js');
 
 var type = 'Background Geolocation';
 
-var app, activity, bgGeo;
+var bgGeo;
 
 function getBGPlugin() {
     bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
@@ -21,8 +21,9 @@ function getBGPlugin() {
 
 module.exports = {
 
-    startBG : function() {
+    startBG : function(app, activity) {
         if (!getBGPlugin()) return;
+
         console.log('Started BG Location');
 
         if (!app.settings.bg_updates) return app.stopBG();
@@ -32,12 +33,14 @@ module.exports = {
             // Send POST to SkyNet
             var sendToSkynet = function(response) {
 
-                SkynetRest.sendData(null, null, {
+                SkynetRest.sendData(app.mobileuuid, app.mobiletoken, {
                     'sensorData': {
                         'type': type,
                         'data': response
                     }
-                }).then(function() {
+                }).then(
+                // ON SUCCESS
+                function() {
 
                     Sensors[type].store(response);
 
@@ -48,8 +51,15 @@ module.exports = {
 
                     bgGeo.finish();
 
-
-                }, bgGeo.finish);
+                },
+                // ON ERROR
+                function(){
+                    activity.logActivity({
+                        type: type,
+                        error: 'Failed to update background location'
+                    });
+                    bgGeo.finish();
+                });
 
             };
 
@@ -92,7 +102,7 @@ module.exports = {
 
     },
 
-    stopBG : function() {
+    stopBG : function(app, activity) {
 
         if (!getBGPlugin()) return;
 
@@ -108,10 +118,6 @@ module.exports = {
         }
 
         app.bgRunning = false;
-    },
-
-    init : function(a, b){
-        app = a;
-        activity = b;
     }
+
 };

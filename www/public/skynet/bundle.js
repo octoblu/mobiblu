@@ -88,7 +88,7 @@ var Sensors = _dereq_('./sensors.js');
 
 var type = 'Background Geolocation';
 
-var app, activity, bgGeo;
+var bgGeo;
 
 function getBGPlugin() {
     bgGeo = window.plugins ? window.plugins.backgroundGeoLocation : null;
@@ -103,8 +103,9 @@ function getBGPlugin() {
 
 module.exports = {
 
-    startBG : function() {
+    startBG : function(app, activity) {
         if (!getBGPlugin()) return;
+
         console.log('Started BG Location');
 
         if (!app.settings.bg_updates) return app.stopBG();
@@ -114,12 +115,14 @@ module.exports = {
             // Send POST to SkyNet
             var sendToSkynet = function(response) {
 
-                SkynetRest.sendData(null, null, {
+                SkynetRest.sendData(app.mobileuuid, app.mobiletoken, {
                     'sensorData': {
                         'type': type,
                         'data': response
                     }
-                }).then(function() {
+                }).then(
+                // ON SUCCESS
+                function() {
 
                     Sensors[type].store(response);
 
@@ -130,8 +133,15 @@ module.exports = {
 
                     bgGeo.finish();
 
-
-                }, bgGeo.finish);
+                },
+                // ON ERROR
+                function(){
+                    activity.logActivity({
+                        type: type,
+                        error: 'Failed to update background location'
+                    });
+                    bgGeo.finish();
+                });
 
             };
 
@@ -158,8 +168,8 @@ module.exports = {
                     skynet_auth_uuid: app.mobileuuid,
                     skynet_auth_token: app.mobiletoken
                 },
-                desiredAccuracy: 10,
-                stationaryRadius: 20,
+                desiredAccuracy: 100,
+                stationaryRadius: 100,
                 distanceFilter: 30,
                 debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
             });
@@ -174,7 +184,7 @@ module.exports = {
 
     },
 
-    stopBG : function() {
+    stopBG : function(app, activity) {
 
         if (!getBGPlugin()) return;
 
@@ -190,12 +200,8 @@ module.exports = {
         }
 
         app.bgRunning = false;
-    },
-
-    init : function(a, b){
-        app = a;
-        activity = b;
     }
+
 };
 },{"./activity.js":1,"./sensors.js":6,"./skynet.js":7}],3:[function(_dereq_,module,exports){
 'use strict';
@@ -514,7 +520,7 @@ app.connect = function() {
     function connected() {
         console.log('Connected');
 
-        app.updateDeviceSetting({});
+        //app.updateDeviceSetting({});
 
         deferred.resolve();
     }
@@ -535,8 +541,6 @@ app.connect = function() {
 
     return deferred.promise;
 };
-
-
 
 app.updateDeviceSetting = function(data) {
     if (!_.isObject(data)) data = {};
@@ -559,9 +563,9 @@ app.updateDeviceSetting = function(data) {
     if (data.setting) app.settings = data.setting;
 
     if (app.bgRunning && !app.settings.bg_updates) {
-        geo.stopBG();
+        geo.stopBG(app, activity);
     } else if (!app.bgRunning) {
-        geo.startBG();
+        geo.startBG(app, activity);
     }
 
     delete data['$$hashKey'];
@@ -736,8 +740,6 @@ app.init = function(skynetuuid, skynettoken) {
     app.setData(skynetuuid, skynettoken);
 
     activity.init();
-
-    geo.init(app, activity);
 
     if (!app.isAuthenticated()) {
         console.log('Not Authenticated');
@@ -1342,7 +1344,6 @@ Sensors.logSensorData = function(app, activity) {
 module.exports = Sensors;
 },{}],7:[function(_dereq_,module,exports){
 'use strict';
-var Q = Promise;
 
 var defer = function () {
     var resolve, reject;
@@ -1424,6 +1425,7 @@ obj.sendData = function (uuid, token, data) {
     $.ajax(getAjax(obj))
         .success(deferred.resolve)
         .error(deferred.reject);
+
     return deferred.promise;
 };
 

@@ -1,5 +1,4 @@
 'use strict';
-var Q = Promise;
 
 var defer = function () {
     var resolve, reject;
@@ -81,6 +80,7 @@ obj.sendData = function (uuid, token, data) {
     $.ajax(getAjax(obj))
         .success(deferred.resolve)
         .error(deferred.reject);
+
     return deferred.promise;
 };
 

@@ -82,7 +82,7 @@
         }
 
         self.processUsers();
-0
+
         self.setItem(self.config.configKey, self.config);
     };
 
