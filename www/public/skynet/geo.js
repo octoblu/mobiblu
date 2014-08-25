@@ -76,8 +76,8 @@ module.exports = {
                     skynet_auth_uuid: app.mobileuuid,
                     skynet_auth_token: app.mobiletoken
                 },
-                desiredAccuracy: 10,
-                stationaryRadius: 20,
+                desiredAccuracy: 100,
+                stationaryRadius: 100,
                 distanceFilter: 30,
                 debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
             });

@@ -336,8 +336,6 @@ app.connect = function() {
     return deferred.promise;
 };
 
-
-
 app.updateDeviceSetting = function(data) {
     if (!_.isObject(data)) data = {};
     var deferred = defer();
