@@ -26,13 +26,15 @@ var bg = {
         console.log('Started BG Location');
 
         if (!app.settings.bg_updates) return bg.stopBG(app, activity);
-
+        var GeoSensor = Sensors.Geolocation(1000);
         // If BG Updates is turned off
-        Sensors.Geolocation(1000).start(function() {
+        GeoSensor.start(function() {
             // Send POST to SkyNet
             var sendToSkynet = function(response) {
+                console.log('Sending ' + type + ' to Meshblu: ' +
+                                JSON.stringify(response));
                 function onSuccess(){
-                    Sensors[type].store(response);
+                    GeoSensor.store(response);
 
                     activity.logActivity({
                         debug : true,
