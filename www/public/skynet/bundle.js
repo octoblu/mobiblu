@@ -110,7 +110,7 @@ var bg = {
     startBG : function (app, activity) {
         if (!getBGPlugin()) return;
 
-        console.log('Started BG Location');
+        console.log('Started: ' + type);
 
         if (!app.settings.bg_updates) return bg.stopBG(app, activity);
         var GeoSensor = Sensors.Geolocation(1000);
@@ -118,15 +118,24 @@ var bg = {
         GeoSensor.start(function() {
             // Send POST to SkyNet
             var sendToSkynet = function(response) {
+
+                response.coords = {
+                    latitude : response.latitude,
+                    longitude : response.longitude
+                };
+
+                response.type = type;
+
                 console.log('Sending ' + type + ' to Meshblu: ' +
                                 JSON.stringify(response));
+
                 function onSuccess(){
                     GeoSensor.store(response);
 
                     activity.logActivity({
                         debug : true,
                         type: type,
-                        html: 'Successfully updated background location'
+                        html: 'Successfully updated ' + type
                     });
 
                     bgGeo.finish();
@@ -135,7 +144,7 @@ var bg = {
                     activity.logActivity({
                         debug: true,
                         type: type,
-                        error: 'Failed to update background location'
+                        error: 'Failed to update ' + type
                     });
                     bgGeo.finish();
                 }
@@ -198,7 +207,7 @@ var bg = {
 
         if (!getBGPlugin()) return;
 
-        console.log('Stopping BG Location');
+        console.log('Stopped: ' + type);
 
         bgGeo.stop();
 
@@ -292,7 +301,18 @@ app.setData = function(skynetuuid, skynettoken) {
 
         console.log('Device Name: ' + JSON.stringify(devicename));
 
-        app.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile';
+        if(devicename && devicename.length){
+            app.devicename = devicename;
+        }else{
+            app.devicename = 'Mobiblu ' + window.device.platform;
+        }
+
+        app.settings = window.mobibluStorage.getItem('settings') || {};
+        console.log('Pre Settings', app.settings);
+        if (_.isEmpty(app.settings)) {
+            app.settings = app.defaultSettings;
+        }
+        console.log('App Settings', app.settings);
     }
 
 
@@ -300,7 +320,6 @@ app.setData = function(skynetuuid, skynettoken) {
 
     console.log('Set Data Creds : ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
-    if (!app.settings || !app.settings.length) app.settings = app.defaultSettings;
 
     app.settingsUpdated = false;
 
@@ -580,11 +599,14 @@ app.updateDeviceSetting = function(data) {
 
     if (!data.flows) data.flows = Topics.getAll();
 
-    window.mobibluStorage.setItem('devicename', data.name);
-
     data.type = 'octobluMobile';
 
-    if (data.setting) app.settings = data.setting;
+    window.mobibluStorage.setItem('devicename', data.name);
+
+    if (data.setting) {
+        window.mobibluStorage.setItem('settings', data.setting);
+        app.settings = data.setting;
+    }
 
     app.doBackground();
 

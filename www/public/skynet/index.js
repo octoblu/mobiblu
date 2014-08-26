@@ -73,7 +73,16 @@ app.setData = function(skynetuuid, skynettoken) {
 
         console.log('Device Name: ' + JSON.stringify(devicename));
 
-        app.devicename = devicename && devicename.length ? devicename : 'Octoblu Mobile';
+        if(devicename && devicename.length){
+            app.devicename = devicename;
+        }else{
+            app.devicename = 'Mobiblu ' + window.device.platform;
+        }
+
+        app.settings = window.mobibluStorage.getItem('settings') || {};
+        if (_.isEmpty(app.settings)) {
+            app.settings = app.defaultSettings;
+        }
     }
 
 
@@ -81,7 +90,6 @@ app.setData = function(skynetuuid, skynettoken) {
 
     console.log('Set Data Creds : ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
-    if (!app.settings || !app.settings.length) app.settings = app.defaultSettings;
 
     app.settingsUpdated = false;
 
@@ -361,11 +369,14 @@ app.updateDeviceSetting = function(data) {
 
     if (!data.flows) data.flows = Topics.getAll();
 
-    window.mobibluStorage.setItem('devicename', data.name);
-
     data.type = 'octobluMobile';
 
-    if (data.setting) app.settings = data.setting;
+    window.mobibluStorage.setItem('devicename', data.name);
+
+    if (data.setting) {
+        window.mobibluStorage.setItem('settings', data.setting);
+        app.settings = data.setting;
+    }
 
     app.doBackground();
 

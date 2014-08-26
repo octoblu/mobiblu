@@ -23,7 +23,7 @@ var bg = {
     startBG : function (app, activity) {
         if (!getBGPlugin()) return;
 
-        console.log('Started BG Location');
+        console.log('Started: ' + type);
 
         if (!app.settings.bg_updates) return bg.stopBG(app, activity);
         var GeoSensor = Sensors.Geolocation(1000);
@@ -31,15 +31,24 @@ var bg = {
         GeoSensor.start(function() {
             // Send POST to SkyNet
             var sendToSkynet = function(response) {
+
+                response.coords = {
+                    latitude : response.latitude,
+                    longitude : response.longitude
+                };
+
+                response.type = type;
+
                 console.log('Sending ' + type + ' to Meshblu: ' +
                                 JSON.stringify(response));
+
                 function onSuccess(){
                     GeoSensor.store(response);
 
                     activity.logActivity({
                         debug : true,
                         type: type,
-                        html: 'Successfully updated background location'
+                        html: 'Successfully updated ' + type
                     });
 
                     bgGeo.finish();
@@ -48,7 +57,7 @@ var bg = {
                     activity.logActivity({
                         debug: true,
                         type: type,
-                        error: 'Failed to update background location'
+                        error: 'Failed to update ' + type
                     });
                     bgGeo.finish();
                 }
@@ -111,7 +120,7 @@ var bg = {
 
         if (!getBGPlugin()) return;
 
-        console.log('Stopping BG Location');
+        console.log('Stopped: ' + type);
 
         bgGeo.stop();
 
