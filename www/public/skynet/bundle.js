@@ -308,11 +308,9 @@ app.setData = function(skynetuuid, skynettoken) {
         }
 
         app.settings = window.mobibluStorage.getItem('settings') || {};
-        console.log('Pre Settings', app.settings);
         if (_.isEmpty(app.settings)) {
             app.settings = app.defaultSettings;
         }
-        console.log('App Settings', app.settings);
     }
 
 

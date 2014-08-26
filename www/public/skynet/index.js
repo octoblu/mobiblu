@@ -38,18 +38,24 @@ app.bgRunning = false;
 
 app.conn = null;
 
+app.settingsUpdated = false;
+
 app.setData = function(skynetuuid, skynettoken) {
-    if (!skynetuuid) skynetuuid = window.localStorage.getItem('skynetuuid');
-    if (!skynettoken) skynettoken = window.localStorage.getItem('skynettoken');
+    if (!skynetuuid){
+        skynetuuid = window.localStorage.getItem('skynetuuid');
+    }
+    if (!skynettoken) {
+        skynettoken = window.localStorage.getItem('skynettoken');
+    }
 
     // Set new Skynet Tokens
     if (skynetuuid && skynettoken) {
+        console.log('Octoblu Credentials');
 
         window.mobibluStorage.writeConfig({
             user: skynetuuid
         });
 
-        console.log('Credentials set');
         // Octoblu User Data
         app.skynetuuid = skynetuuid;
         app.skynettoken = skynettoken;
@@ -63,6 +69,7 @@ app.setData = function(skynetuuid, skynettoken) {
         } else {
             app.loggedin = !!app.loggedin;
         }
+
         //Push ID
         app.pushID = window.localStorage.getItem('pushID');
         // Mobile App Data
@@ -82,16 +89,14 @@ app.setData = function(skynetuuid, skynettoken) {
         app.settings = window.mobibluStorage.getItem('settings') || {};
         if (_.isEmpty(app.settings)) {
             app.settings = app.defaultSettings;
+        }else{
+            app.settingsUpdated = true;
         }
     }
 
+    console.log('Owner UUID : ' + JSON.stringify(app.skynetuuid));
 
-    console.log('Set Owner UUID : ' + JSON.stringify(app.skynetuuid));
-
-    console.log('Set Data Creds : ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
-
-
-    app.settingsUpdated = false;
+    console.log('Mobile Data Credentials : ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
     app.socketid = null;
 

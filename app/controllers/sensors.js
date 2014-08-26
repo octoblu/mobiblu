@@ -105,7 +105,7 @@ angular.module('main.sensors')
                         lat: stored[0].coords.latitude,
                         lng: stored[0].coords.longitude,
                         zoom: 8
-                    }
+                    };
                 }
 
             }else if($scope.sensor.graph === 'compass'){

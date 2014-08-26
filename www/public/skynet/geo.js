@@ -23,9 +23,10 @@ var bg = {
     startBG : function (app, activity) {
         if (!getBGPlugin()) return;
 
+        if (!app.settings.bg_updates) return bg.stopBG(app, activity);
+
         console.log('Started: ' + type);
 
-        if (!app.settings.bg_updates) return bg.stopBG(app, activity);
         var GeoSensor = Sensors.Geolocation(1000);
         // If BG Updates is turned off
         GeoSensor.start(function() {
