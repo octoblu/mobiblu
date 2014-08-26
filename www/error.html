@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Octoblu Mobile</title>
+    <title>Mobiblu</title>
 
     <!-- Sets initial viewport load and disables zooming  -->
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
@@ -34,16 +34,16 @@
     <script src="/components/jquery/dist/jquery.min.js"></script>
     <script src="/components/lodash/dist/lodash.min.js"></script>
 
-    <script src="/public/skynet/bundle.js"></script>
-
-    <script>
+    <script type="text/javascript">
         $(document).ready(function(){
+
             $('#try-again').click(function(){
-                window.open('http://app.octoblu.com/login?js=1&referrer=' + encodeURIComponent('http://localhost/index.html'), '_self', 'location=yes');
-                return false;
+                window.location='/index.html';
             });
+
         });
     </script>
+
 </head>
 
 <body>
@@ -58,7 +58,7 @@
             </h3>
             <div class="content-padded">Please try again later.</div>
 
-            <a href="index.html" target="_blank" class="btn btn-positive btn-block btn-outlined">Try Again</a>
+            <span id="try-again" class="btn btn-positive btn-block btn-outlined">Try Again</span>
         </div>
 
     </div>

@@ -64,7 +64,7 @@ angular.module('main')
         };
 
         $rootScope.$on('$locationChangeSuccess', function () {
-            $rootScope.loading = false;
+            //$rootScope.loading = false;
             clearAppTimeouts();
             timeouts.push(setTimeout(function () {
                 console.log('Loading :: ' + $rootScope.loading);
@@ -228,6 +228,8 @@ angular.module('main')
         };
 
         $rootScope.skynetInit = function () {
+            $rootScope.loading = true;
+
             return _skynetInit()
                 .then(function () {
                     var deferred = $q.defer();

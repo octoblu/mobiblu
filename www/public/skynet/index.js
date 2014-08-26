@@ -145,9 +145,11 @@ app.registerPushID = function() {
     });
 };
 
-app.listenForEvents = function() {
+app.postConnect = function() {
 
     app.loaded = true;
+
+    app.doBackground();
 
     app.registerPushID()
         .then(function() {
@@ -263,13 +265,15 @@ app.skynet = function(callback, errorCallback) {
 
     console.log('Connecting Creds: ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
-    var config = {};
+    var config = {
+        port: 80,
+        server: 'ws://meshblu.octoblu.com'
+    };
+
     if (app.mobileuuid && app.mobiletoken) {
         config = {
             uuid: app.mobileuuid,
-            token: app.mobiletoken,
-            port: 80,
-            server: 'ws://meshblu.octoblu.com'
+            token: app.mobiletoken
         };
     }
 
@@ -291,6 +295,7 @@ app.skynet = function(callback, errorCallback) {
 
         console.log('Connected to skynet');
         callback(data);
+
     });
 
     conn.on('notReady', function(error) {
@@ -334,6 +339,14 @@ app.connect = function() {
     return deferred.promise;
 };
 
+app.doBackground = function(){
+    if (app.bgRunning && !app.settings.bg_updates) {
+        geo.stopBG(app, activity);
+    } else if (!app.bgRunning) {
+        geo.startBG(app, activity);
+    }
+};
+
 app.updateDeviceSetting = function(data) {
     if (!_.isObject(data)) data = {};
     var deferred = defer();
@@ -354,11 +367,7 @@ app.updateDeviceSetting = function(data) {
 
     if (data.setting) app.settings = data.setting;
 
-    if (app.bgRunning && !app.settings.bg_updates) {
-        geo.stopBG(app, activity);
-    } else if (!app.bgRunning) {
-        geo.startBG(app, activity);
-    }
+    app.doBackground();
 
     delete data['$$hashKey'];
 
@@ -547,7 +556,7 @@ app.init = function(skynetuuid, skynettoken) {
                     html: 'Connected to Meshblu'
                 });
 
-                app.listenForEvents();
+                app.postConnect();
 
                 // Used to Trigger the plugins
                 $(document).trigger('skynet-loaded');

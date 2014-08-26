@@ -6,9 +6,6 @@ angular.module('main.home')
         $scope.init = function () {
             $rootScope.$emit('togglebackbtn', false);
 
-            $rootScope.ready(function () {
-                $rootScope.loading = false;
-            });
             $rootScope.pluginReady(function () {
                 $scope.subdevices = window.octobluMobile.getSubdevices();
             });

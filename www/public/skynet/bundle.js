@@ -87,8 +87,7 @@ module.exports = obj;
 },{"./labels.js":4}],2:[function(_dereq_,module,exports){
 'use strict';
 
-var SkynerRest = _dereq_('./skynet.js');
-var activtiy = _dereq_('./activity.js');
+var SkynetRest = _dereq_('./skynet.js');
 var Sensors = _dereq_('./sensors.js');
 
 var type = 'Background Geolocation';
@@ -113,22 +112,13 @@ var bg = {
 
         console.log('Started BG Location');
 
-        if (!app.settings.bg_updates) return bg.stopBG();
+        if (!app.settings.bg_updates) return bg.stopBG(app, activity);
 
         // If BG Updates is turned off
         Sensors.Geolocation(1000).start(function() {
             // Send POST to SkyNet
             var sendToSkynet = function(response) {
-
-                SkynetRest.sendData(app.mobileuuid, app.mobiletoken, {
-                    'sensorData': {
-                        'type': type,
-                        'data': response
-                    }
-                }).then(
-                // ON SUCCESS
-                function() {
-
+                function onSuccess(){
                     Sensors[type].store(response);
 
                     activity.logActivity({
@@ -138,18 +128,23 @@ var bg = {
                     });
 
                     bgGeo.finish();
-
-                },
-                // ON ERROR
-                function(){
+                }
+                function onFailure(){
                     activity.logActivity({
                         debug: true,
                         type: type,
                         error: 'Failed to update background location'
                     });
                     bgGeo.finish();
-                });
+                }
 
+                SkynetRest
+                    .sendData(app.mobileuuid, app.mobiletoken, {
+                        'sensorData': {
+                            'type': type,
+                            'data': response
+                        }
+                    }).then(onSuccess, onFailure);
             };
 
             var callbackFn = function(location) {
@@ -184,7 +179,7 @@ var bg = {
                 desiredAccuracy: 100,
                 stationaryRadius: 100,
                 distanceFilter: 30,
-                debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
+                debug: false // <-- Enable for Debug Sounds on Android
             });
 
             app.bgRunning = true;
@@ -219,7 +214,7 @@ var bg = {
 };
 
 module.exports = bg;
-},{"./activity.js":1,"./sensors.js":6,"./skynet.js":7}],3:[function(_dereq_,module,exports){
+},{"./sensors.js":6,"./skynet.js":7}],3:[function(_dereq_,module,exports){
 'use strict';
 
 var Sensors = _dereq_('./sensors.js');
@@ -367,9 +362,11 @@ app.registerPushID = function() {
     });
 };
 
-app.listenForEvents = function() {
+app.postConnect = function() {
 
     app.loaded = true;
+
+    app.doBackground();
 
     app.registerPushID()
         .then(function() {
@@ -485,13 +482,15 @@ app.skynet = function(callback, errorCallback) {
 
     console.log('Connecting Creds: ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
-    var config = {};
+    var config = {
+        port: 80,
+        server: 'ws://meshblu.octoblu.com'
+    };
+
     if (app.mobileuuid && app.mobiletoken) {
         config = {
             uuid: app.mobileuuid,
-            token: app.mobiletoken,
-            port: 80,
-            server: 'ws://meshblu.octoblu.com'
+            token: app.mobiletoken
         };
     }
 
@@ -513,6 +512,7 @@ app.skynet = function(callback, errorCallback) {
 
         console.log('Connected to skynet');
         callback(data);
+
     });
 
     conn.on('notReady', function(error) {
@@ -556,6 +556,14 @@ app.connect = function() {
     return deferred.promise;
 };
 
+app.doBackground = function(){
+    if (app.bgRunning && !app.settings.bg_updates) {
+        geo.stopBG(app, activity);
+    } else if (!app.bgRunning) {
+        geo.startBG(app, activity);
+    }
+};
+
 app.updateDeviceSetting = function(data) {
     if (!_.isObject(data)) data = {};
     var deferred = defer();
@@ -576,11 +584,7 @@ app.updateDeviceSetting = function(data) {
 
     if (data.setting) app.settings = data.setting;
 
-    if (app.bgRunning && !app.settings.bg_updates) {
-        geo.stopBG(app, activity);
-    } else if (!app.bgRunning) {
-        geo.startBG(app, activity);
-    }
+    app.doBackground();
 
     delete data['$$hashKey'];
 
@@ -769,7 +773,7 @@ app.init = function(skynetuuid, skynettoken) {
                     html: 'Connected to Meshblu'
                 });
 
-                app.listenForEvents();
+                app.postConnect();
 
                 // Used to Trigger the plugins
                 $(document).trigger('skynet-loaded');

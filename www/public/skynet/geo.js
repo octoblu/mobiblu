@@ -1,7 +1,6 @@
 'use strict';
 
-var SkynerRest = require('./skynet.js');
-var activtiy = require('./activity.js');
+var SkynetRest = require('./skynet.js');
 var Sensors = require('./sensors.js');
 
 var type = 'Background Geolocation';
@@ -26,22 +25,13 @@ var bg = {
 
         console.log('Started BG Location');
 
-        if (!app.settings.bg_updates) return bg.stopBG();
+        if (!app.settings.bg_updates) return bg.stopBG(app, activity);
 
         // If BG Updates is turned off
         Sensors.Geolocation(1000).start(function() {
             // Send POST to SkyNet
             var sendToSkynet = function(response) {
-
-                SkynetRest.sendData(app.mobileuuid, app.mobiletoken, {
-                    'sensorData': {
-                        'type': type,
-                        'data': response
-                    }
-                }).then(
-                // ON SUCCESS
-                function() {
-
+                function onSuccess(){
                     Sensors[type].store(response);
 
                     activity.logActivity({
@@ -51,18 +41,23 @@ var bg = {
                     });
 
                     bgGeo.finish();
-
-                },
-                // ON ERROR
-                function(){
+                }
+                function onFailure(){
                     activity.logActivity({
                         debug: true,
                         type: type,
                         error: 'Failed to update background location'
                     });
                     bgGeo.finish();
-                });
+                }
 
+                SkynetRest
+                    .sendData(app.mobileuuid, app.mobiletoken, {
+                        'sensorData': {
+                            'type': type,
+                            'data': response
+                        }
+                    }).then(onSuccess, onFailure);
             };
 
             var callbackFn = function(location) {
@@ -97,7 +92,7 @@ var bg = {
                 desiredAccuracy: 100,
                 stationaryRadius: 100,
                 distanceFilter: 30,
-                debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
+                debug: false // <-- Enable for Debug Sounds on Android
             });
 
             app.bgRunning = true;
