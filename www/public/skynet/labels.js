@@ -1,17 +1,4 @@
-var Q = Promise;
-
-var defer = function () {
-    var resolve, reject;
-    var promise = new Promise(function () {
-        resolve = arguments[0];
-        reject = arguments[1];
-    });
-    return {
-        resolve: resolve,
-        reject: reject,
-        promise: promise
-    };
-};
+'use strict';
 
 var self = {};
 
@@ -20,7 +7,7 @@ var loaded = false;
 self.labels = {};
 
 self.getLabels = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (loaded) {
         deferred.resolve(self.labels);
@@ -38,7 +25,7 @@ self.getLabels = function () {
 };
 
 self.getLabel = function (lbl) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     self.getLabels()
         .then(function () {

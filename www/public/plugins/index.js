@@ -1,21 +1,5 @@
 'use strict';
 
-
-var Q = Promise;
-
-var defer = function() {
-    var resolve, reject;
-    var promise = new Promise(function() {
-        resolve = arguments[0];
-        reject = arguments[1];
-    });
-    return {
-        resolve: resolve,
-        reject: reject,
-        promise: promise
-    };
-};
-
 var API = require('./api.js');
 
 var obj = {};
@@ -145,7 +129,7 @@ obj.writePlugin = function (json, init, removing) {
 };
 
 obj.removePlugin = function (plugin) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var plugins = obj.getPlugins();
 
@@ -232,7 +216,7 @@ obj.retrieveFromStorage = function () {
 
 // Retrieve Plugins from Storage
 obj.retrievePlugins = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     console.log('Retrieving plugins');
 
@@ -261,7 +245,7 @@ obj.retrievePlugins = function () {
 };
 
 obj.download = function (plugin) {
-    var deferred = defer();
+    var deferred = Px.defer();
     var entry,
         fileTransfer = new FileTransfer(),
         directories = ['plugins', plugin.name],
@@ -324,7 +308,7 @@ obj.download = function (plugin) {
 };
 
 obj.loadScript = function (json) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var path = json._path || obj.pluginsDir + json.name + '/bundle.js';
     var script = $('script[src="' + path + '"]');
@@ -360,7 +344,7 @@ obj.loadScript = function (json) {
 
 obj.loadPluginScripts = function () {
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (!obj.plugins || !obj.plugins.length) {
         deferred.resolve();
@@ -380,7 +364,7 @@ obj.loadPluginScripts = function () {
         }
 
 
-        Q.all(promises).done(deferred.resolve, deferred.reject);
+        Promise.all(promises).done(deferred.resolve, deferred.reject);
 
     }
     return deferred.promise;
@@ -389,7 +373,7 @@ obj.loadPluginScripts = function () {
 
 obj.registerPlugin = function (name) {
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var found = obj.findPlugin(name);
 
@@ -413,7 +397,7 @@ obj.registerPlugin = function (name) {
 };
 
 obj.loadPlugin = function (data) {
-    var deferred = defer();
+    var deferred = Px.defer();
     var name;
     if (typeof data === 'string') {
         name = data;
@@ -454,7 +438,7 @@ obj.mapPlugins = function () {
 };
 
 obj.initPlugin = function (plugin) {
-    var deferred = defer()
+    var deferred = Px.defer();
 
     if (plugin.enabled) {
         plugin.subdevices.forEach(function (subdevice) {
@@ -526,7 +510,7 @@ obj.initDevice = function (subdevice) {
 
 obj.triggerDeviceEvent = function (subdevice, event) {
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var Plugin = obj.instances[subdevice.uuid];
 
@@ -556,7 +540,7 @@ obj.triggerDeviceEvent = function (subdevice, event) {
 
 obj.triggerPluginEvent = function (plugin, event) {
 
-    var deferred = defer();
+    var deferred = Px.defer();
     var pluginMethod = false;
 
     switch (event) {
@@ -587,7 +571,7 @@ obj.triggerPluginEvent = function (plugin, event) {
                 promises.push(obj.triggerDeviceEvent(subdevice, event));
             });
 
-        Q.all(promises)
+        Promise.all(promises)
             .done(deferred.resolve, deferred.resolve);
     } else {
         console.log('Subdevices :: ' + JSON.stringify(plugin.subdevices));
@@ -658,7 +642,7 @@ obj.startListen = function () {
 };
 
 obj.loadLocalPlugins = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     $.getJSON('/data/local_plugins.json')
         .success(function (json) {
@@ -670,7 +654,7 @@ obj.loadLocalPlugins = function () {
                     var plugin = json[x];
                     promises.push(obj.loadPlugin(plugin));
                 }
-                Q.all(promises).done(deferred.resolve, deferred.reject);
+                Promise.all(promises).done(deferred.resolve, deferred.reject);
 
             } else {
                 deferred.resolve();
@@ -685,7 +669,7 @@ obj.loadLocalPlugins = function () {
 
 // Called Every Time the App is loaded
 obj.init = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     obj.Skynet = window.Skynet;
     obj.skynetObj = obj.Skynet.getCurrentSettings();
@@ -696,7 +680,7 @@ obj.init = function () {
 
     console.log('Init Plugins');
 
-    Q.all([
+    Promise.all([
 
         obj.retrievePlugins(),
 

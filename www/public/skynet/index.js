@@ -8,19 +8,6 @@ var activity = require('./activity.js');
 var push = require('./push.js');
 var geo = require('./geo.js');
 
-var defer = function() {
-    var resolve, reject;
-    var promise = new Promise(function() {
-        resolve = arguments[0];
-        reject = arguments[1];
-    });
-    return {
-        resolve: resolve,
-        reject: reject,
-        promise: promise
-    };
-};
-
 var app = {};
 
 app.loaded = false;
@@ -40,19 +27,22 @@ app.conn = null;
 
 app.settingsUpdated = false;
 
+var ls = window.localStorage;
+var ms = window.mobibluStorage;
+
 app.setData = function(skynetuuid, skynettoken) {
     if (!skynetuuid){
-        skynetuuid = window.localStorage.getItem('skynetuuid');
+        skynetuuid = ls.getItem('skynetuuid');
     }
     if (!skynettoken) {
-        skynettoken = window.localStorage.getItem('skynettoken');
+        skynettoken = ls.getItem('skynettoken');
     }
 
     // Set new Skynet Tokens
     if (skynetuuid && skynettoken) {
         console.log('Octoblu Credentials');
 
-        window.mobibluStorage.writeConfig({
+        ms.writeConfig({
             user: skynetuuid
         });
 
@@ -60,7 +50,7 @@ app.setData = function(skynetuuid, skynettoken) {
         app.skynetuuid = skynetuuid;
         app.skynettoken = skynettoken;
         // Logged In
-        app.loggedin = window.localStorage.getItem('loggedin');
+        app.loggedin = ls.getItem('loggedin');
 
         if (app.loggedin === 'true') {
             app.loggedin = true;
@@ -71,12 +61,12 @@ app.setData = function(skynetuuid, skynettoken) {
         }
 
         //Push ID
-        app.pushID = window.localStorage.getItem('pushID');
+        app.pushID = ls.getItem('pushID');
         // Mobile App Data
-        app.mobileuuid = window.mobibluStorage.getItem('mobileuuid');
-        app.mobiletoken = window.mobibluStorage.getItem('mobiletoken');
+        app.mobileuuid = ms.getItem('mobileuuid');
+        app.mobiletoken = ms.getItem('mobiletoken');
 
-        var devicename = window.mobibluStorage.getItem('devicename');
+        var devicename = ms.getItem('devicename');
 
         console.log('Device Name: ' + JSON.stringify(devicename));
 
@@ -86,7 +76,7 @@ app.setData = function(skynetuuid, skynettoken) {
             app.devicename = 'Mobiblu ' + window.device.platform;
         }
 
-        app.settings = window.mobibluStorage.getItem('settings') || {};
+        app.settings = ms.getItem('settings') || {};
         if (_.isEmpty(app.settings)) {
             app.settings = app.defaultSettings;
         }else{
@@ -112,9 +102,9 @@ app.logout = function() {
 
     window.loggedin = app.loggedin = false;
 
-    window.localStorage.removeItem('loggedin');
-    window.localStorage.removeItem('skynetuuid');
-    window.localStorage.removeItem('skynettoken');
+    ls.removeItem('loggedin');
+    ls.removeItem('skynetuuid');
+    ls.removeItem('skynettoken');
 
     app.setData();
 };
@@ -128,7 +118,7 @@ app.hasAuth = function() {
 };
 
 app.isRegistered = function() {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.whoami(null, null)
         .timeout(1000 * 5)
@@ -219,7 +209,7 @@ app.registerDevice = function(newDevice) {
 
     console.log('Registering...');
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var regData = app.regData();
 
@@ -237,9 +227,9 @@ app.registerDevice = function(newDevice) {
                 app.conn.identify();
             }
             console.log('Registration Response: ', JSON.stringify(data));
-            window.mobibluStorage.setItem('mobileuuid', data.uuid);
-            window.mobibluStorage.setItem('mobiletoken', data.token);
-            window.mobibluStorage.setItem('devicename', data.name);
+            ms.setItem('mobileuuid', data.uuid);
+            ms.setItem('mobiletoken', data.token);
+            ms.setItem('devicename', data.name);
 
             app.mobileuuid = data.uuid;
             app.mobiletoken = data.token;
@@ -252,7 +242,7 @@ app.registerDevice = function(newDevice) {
 
 app.register = function(registered) {
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (registered) {
 
@@ -300,8 +290,8 @@ app.skynet = function(callback, errorCallback) {
 
         app.socketid = data.socketid;
 
-        window.mobibluStorage.setItem('mobileuuid', data.uuid);
-        window.mobibluStorage.setItem('mobiletoken', data.token);
+        ms.setItem('mobileuuid', data.uuid);
+        ms.setItem('mobiletoken', data.token);
 
         app.mobileuuid = data.uuid;
         app.mobiletoken = data.token;
@@ -327,7 +317,7 @@ app.connect = function() {
 
     console.log('Connecting to skynet...');
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     function connected() {
         console.log('Connected');
@@ -362,7 +352,7 @@ app.doBackground = function(){
 
 app.updateDeviceSetting = function(data) {
     if (!_.isObject(data)) data = {};
-    var deferred = defer();
+    var deferred = Px.defer();
     // Extend the data option
     data.uuid = app.mobileuuid;
     data.token = app.mobiletoken;
@@ -376,10 +366,10 @@ app.updateDeviceSetting = function(data) {
 
     data.type = 'octobluMobile';
 
-    window.mobibluStorage.setItem('devicename', data.name);
+    ms.setItem('devicename', data.name);
 
     if (data.setting) {
-        window.mobibluStorage.setItem('settings', data.setting);
+        ms.setItem('settings', data.setting);
         app.settings = data.setting;
     }
 
@@ -397,7 +387,7 @@ app.updateDeviceSetting = function(data) {
 };
 
 app.message = function(data) {
-    var deferred = defer();
+    var deferred = Px.defer();
     if (!data.uuid) data.uuid = app.mobileuuid;
     if (!data.token) data.token = app.mobiletoken;
     var toStr = '';
@@ -429,7 +419,7 @@ app.subscribe = function(data, fn) {
 };
 
 app.claimDevice = function(deviceUuid) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.conn.claimdevice({
         uuid: deviceUuid
@@ -456,7 +446,7 @@ app.myDevices = function() {
 };
 
 app.sendData = function(data) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var defaults = {
         'uuid': app.mobileuuid,
@@ -485,7 +475,7 @@ app.sendData = function(data) {
 };
 
 app.triggerTopic = function(name, payload) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.message({
         topic: name,
@@ -500,7 +490,7 @@ app.triggerTopic = function(name, payload) {
 };
 
 app.whoami = function(uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.conn.whoami({
         uuid: uuid || app.mobileuuid,
@@ -511,7 +501,7 @@ app.whoami = function(uuid, token) {
 };
 
 app.getDeviceSetting = function(uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (app.settingsUpdated) {
         deferred.resolve({
@@ -552,7 +542,7 @@ app.getDeviceSetting = function(uuid, token) {
 
 app.init = function(skynetuuid, skynettoken) {
     console.log('Init');
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.setData(skynetuuid, skynettoken);
 

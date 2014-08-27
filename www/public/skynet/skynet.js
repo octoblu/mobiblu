@@ -1,24 +1,9 @@
 'use strict';
 
-var defer = function () {
-    var resolve, reject;
-    var promise = new Promise(function () {
-        resolve = arguments[0];
-        reject = arguments[1];
-    });
-    return {
-        resolve: resolve,
-        reject: reject,
-        promise: promise
-    };
-};
-
 var timeout = 10 * 1000;
 var baseURL = 'http://meshblu.octoblu.com';
 
 var uuid, token;
-
-var overrideToken = 'w0rldd0m1n4t10n';
 
 function getAjax(params) {
     uuid = window.localStorage.getItem('skynetuuid');
@@ -44,7 +29,7 @@ function getAjax(params) {
 var obj = {};
 
 obj.getDevice = function (uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (!uuid && !token) {
         deferred.resolve();
@@ -62,7 +47,7 @@ obj.getDevice = function (uuid, token) {
 };
 
 obj.sendData = function (uuid, token, data) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var obj = {
         url: baseURL + '/data/' + uuid,
@@ -85,7 +70,7 @@ obj.sendData = function (uuid, token, data) {
 };
 
 obj.localDevices = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax(getAjax({
         url: baseURL + '/localdevices',
         method: 'GET'
@@ -96,7 +81,7 @@ obj.localDevices = function () {
 };
 
 obj.myDevices = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax(getAjax({
         url: baseURL + '/mydevices',
         method: 'GET'
@@ -107,7 +92,7 @@ obj.myDevices = function () {
 };
 
 obj.claimDevice = function (deviceUuid, mobileuuid, mobiletoken) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     obj.getIPAddress()
         .then(function (data) {
@@ -118,14 +103,10 @@ obj.claimDevice = function (deviceUuid, mobileuuid, mobiletoken) {
                 $.ajax(getAjax({
                     url: baseURL + '/claimdevice/' + deviceUuid,
                     method: 'PUT',
-                    params: {
-                        overrideIp: ip
-                    },
                     contentType : null,
                     headers: {
                         skynet_auth_uuid: mobileuuid,
                         skynet_auth_token: mobiletoken,
-                        Skynet_override_token: overrideToken
                     }
                 }))
                     .success(deferred.resolve)
@@ -138,7 +119,7 @@ obj.claimDevice = function (deviceUuid, mobileuuid, mobiletoken) {
 };
 
 obj.deleteDevice = function (device) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     $.ajax(getAjax({
         url: baseURL + '/devices/' + device.uuid,
@@ -151,7 +132,7 @@ obj.deleteDevice = function (device) {
 };
 
 obj.editDevice = function (device) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var omit = [
         '_id',
@@ -177,7 +158,7 @@ obj.editDevice = function (device) {
 };
 
 obj.logout = function (uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax({
         url: 'https://app.octoblu.com/api/auth',
         method: 'DELETE',
@@ -193,7 +174,7 @@ obj.logout = function (uuid, token) {
 };
 
 obj.getIPAddress = function(){
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax(getAjax({
         url: baseURL + '/ipaddress',
         method: 'GET'

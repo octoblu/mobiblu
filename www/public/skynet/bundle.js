@@ -110,9 +110,10 @@ var bg = {
     startBG : function (app, activity) {
         if (!getBGPlugin()) return;
 
+        if (!app.settings.bg_updates) return bg.stopBG(app, activity);
+
         console.log('Started: ' + type);
 
-        if (!app.settings.bg_updates) return bg.stopBG(app, activity);
         var GeoSensor = Sensors.Geolocation(1000);
         // If BG Updates is turned off
         GeoSensor.start(function() {
@@ -236,19 +237,6 @@ var activity = _dereq_('./activity.js');
 var push = _dereq_('./push.js');
 var geo = _dereq_('./geo.js');
 
-var defer = function() {
-    var resolve, reject;
-    var promise = new Promise(function() {
-        resolve = arguments[0];
-        reject = arguments[1];
-    });
-    return {
-        resolve: resolve,
-        reject: reject,
-        promise: promise
-    };
-};
-
 var app = {};
 
 app.loaded = false;
@@ -266,23 +254,32 @@ app.bgRunning = false;
 
 app.conn = null;
 
+app.settingsUpdated = false;
+
+var ls = window.localStorage;
+var ms = window.mobibluStorage;
+
 app.setData = function(skynetuuid, skynettoken) {
-    if (!skynetuuid) skynetuuid = window.localStorage.getItem('skynetuuid');
-    if (!skynettoken) skynettoken = window.localStorage.getItem('skynettoken');
+    if (!skynetuuid){
+        skynetuuid = ls.getItem('skynetuuid');
+    }
+    if (!skynettoken) {
+        skynettoken = ls.getItem('skynettoken');
+    }
 
     // Set new Skynet Tokens
     if (skynetuuid && skynettoken) {
+        console.log('Octoblu Credentials');
 
-        window.mobibluStorage.writeConfig({
+        ms.writeConfig({
             user: skynetuuid
         });
 
-        console.log('Credentials set');
         // Octoblu User Data
         app.skynetuuid = skynetuuid;
         app.skynettoken = skynettoken;
         // Logged In
-        app.loggedin = window.localStorage.getItem('loggedin');
+        app.loggedin = ls.getItem('loggedin');
 
         if (app.loggedin === 'true') {
             app.loggedin = true;
@@ -291,13 +288,14 @@ app.setData = function(skynetuuid, skynettoken) {
         } else {
             app.loggedin = !!app.loggedin;
         }
-        //Push ID
-        app.pushID = window.localStorage.getItem('pushID');
-        // Mobile App Data
-        app.mobileuuid = window.mobibluStorage.getItem('mobileuuid');
-        app.mobiletoken = window.mobibluStorage.getItem('mobiletoken');
 
-        var devicename = window.mobibluStorage.getItem('devicename');
+        //Push ID
+        app.pushID = ls.getItem('pushID');
+        // Mobile App Data
+        app.mobileuuid = ms.getItem('mobileuuid');
+        app.mobiletoken = ms.getItem('mobiletoken');
+
+        var devicename = ms.getItem('devicename');
 
         console.log('Device Name: ' + JSON.stringify(devicename));
 
@@ -307,19 +305,17 @@ app.setData = function(skynetuuid, skynettoken) {
             app.devicename = 'Mobiblu ' + window.device.platform;
         }
 
-        app.settings = window.mobibluStorage.getItem('settings') || {};
+        app.settings = ms.getItem('settings') || {};
         if (_.isEmpty(app.settings)) {
             app.settings = app.defaultSettings;
+        }else{
+            app.settingsUpdated = true;
         }
     }
 
+    console.log('Owner UUID : ' + JSON.stringify(app.skynetuuid));
 
-    console.log('Set Owner UUID : ' + JSON.stringify(app.skynetuuid));
-
-    console.log('Set Data Creds : ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
-
-
-    app.settingsUpdated = false;
+    console.log('Mobile Data Credentials : ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
     app.socketid = null;
 
@@ -335,9 +331,9 @@ app.logout = function() {
 
     window.loggedin = app.loggedin = false;
 
-    window.localStorage.removeItem('loggedin');
-    window.localStorage.removeItem('skynetuuid');
-    window.localStorage.removeItem('skynettoken');
+    ls.removeItem('loggedin');
+    ls.removeItem('skynetuuid');
+    ls.removeItem('skynettoken');
 
     app.setData();
 };
@@ -351,7 +347,7 @@ app.hasAuth = function() {
 };
 
 app.isRegistered = function() {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.whoami(null, null)
         .timeout(1000 * 5)
@@ -442,7 +438,7 @@ app.registerDevice = function(newDevice) {
 
     console.log('Registering...');
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var regData = app.regData();
 
@@ -460,9 +456,9 @@ app.registerDevice = function(newDevice) {
                 app.conn.identify();
             }
             console.log('Registration Response: ', JSON.stringify(data));
-            window.mobibluStorage.setItem('mobileuuid', data.uuid);
-            window.mobibluStorage.setItem('mobiletoken', data.token);
-            window.mobibluStorage.setItem('devicename', data.name);
+            ms.setItem('mobileuuid', data.uuid);
+            ms.setItem('mobiletoken', data.token);
+            ms.setItem('devicename', data.name);
 
             app.mobileuuid = data.uuid;
             app.mobiletoken = data.token;
@@ -475,7 +471,7 @@ app.registerDevice = function(newDevice) {
 
 app.register = function(registered) {
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (registered) {
 
@@ -523,8 +519,8 @@ app.skynet = function(callback, errorCallback) {
 
         app.socketid = data.socketid;
 
-        window.mobibluStorage.setItem('mobileuuid', data.uuid);
-        window.mobibluStorage.setItem('mobiletoken', data.token);
+        ms.setItem('mobileuuid', data.uuid);
+        ms.setItem('mobiletoken', data.token);
 
         app.mobileuuid = data.uuid;
         app.mobiletoken = data.token;
@@ -550,7 +546,7 @@ app.connect = function() {
 
     console.log('Connecting to skynet...');
 
-    var deferred = defer();
+    var deferred = Px.defer();
 
     function connected() {
         console.log('Connected');
@@ -585,7 +581,7 @@ app.doBackground = function(){
 
 app.updateDeviceSetting = function(data) {
     if (!_.isObject(data)) data = {};
-    var deferred = defer();
+    var deferred = Px.defer();
     // Extend the data option
     data.uuid = app.mobileuuid;
     data.token = app.mobiletoken;
@@ -599,10 +595,10 @@ app.updateDeviceSetting = function(data) {
 
     data.type = 'octobluMobile';
 
-    window.mobibluStorage.setItem('devicename', data.name);
+    ms.setItem('devicename', data.name);
 
     if (data.setting) {
-        window.mobibluStorage.setItem('settings', data.setting);
+        ms.setItem('settings', data.setting);
         app.settings = data.setting;
     }
 
@@ -620,7 +616,7 @@ app.updateDeviceSetting = function(data) {
 };
 
 app.message = function(data) {
-    var deferred = defer();
+    var deferred = Px.defer();
     if (!data.uuid) data.uuid = app.mobileuuid;
     if (!data.token) data.token = app.mobiletoken;
     var toStr = '';
@@ -652,7 +648,7 @@ app.subscribe = function(data, fn) {
 };
 
 app.claimDevice = function(deviceUuid) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.conn.claimdevice({
         uuid: deviceUuid
@@ -679,7 +675,7 @@ app.myDevices = function() {
 };
 
 app.sendData = function(data) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var defaults = {
         'uuid': app.mobileuuid,
@@ -708,7 +704,7 @@ app.sendData = function(data) {
 };
 
 app.triggerTopic = function(name, payload) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.message({
         topic: name,
@@ -723,7 +719,7 @@ app.triggerTopic = function(name, payload) {
 };
 
 app.whoami = function(uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.conn.whoami({
         uuid: uuid || app.mobileuuid,
@@ -734,7 +730,7 @@ app.whoami = function(uuid, token) {
 };
 
 app.getDeviceSetting = function(uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (app.settingsUpdated) {
         deferred.resolve({
@@ -775,7 +771,7 @@ app.getDeviceSetting = function(uuid, token) {
 
 app.init = function(skynetuuid, skynettoken) {
     console.log('Init');
-    var deferred = defer();
+    var deferred = Px.defer();
 
     app.setData(skynetuuid, skynettoken);
 
@@ -865,20 +861,7 @@ var publicApi = {
 
 module.exports = publicApi;
 },{"./activity.js":1,"./geo.js":2,"./labels.js":4,"./push.js":5,"./sensors.js":6,"./skynet.js":7,"./topics.js":8}],4:[function(_dereq_,module,exports){
-var Q = Promise;
-
-var defer = function () {
-    var resolve, reject;
-    var promise = new Promise(function () {
-        resolve = arguments[0];
-        reject = arguments[1];
-    });
-    return {
-        resolve: resolve,
-        reject: reject,
-        promise: promise
-    };
-};
+'use strict';
 
 var self = {};
 
@@ -887,7 +870,7 @@ var loaded = false;
 self.labels = {};
 
 self.getLabels = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (loaded) {
         deferred.resolve(self.labels);
@@ -905,7 +888,7 @@ self.getLabels = function () {
 };
 
 self.getLabel = function (lbl) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     self.getLabels()
         .then(function () {
@@ -1385,25 +1368,10 @@ module.exports = Sensors;
 },{}],7:[function(_dereq_,module,exports){
 'use strict';
 
-var defer = function () {
-    var resolve, reject;
-    var promise = new Promise(function () {
-        resolve = arguments[0];
-        reject = arguments[1];
-    });
-    return {
-        resolve: resolve,
-        reject: reject,
-        promise: promise
-    };
-};
-
 var timeout = 10 * 1000;
 var baseURL = 'http://meshblu.octoblu.com';
 
 var uuid, token;
-
-var overrideToken = 'w0rldd0m1n4t10n';
 
 function getAjax(params) {
     uuid = window.localStorage.getItem('skynetuuid');
@@ -1429,7 +1397,7 @@ function getAjax(params) {
 var obj = {};
 
 obj.getDevice = function (uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     if (!uuid && !token) {
         deferred.resolve();
@@ -1447,7 +1415,7 @@ obj.getDevice = function (uuid, token) {
 };
 
 obj.sendData = function (uuid, token, data) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var obj = {
         url: baseURL + '/data/' + uuid,
@@ -1470,7 +1438,7 @@ obj.sendData = function (uuid, token, data) {
 };
 
 obj.localDevices = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax(getAjax({
         url: baseURL + '/localdevices',
         method: 'GET'
@@ -1481,7 +1449,7 @@ obj.localDevices = function () {
 };
 
 obj.myDevices = function () {
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax(getAjax({
         url: baseURL + '/mydevices',
         method: 'GET'
@@ -1492,7 +1460,7 @@ obj.myDevices = function () {
 };
 
 obj.claimDevice = function (deviceUuid, mobileuuid, mobiletoken) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     obj.getIPAddress()
         .then(function (data) {
@@ -1503,14 +1471,10 @@ obj.claimDevice = function (deviceUuid, mobileuuid, mobiletoken) {
                 $.ajax(getAjax({
                     url: baseURL + '/claimdevice/' + deviceUuid,
                     method: 'PUT',
-                    params: {
-                        overrideIp: ip
-                    },
                     contentType : null,
                     headers: {
                         skynet_auth_uuid: mobileuuid,
                         skynet_auth_token: mobiletoken,
-                        Skynet_override_token: overrideToken
                     }
                 }))
                     .success(deferred.resolve)
@@ -1523,7 +1487,7 @@ obj.claimDevice = function (deviceUuid, mobileuuid, mobiletoken) {
 };
 
 obj.deleteDevice = function (device) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     $.ajax(getAjax({
         url: baseURL + '/devices/' + device.uuid,
@@ -1536,7 +1500,7 @@ obj.deleteDevice = function (device) {
 };
 
 obj.editDevice = function (device) {
-    var deferred = defer();
+    var deferred = Px.defer();
 
     var omit = [
         '_id',
@@ -1562,7 +1526,7 @@ obj.editDevice = function (device) {
 };
 
 obj.logout = function (uuid, token) {
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax({
         url: 'https://app.octoblu.com/api/auth',
         method: 'DELETE',
@@ -1578,7 +1542,7 @@ obj.logout = function (uuid, token) {
 };
 
 obj.getIPAddress = function(){
-    var deferred = defer();
+    var deferred = Px.defer();
     $.ajax(getAjax({
         url: baseURL + '/ipaddress',
         method: 'GET'
