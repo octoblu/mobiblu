@@ -1,13 +1,11 @@
 'use strict';
 
 angular.module('main.home')
-    .controller('HomeCtrl', function ($rootScope, $scope, $location, Auth) {
+    .controller('HomeCtrl', function ($rootScope, $scope, $location, Auth, Plugins) {
 
         $scope.init = function () {
-            $rootScope.$emit('togglebackbtn', false);
-
-            $rootScope.pluginReady(function () {
-                $scope.subdevices = window.octobluMobile.getSubdevices();
+            Plugins.ready().then(function () {
+                $scope.subdevices = Plugins.getSubdevices();
             });
         };
 

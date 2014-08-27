@@ -5,14 +5,7 @@ angular.module('main.system').controller('HeaderCtrl',
 
         // TODO improve this functionality for multiple levels
         $scope.backbtn = false;
-
-        $rootScope.$on('togglebackbtn', function (e, val) {
-            if ($rootScope.matchRoute('/$')) {
-                $scope.backbtn = false;
-            } else {
-                $scope.backbtn = val;
-            }
-        });
+        $scope.showLogout = false;
 
         $scope.goBack = function () {
             window.history.back();
@@ -30,21 +23,19 @@ angular.module('main.system').controller('HeaderCtrl',
         };
 
         $scope.$on('$locationChangeSuccess', function () {
-            if (!$rootScope.loggedin) {
-                $scope.showLogout = false;
+            $scope.backbtn = false;
+            $scope.showLogout = false;
+
+            if($rootScope.matchRoute('/$')){
                 $scope.backbtn = false;
-            }
-            if ($rootScope.matchRoute('/setting')) {
+                $scope.showLogout = false;
+            } else if ($rootScope.matchRoute('/setting')) {
                 $scope.showLogout = true;
-            } else {
-                $scope.showLogout = false;
-            }
-            if ($rootScope.matchRoute('/$')) {
-                $scope.backbtn = false;
+                $scope.backbtn = true;
+            } else if(!$rootScope.matchRoute('/\\w+$')) {
+                $scope.backbtn = true;
             }
         });
-
-        $scope.showLogout = false;
 
         $scope.init = function () {
 

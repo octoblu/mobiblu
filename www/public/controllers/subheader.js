@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.system').controller('SubHeaderCtrl',
-    function ($rootScope, $scope, SkynetRest) {
+    function ($rootScope, $scope) {
         $scope.activity = true;
 
         $scope.showActivity = function () {

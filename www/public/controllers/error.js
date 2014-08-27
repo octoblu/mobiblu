@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.system').controller('ErrorCtrl',
-    function ($rootScope, $scope) {
+    function ($rootScope, $scope, Skynet) {
 
         $scope.init = function () {
             console.log('On Error Page', $rootScope.errorMsg);
@@ -14,7 +14,7 @@ angular.module('main.system').controller('ErrorCtrl',
         };
 
         $scope.logout = function () {
-            window.Skynet.logout();
+            Skynet.logout();
         };
 
     });

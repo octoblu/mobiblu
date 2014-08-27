@@ -13,7 +13,8 @@ angular.module('main.user')
 
         $scope.loginViaProvider = function (provider) {
             $rootScope.loading = true;
-            var authWindow = window.open('http://app.octoblu.com/auth/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent('http://localhost/index.html#!/login'), '_blank', 'location=no,toolbar=no');
+            var url = 'http://app.octoblu.com/auth/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent('http://localhost/index.html#!/login');
+            var authWindow = window.open(url, '_blank', 'location=no,toolbar=no');
 
             $(authWindow).on('loadstart', function (e) {
                 var url = e.originalEvent.url;
@@ -55,60 +56,19 @@ angular.module('main.user')
                         return;
                     }
 
-                    // If enabled this will slow down the process but properly re-establish the connections
-                    var forceRestart = true;
+                    $rootScope.$on('$locationChangeSuccess', function () {
+                        $rootScope.loading = false;
 
-                    $timeout(function(){
-                        $rootScope.$on('$locationChangeSuccess', function () {
-                            $rootScope.loading = false;
+                        console.log('Reloading app (in user.js)');
 
-                            if (forceRestart) {
+                        window.location.reload(true);
+                    });
 
-                                console.log('Reloading app (in user.js)');
-
-                                window.location.reload(true);
-
-                            } else {
-
-                                console.log('About to Re-initialize skynet');
-
-                                $rootScope.skynetInit()
-                                    .then(function () {
-                                        console.log('Skynet INIT\'d after login');
-                                        $location.path('/');
-                                    });
-                            }
-                        });
-
-                        $location.path('/');
-
-                    }, 0);
-
+                    $location.path('/');
                 }
 
             });
         };
-
-        function afterLogin() {
-            Auth.checkTerms().then(function () {
-                console.log('Terms Accepted');
-
-                $timeout(function () {
-                    $rootScope.setSettings();
-
-                    $rootScope.loading = false;
-                    $location.path('/');
-                }, 0);
-
-            }, function () {
-                console.log('Terms not Accepted');
-                $timeout(function () {
-                    $rootScope.loading = false;
-                    $location.path('/accept_terms');
-                }, 0);
-            });
-
-        }
 
         $scope.loginMethod = function () {
             $rootScope.loading = true;
@@ -192,6 +152,6 @@ angular.module('main.user')
                     });
 
                 });
-        }
+        };
 
     });

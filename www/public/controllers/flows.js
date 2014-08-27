@@ -1,15 +1,9 @@
 'use strict';
 
 angular.module('main.flows')
-    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams, Topic) {
+    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams, Topic, Skynet) {
 
         var timeouts = {};
-
-        if ($rootScope.matchRoute('/flows$')) {
-            $rootScope.$emit('togglebackbtn', false);
-        } else {
-            $rootScope.$emit('togglebackbtn', true);
-        }
 
         $scope.init = function () {
 
@@ -54,36 +48,33 @@ angular.module('main.flows')
                 $scope.loading = false;
             }
 
-            var promise = $rootScope.Skynet
-                .triggerTopic(name,
-                    $scope.topic.payload || defaultPayload);
-
-            promise.then(function (data) {
-                $rootScope.Skynet.logActivity({
-                    type: 'flows',
-                    html: 'Topic "' + name + '" Triggered'
-                });
-
-                if ($scope.topic.wait) {
-
-                    var end = new Date().getTime();
-                    var response;
-
-                    if (/^timeout/.test(data.error)) {
-                        response = 'No response received';
-                    } else {
-                        response = JSON.stringify(data);
-                    }
-
-                    $scope.$apply(function(){
-                        $rootScope.alertModal('Response - ' + (end - start) + ' ms', response);
+            Skynet.triggerTopic(name, $scope.topic.payload || defaultPayload)
+                .then(function (data) {
+                    Skynet.logActivity({
+                        type: 'flows',
+                        html: 'Topic "' + name + '" Triggered'
                     });
 
-                    setSentTimeout(id);
+                    if ($scope.topic.wait) {
 
-                }
+                        var end = new Date().getTime();
+                        var response;
 
-            }, $rootScope.redirectToError);
+                        if (/^timeout/.test(data.error)) {
+                            response = 'No response received';
+                        } else {
+                            response = JSON.stringify(data);
+                        }
+
+                        $scope.$apply(function(){
+                            $rootScope.alertModal('Response - ' + (end - start) + ' ms', response);
+                        });
+
+                        setSentTimeout(id);
+
+                    }
+
+                }, $rootScope.redirectToError);
 
         };
 

@@ -1,27 +1,24 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $timeout, $location, $q, Auth, SkynetRest) {
-
-        var loaded = false;
+    .run(function ($rootScope, $timeout, $location, $q, Auth, SkynetRest, Skynet) {
 
         var timeouts = [];
 
         $rootScope.loading = true;
 
-        $rootScope.Skynet = window.Skynet;
-
         $rootScope.isDeveloper = false;
 
         $rootScope.matchRoute = function (route) {
             var regex = new RegExp('\\#\\!' + route);
-            if (window.location.href.split('?')[0].match(regex)) {
+            var path = window.location.href.split('?')[0];
+            if (path.match(regex)) {
                 return true;
             }
             return false;
         };
 
-        var clearAppTimeouts = function () {
+        $rootScope.clearAppTimeouts = function () {
             timeouts.forEach(function (timeout, i) {
                 clearTimeout(timeout);
                 timeouts.splice(i, 1);
@@ -30,7 +27,7 @@ angular.module('main')
 
         $rootScope.errorMsg = null;
 
-        var isErrorPage = function () {
+        $rootScope.isErrorPage = function () {
             if ($rootScope.matchRoute('/error')) {
                 return true;
             }
@@ -38,16 +35,14 @@ angular.module('main')
         };
 
         var redirectToError = function (err, type) {
-            if (isErrorPage()) return false;
-            clearAppTimeouts();
+            if ($rootScope.isErrorPage()) return false;
+            $rootScope.clearAppTimeouts();
             console.log('Error! ' + err);
             console.log('Redirecting to "' + type + '" Error');
-            setTimeout(function () {
-                $rootScope.$apply(function () {
-                    $rootScope.loading = false;
-                    $rootScope.errorMsg = err || '';
-                    $location.path('/error/' + type);
-                });
+            $timeout(function () {
+                $rootScope.loading = false;
+                $rootScope.errorMsg = err || '';
+                $location.path('/error/' + type);
             }, 0);
         };
 
@@ -65,7 +60,7 @@ angular.module('main')
 
         $rootScope.$on('$locationChangeSuccess', function () {
             //$rootScope.loading = false;
-            clearAppTimeouts();
+            $rootScope.clearAppTimeouts();
             timeouts.push(setTimeout(function () {
                 console.log('Loading :: ' + $rootScope.loading);
                 if ($rootScope.loading) {
@@ -75,7 +70,7 @@ angular.module('main')
         });
 
         $rootScope.setSettings = function () {
-            $rootScope.settings = $rootScope.Skynet.getCurrentSettings();
+            $rootScope.settings = Skynet.getCurrentSettings();
 
             $rootScope.loggedin = $rootScope.settings.loggedin;
 
@@ -87,22 +82,8 @@ angular.module('main')
 
             $rootScope.isDeveloper = $rootScope.settings.settings ? $rootScope.settings.settings.developer_mode : false;
 
-            $rootScope.skynetConn = $rootScope.settings.conn;
-
-            $rootScope.Sensors = $rootScope.Skynet.Sensors;
             console.log('in $rootScope.setSettings() ++ ' + $rootScope.settings.skynetuuid);
 
-        };
-
-        $rootScope.isSettingUser = function () {
-            var uuid = utils.getParam('uuid'),
-                token = utils.getParam('token');
-
-            if (uuid && token) {
-                return true;
-            } else {
-                return false;
-            }
         };
 
         $rootScope.footerDisabled = false;
@@ -123,157 +104,11 @@ angular.module('main')
             }
         };
 
-        var pluginsLoaded = false;
-
-        var pluginReady = function () {
-            var deferred = $q.defer();
-
-            if (pluginsLoaded || window.octobluMobile.isLoaded()) {
-
-                deferred.resolve();
-
-            } else {
-
-                $(document).on('plugins-loaded', function () {
-                    console.log('Plugins Loaded');
-                    pluginsLoaded = true;
-                    deferred.resolve();
-                });
-
-            }
-
-            return deferred.promise;
-        };
-
-        $rootScope.pluginReady = function (cb) {
-            pluginReady().then(function () {
-                cb();
-            }, function (err) {
-                $rootScope.redirectToError(err || 'Plugins module didn\'t load');
-            });
-        };
-
-        var _skynetInit = function () {
-            var deferred = $q.defer();
-            if (isErrorPage() && $rootScope.matchRoute('/login')) {
-                deferred.reject();
-            } else {
-                Auth.getCurrentUser()
-                    .then(function (currentUser) {
-                        var uuid, token;
-                        if (currentUser && currentUser.skynet) {
-                            uuid = currentUser.skynet.uuid;
-                            token = currentUser.skynet.token;
-                        }
-
-                        $rootScope.Skynet.init(uuid, token)
-                            .timeout(1000 * 15)
-                            .then(function () {
-                                console.log('_skynetInit successful');
-                                clearAppTimeouts();
-                                deferred.resolve();
-                            }, function () {
-                                console.log('Unable to connect to Meshblu');
-                                $rootScope.redirectToError('Unable to connect to Meshblu');
-                            });
-
-                    }, deferred.reject);
-
-            }
-            return deferred.promise;
-        };
-
-        var _skynetLoad = function () {
-
-            var deferred = $q.defer();
-
-            $(document).on('skynet-ready', function () {
-                loaded = true;
-                deferred.resolve();
-            });
-
-            return deferred.promise;
-        };
-
-        $rootScope.ready = function (cb) {
-            $rootScope.setSettings();
-
-            if (loaded || isErrorPage() || $rootScope.matchRoute('/login')) {
-                cb($rootScope.skynetConn);
-            } else {
-                _skynetLoad().then(function () {
-                    cb($rootScope.skynetConn);
-                }, function (err) {
-                    $rootScope.redirectToError(err || 'Meshblu can\'t connect');
-                });
-            }
-        };
-
-        var _startListen = function () {
-            $rootScope.skynetConn.on('message', function (message) {
-
-                $rootScope.$broadcast('skynet:message', message);
-
-                var device = message.subdevice || message.fromUuid;
-
-                $rootScope.$broadcast('skynet:message:' + device, message);
-                if (message.payload && _.has(message.payload, 'online')) {
-                    device = _.findWhere($rootScope.myDevices, {uuid: message.fromUuid});
-                    if (device) {
-                        device.online = message.payload.online;
-                    }
-                }
-
-            });
-        };
-
-        $rootScope.skynetInit = function () {
-            $rootScope.loading = true;
-
-            return _skynetInit()
-                .then(function () {
-                    var deferred = $q.defer();
-
-                    $rootScope.setSettings();
-
-                    if ($rootScope.skynetConn) {
-
-                        console.log('SKYNET LOADED');
-                        $(document).trigger('skynet-ready');
-                        loaded = true;
-
-                        _startListen();
-
-                    }
-
-                    $rootScope.isAuthenticated();
-
-                    $rootScope.loading = false;
-
-                    deferred.resolve();
-
-                    return deferred.promise;
-
-                }, function(){
-                    console.log('Rejected _skynetInit();');
-                });
-        };
-
-        var _init = function () {
-
-            if($rootScope.Skynet.hasAuth()){
-                $rootScope.skynetInit();
-
-                _skynetLoad();
-            }else{
-                $location.path('/login');
-            }
-
-        };
-
         $rootScope.setSettings();
 
-        _init();
+        Skynet.start();
+
+        // Modals
 
         $rootScope.alertModal = function (title, msg) {
             $rootScope.globalModal = {};
@@ -339,7 +174,7 @@ angular.module('main')
                     var action = 'claim', info = 'You may not have permission to claim that device.';
 
                     $rootScope.ready(function () {
-                        $rootScope.Skynet.claimDevice(device.uuid)
+                        Skynet.claimDevice(device.uuid)
                             .timeout(5 * 1000)
                             .then(function (result) {
                                 onSuccess(action, result, info);
@@ -411,21 +246,18 @@ angular.module('main')
                 $rootScope.devicesModal.devices = [];
             }
             $rootScope.devicesMethod = method;
-            $rootScope.ready(function () {
-                if (typeof $rootScope.Skynet[method] !== 'function') {
+            Skynet.ready(function () {
+                if (typeof Skynet[method] !== 'function') {
                     console.log('Not Valid Function: ' + method);
                     return false;
                 }
 
-                $rootScope.Skynet[method]().then(function (result) {
+                Skynet[method]().then(function (result) {
                     console.log('Devices result', result);
-
-                    $rootScope.ready(function () {
-                        var devices = result ? result.devices : [];
-                        $rootScope.showDevicesModal({
-                            devices: devices,
-                            skipSearch: true
-                        });
+                    var devices = result ? result.devices : [];
+                    $rootScope.showDevicesModal({
+                        devices: devices,
+                        skipSearch: true
                     });
                 });
             });

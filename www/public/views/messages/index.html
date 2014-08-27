@@ -3,24 +3,20 @@
     <div ng-controller="MessageCtrl" ng-init="init()">
 
         <h3 class="page-title"><i class='fa fa-magic'></i> Message Devices</h3>
-        <br />
 
-        <div class="input-group" ng-hide="loading">
+        <div class="input-group">
             Select Device or Enter UUID:
             <br />
             <br />
             <div class="">
-                <!-- <select ng-model="device" ng-options="device.name for device in devices" class="form-control"></select> -->
-                <select ng-model="device" style="height: 40px;" ng-options="device.name for device in devices" class="form-control" id="device" ng-change="getSubdevices(device)">
-                </select>
-
+                <select ng-model="device" style="height: 40px;" ng-options="device.name for device in devices" class="form-control" id="device" ng-change="getSubdevices(device)"></select>
             </div>
-            <div class="input-row">OR</div>
-            <input size="40" ng-model="sendUuid" class="form-control" placeholder="UUID">
-            <br />
-            <br />
+            <div class="input-row text-center subtile">-- OR --</div>
+            <input type="text" ng-model="sendUuid" placeholder="UUID..." />
 
-            <div ng-show="subdevices">
+            <hr>
+
+            <div ng-if="subdevices">
                 Select a Gateway Subdevice:
                 <br />
                 <br />
@@ -35,9 +31,9 @@
 
             <hr>
 
-            <input type="text" placeholder="Message" ng-model="sendText" >
-            <br>
-            <br>
+            <textarea rows="3" ng-model="sendText" placeholder="Message..."></textarea>
+            <hr>
+
             <button ng-click="sendMessage()" class="btn btn-positive btn-outlined btn-block">Send</button>
 
         </div>

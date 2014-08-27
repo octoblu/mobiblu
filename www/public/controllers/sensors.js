@@ -2,7 +2,7 @@
 
 angular.module('main.sensors')
     .controller('SensorCtrl',
-    function ($rootScope, $scope, $filter, $timeout, $routeParams) {
+    function ($rootScope, $scope, $filter, $timeout, $routeParams, Skynet, Sensors) {
 
         $rootScope.loading = true;
 
@@ -49,25 +49,19 @@ angular.module('main.sensors')
             }
         }
 
-        if ($scope.sensor) {
-            $rootScope.$emit('togglebackbtn', true);
-        } else {
-            $rootScope.$emit('togglebackbtn', false);
-        }
-
         $scope.initList = function () {
             $rootScope.loading = false;
         };
 
         $scope.init = function () {
-            $rootScope.ready(function () {
+            Skynet.ready().then(function () {
                 var settings = $rootScope.settings;
                 $rootScope.loading = false;
                 $scope.settings = settings.settings;
                 $scope.setting = settings.settings[$scope.sensor.type];
 
-                if ($scope.sensor && typeof $rootScope.Sensors[$scope.sensor.label] === 'function') {
-                    $scope.sensorObj = $rootScope.Sensors[$scope.sensor.label](3000);
+                if ($scope.sensor && typeof Sensors[$scope.sensor.label] === 'function') {
+                    $scope.sensorObj = Sensors[$scope.sensor.label](3000);
 
                     graphSensor($scope.sensorObj.retrieve());
                 }
@@ -83,9 +77,9 @@ angular.module('main.sensors')
 
             console.log('Settings ' + JSON.stringify(data));
 
-            $rootScope.Skynet.updateDeviceSetting(data)
+            Skynet.updateDeviceSetting(data)
                 .then(function () {
-                    $rootScope.Skynet.logSensorData();
+                    Skynet.logSensorData();
                 }, $rootScope.redirectToError);
         };
 
@@ -137,7 +131,7 @@ angular.module('main.sensors')
                             var html = $scope.sensorObj.prettify(sensorData);
                             el.innerHTML = $scope.sensorObj.stream ? html + el.innerHTML : html;
 
-                            $rootScope.Skynet.sendData({
+                            Skynet.sendData({
                                 'sensorData': {
                                     'type': $scope.sensor.label,
                                     'data': sensorData

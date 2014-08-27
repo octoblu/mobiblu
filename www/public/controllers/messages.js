@@ -2,9 +2,8 @@
 
 angular.module('main.messages')
     .controller('MessageCtrl',
-    function ($rootScope, $scope, OctobluRest, $q) {
+    function ($rootScope, $scope, OctobluRest, $q, Skynet) {
 
-        $rootScope.$emit('togglebackbtn', false);
         // This will be populated with Restangula
         $scope.messages = {};
 
@@ -17,7 +16,7 @@ angular.module('main.messages')
         $scope.device = $scope.devices[0] || null;
 
         $scope.init = function () {
-            $rootScope.ready(function () {
+            Skynet.ready().then(function () {
                 $rootScope.loading = true;
                 $scope.skynetuuid = $rootScope.settings.skynetuuid;
                 $scope.skynettoken = $rootScope.settings.skynettoken;
@@ -55,7 +54,7 @@ angular.module('main.messages')
         };
 
         $scope.getGateways = function (myDevices) {
-            $scope.devices = myDevices;
+            $scope.devices = $scope.devices.concat(myDevices);
             var gateways = _.filter(myDevices, { type: 'gateway' });
             _.map(gateways, function (gateway) {
                 gateway.subdevices = [];
@@ -177,7 +176,7 @@ angular.module('main.messages')
 
                 $rootScope.alertModal('Message Sent', html);
 
-                $rootScope.Skynet.message({
+                Skynet.message({
                     'devices': uuid,
                     'subdevice': $scope.subdeviceuuid || $scope.subdevicename,
                     'payload': message

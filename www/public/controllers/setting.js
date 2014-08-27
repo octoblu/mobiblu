@@ -1,9 +1,7 @@
 'use strict';
 
 angular.module('main.setting')
-    .controller('SettingCtrl', function ($rootScope, $scope, $q) {
-
-        $rootScope.$on('togglebackbtn', false);
+    .controller('SettingCtrl', function ($rootScope, $scope, $q, Skynet, Plugins) {
 
         // This will be populated with Restangula
         $scope.device = {
@@ -21,7 +19,7 @@ angular.module('main.setting')
         }
 
         $scope.init = function () {
-            $rootScope.ready(function () {
+            Skynet.ready().then(function () {
                 $scope.skynettoken_dummy = tokenmask;
                 $scope.mobiletoken_dummy = tokenmask;
 
@@ -44,10 +42,10 @@ angular.module('main.setting')
                 setting: $scope.device.settings
             };
 
-            $rootScope.Skynet.updateDeviceSetting(data)
+            Skynet.updateDeviceSetting(data)
                 .timeout(1000 * 15)
                 .then(function () {
-                    $rootScope.Skynet.logSensorData();
+                    Skynet.logSensorData();
                     deferred.resolve();
                 }, $rootScope.redirectToError);
 
@@ -67,7 +65,7 @@ angular.module('main.setting')
 
         $scope.clearPlugins = function () {
             if (confirm('Are you sure you want to clear the plugins?')) {
-                window.octobluMobile.clearStorage();
+                Plugins.clearStorage();
                 window.location = 'index.html';
             }
         };
