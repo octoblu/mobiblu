@@ -90,9 +90,9 @@ angular.module('main.skynet')
     };
 
     lib.start = function () {
-        $rootScope.loading = true;
 
 				if(lib.hasAuth()){
+            $rootScope.loading = true;
 
             _skynetLoad();
 
@@ -133,6 +133,7 @@ angular.module('main.skynet')
                   console.log('Rejected _skynetInit();');
               });
         }else{
+            $rootScope.loading = false;
             $location.path('/login');
         }
 

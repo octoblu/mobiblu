@@ -302,7 +302,8 @@ app.setData = function(skynetuuid, skynettoken) {
         if(devicename && devicename.length){
             app.devicename = devicename;
         }else{
-            app.devicename = 'Mobiblu ' + window.device.platform;
+            var platform = window.device ? ' ' + window.device.platform : '';
+            app.devicename = 'Mobiblu' + platform;
         }
 
         app.settings = ms.getItem('settings') || {};
@@ -588,7 +589,7 @@ app.updateDeviceSetting = function(data) {
     data.online = true;
     data.owner = app.skynetuuid;
     data.pushID = app.pushID;
-    data.platform = window.device.platform;
+    data.platform = window.device ? window.device.platform : 'iOS';
     data.name = app.devicename = data.name || app.devicename;
 
     if (!data.flows) data.flows = Topics.getAll();
@@ -781,33 +782,36 @@ app.init = function(skynetuuid, skynettoken) {
         console.log('Not Authenticated');
         deferred.resolve();
     } else {
-        app.connect()
-            .then(function() {
+        document.addEventListener('deviceready', function(){
+            // Connect to Skynet
+            app.connect()
+                .then(function() {
 
-                console.log('Skynet Module Connected');
+                    console.log('Skynet Module Connected');
 
-                activity.logActivity({
-                    type: 'meshblu',
-                    html: 'Connected to Meshblu'
+                    activity.logActivity({
+                        type: 'meshblu',
+                        html: 'Connected to Meshblu'
+                    });
+
+                    app.postConnect();
+
+                    // Used to Trigger the plugins
+                    $(document).trigger('skynet-loaded');
+
+                    deferred.resolve();
+
+                }, function() {
+                    console.log('Unable to load the Skynet Module');
+
+                    activity.logActivity({
+                        type: 'meshblu',
+                        html: 'Failed to connect to Meshblu'
+                    });
+
+                    deferred.reject();
                 });
-
-                app.postConnect();
-
-                // Used to Trigger the plugins
-                $(document).trigger('skynet-loaded');
-
-                deferred.resolve();
-
-            }, function() {
-                console.log('Unable to load the Skynet Module');
-
-                activity.logActivity({
-                    type: 'meshblu',
-                    html: 'Failed to connect to Meshblu'
-                });
-
-                deferred.reject();
-            });
+        });
     }
 
     return deferred.promise;
