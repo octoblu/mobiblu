@@ -34,5 +34,10 @@ angular.module('main.system').controller('SubHeaderCtrl',
 
         };
 
+        $scope.showDevicesModal = function(){
+            console.log('Emiting Devices Modal');
+            $rootScope.$emit('show-devices-modal', true);
+        };
+
         $scope.showClaimDevice();
     });

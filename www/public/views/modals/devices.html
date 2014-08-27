@@ -1,4 +1,4 @@
-<div id="devicesModal" class="modal">
+<div id="devicesModal" class="modal" ng-controller="DeviceCtrl">
     <header class="bar bar-nav">
         <span class="icon icon-close pull-right" ng-click="closeDevicesModal()"></span>
 
@@ -21,8 +21,8 @@
 
         <div class="card" ng-hide="devicesModal.editMode">
             <ul class="table-view">
-                <li ng-repeat="device in devicesModal.devices" ng-show="device.uuid && device.name" class="table-view-cell">
-                    <span ng-click="devicesModal.showEdit(device)" class="navigate-right" >
+                <li ng-repeat="device in devicesModal.devices" ng-show="device.uuid && device.name" class="table-view-cell" ng-click="devicesModal.showEdit(device)">
+                    <span class="navigate-right" >
                        {{ device.name }}
                     </span>
                 </li>

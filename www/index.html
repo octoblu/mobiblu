@@ -91,6 +91,7 @@
     <script src="/public/controllers/sensors.js"></script>
     <script src="/public/controllers/plugins.js"></script>
     <script src="/public/controllers/flows.js"></script>
+    <script src="/public/controllers/devices.js"></script>
 
     <script src="/public/app/init.js"></script>
 
@@ -115,7 +116,7 @@
             </button>
         </header>
         <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
-            <a href ng-click="showDevicesModal({})" class="btn pull-left" ng-show="loggedin && claimDeviceBtn">
+            <a href ng-click="showDevicesModal()" class="btn pull-left" ng-show="loggedin && claimDeviceBtn">
                 Devices
             </a>
 
