@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('Skynet', function ($rootScope, $q, Auth, $location) {
+  .service('Skynet', function ($rootScope, $q, Auth, $location, $timeout) {
     var loaded = false;
 
     var lib = window.Skynet;
@@ -106,19 +106,26 @@ angular.module('main.skynet')
 
                 if (lib.conn) {
 
-                    console.log('SKYNET LOADED');
-                    $(document).trigger('skynet-ready');
-                    loaded = true;
+                  console.log('SKYNET LOADED');
+                  $(document).trigger('skynet-ready');
+                  loaded = true;
 
-                    _startListen();
+                  _startListen();
 
+                  deferred.resolve();
+
+                }else{
+                  deferred.reject();
                 }
 
-                $rootScope.isAuthenticated();
+                $timeout(function(){
 
-                $rootScope.loading = false;
+                  $rootScope.isAuthenticated();
 
-                deferred.resolve();
+                  $rootScope.loading = false;
+
+                }, 0);
+
 
                 return deferred.promise;
 

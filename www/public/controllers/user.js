@@ -49,7 +49,8 @@ angular.module('main.user')
                         window.localStorage.setItem('loggedin', true);
 
                         $rootScope.loggedin = true;
-                        $rootScope.Skynet.login(newskynetuuid, newskynettoken);
+
+                        Skynet.login(newskynetuuid, newskynettoken);
                     } else {
                         console.log('No Credentials Backup' + JSON.stringify([newskynetuuid, newskynettoken]));
                         window.location = 'error.html';
@@ -63,8 +64,9 @@ angular.module('main.user')
 
                         window.location.reload(true);
                     });
-
-                    $location.path('/');
+                    $scope.$apply(function(){
+                        $location.path('/');
+                    });
                 }
 
             });

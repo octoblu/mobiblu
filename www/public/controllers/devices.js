@@ -154,5 +154,4 @@ angular.module('main.system').controller('DeviceCtrl',
             console.log('On Show Devices Modal');
             $scope.showDevicesModal({});
         });
-        console.log('On Devices Modal');
     });

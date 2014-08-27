@@ -11,9 +11,10 @@
             <div class="">
                 <select ng-model="device" style="height: 40px;" ng-options="device.name for device in devices" class="form-control" id="device" ng-change="getSubdevices(device)"></select>
             </div>
-            <div class="input-row text-center subtile">-- OR --</div>
-            <input type="text" ng-model="sendUuid" placeholder="UUID..." />
-
+            <div ng-if="subdevices.length === 0">
+                <div class="input-row text-center subtile">-- OR --</div>
+                <input type="text" ng-model="sendUuid" placeholder="UUID..." />
+            </div>
             <hr>
 
             <div ng-if="subdevices">
@@ -30,9 +31,10 @@
             </div>
 
             <hr>
-
-            <textarea rows="3" ng-model="sendText" placeholder="Message..."></textarea>
-            <hr>
+            <div ng-if="subdevices.length === 0">
+                <textarea  rows="3" ng-model="sendText" placeholder="Message..."></textarea>
+                <hr>
+            </div>
 
             <button ng-click="sendMessage()" class="btn btn-positive btn-outlined btn-block">Send</button>
 

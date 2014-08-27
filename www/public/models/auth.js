@@ -1,29 +1,16 @@
+'use strict';
+
 angular.module('main.user')
     .service('Auth', function ($q, $http, $rootScope) {
         var currentUser = {},
-            baseUrl = 'http://app.octoblu.com';
-
-        //TODO: move me to the eventual root controller.
-        function getProfileUrl(user) {
-
-            if (user.local) {
-                user.avatarUrl = 'http://avatars.io/email/' + user.local.email.toString();
-            } else if (user.twitter) {
-
-            } else if (user.facebook) {
-                user.avatarUrl = 'https://graph.facebook.com/' + user.facebook.id.toString() + '/picture';
-            } else if (user.google) {
-                user.avatarUrl = 'https://plus.google.com/s2/photos/profile/' + user.google.id.toString() + '?sz=32';
-            }
-        }
-
+            baseUrl = 'http://app.octoblu.com',
+            service;
 
         function getCurrentUser(force) {
+            var deferred = $q.defer();
             console.log('Getting User');
             if (currentUser.id && !force) {
-                var defer = $q.defer();
-                defer.resolve(currentUser);
-                return defer.promise;
+                deferred.resolve(currentUser);
             } else {
                 var uuid = $rootScope.settings.skynetuuid;
                 var token = $rootScope.settings.skynettoken;
@@ -41,18 +28,22 @@ angular.module('main.user')
 
                     return $http(req)
                                 .then(function(result){
+                                    var deferred = $q.defer();
                                     loginHandler(result);
+                                    deferred.resolve();
+                                    return deferred.promise;
                                 }, function (err) {
+                                    var deferred = $q.defer();
                                     logoutHandler(err);
-                                    throw err;
+                                    deferred.reject();
+                                    return deferred.promise;
                                 });
                 }else{
-                    var defer = $q.defer();
-                    defer.reject();
-                    return defer.promise;
+                    deferred.reject();
                 }
 
             }
+            return deferred.promise;
         }
 
         function processCurrentUser(data) {
@@ -66,8 +57,6 @@ angular.module('main.user')
             window.localStorage.setItem('loggedin', 'true');
 
             window.Skynet.login(currentUser.skynet.uuid, currentUser.skynet.token);
-
-            getProfileUrl(currentUser);
 
             return currentUser;
         }
@@ -90,7 +79,7 @@ angular.module('main.user')
             console.log('IN LOGOUT HANDLER :: ' + err);
             angular.copy({}, currentUser);
 
-            $rootScope.Skynet.logout();
+            window.Skynet.logout();
 
             $rootScope.setSettings();
         }
