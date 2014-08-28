@@ -1,23 +1,23 @@
 {
-    "name": "Mobiblu",
-    "version": "0.13.2",
-    "description": "Octoblu Mobile Hub",
-    "repository": "https://github.com/octoblu/mobiblu",
-    "readme": "https://github.com/octoblu/mobiblu/README.md",
-    "private": true,
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "",
-    "devDependencies": {
-        "grunt-steroids": "0.2.2",
-        "grunt-browserify": "~2.1.4"
-    },
-    "license": "none",
-    "engines": {
-        "steroids": "3.1.9"
-    },
-    "dependencies": {
-        "q": "~1.0.1"
-    }
+  "name": "Mobiblu",
+  "version": "0.13.2",
+  "description": "Octoblu Mobile Hub",
+  "repository": "https://github.com/octoblu/mobiblu",
+  "readme": "https://github.com/octoblu/mobiblu/README.md",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "devDependencies": {
+    "grunt-steroids": "0.2.2",
+    "grunt-browserify": "~2.1.4"
+  },
+  "license": "none",
+  "engines": {
+    "steroids": "3.1.9"
+  },
+  "dependencies": {
+    "q": "~1.0.1"
+  }
 }
