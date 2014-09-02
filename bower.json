@@ -1,6 +1,6 @@
 {
   "name": "Mobiblu",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "authors": [],
   "ignore": [
     "**/.*",
@@ -23,7 +23,8 @@
     "lodash": "~2.4.1",
     "json-editor": "~0.6.14",
     "leaflet": "~0.7.3",
-    "angular-leaflet-directive": "~0.7.7"
+    "angular-leaflet-directive": "~0.7.7",
+    "angular-mocks": "~1.2.23"
   },
   "resolutions": {
     "lodash": "~2.4.1"

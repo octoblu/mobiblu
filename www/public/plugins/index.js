@@ -307,6 +307,20 @@ obj.download = function (plugin) {
     return deferred.promise;
 };
 
+obj.getPluginsList = function(){
+    return new Promise(function(resolve, reject){
+        var pluginsUrl = 'https://rawgit.com/octoblu/mobiblu-plugins/master/plugins.json';
+        $.getJSON(pluginsUrl, {})
+            .done(function(data){
+                resolve(data);
+            })
+            .fail(function(err){
+                console.log('Error getting plugins list', JSON.stringify(err));
+                reject(err);
+            });
+    });
+};
+
 obj.loadScript = function (json) {
     var deferred = Px.defer();
 
@@ -720,7 +734,8 @@ var octobluMobile = {
     writePlugin: obj.writePlugin,
     loadPlugin: obj.loadPlugin,
     clearStorage: obj.clearStorage,
-    triggerDeviceEvent: obj.triggerDeviceEvent
+    triggerDeviceEvent: obj.triggerDeviceEvent,
+    getPluginsList : obj.getPluginsList
 };
 
 module.exports = octobluMobile;

@@ -10,8 +10,8 @@
 
     <div ng-hide="loading">
         <ul class="table-view" ng-show="results && results.length">
-            <li ng-repeat="plugin in results" class="table-view-cell">
-                {{ plugin.name }}
+            <li ng-repeat="plugin in results track by $index" class="table-view-cell">
+                <div class="mostly-table-cell">{{ plugin.name }}</div>
                 <button class="btn" ng-click="installPlugin(plugin)">
                     <span>Add Device</span>
                 </button>

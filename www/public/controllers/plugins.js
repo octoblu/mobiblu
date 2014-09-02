@@ -13,34 +13,26 @@ angular.module('main.plugins')
             $scope.results = [];
             $scope.allResults = [];
 
-            OctobluRest.searchPlugins('skynet-mobile-plugin')
-                .then(handleSearchResults, $rootScope.redirectToError);
-
-            OctobluRest.searchPlugins('skynet-plugin')
-                .then(handleSearchResults, $rootScope.redirectToError);
-
-            Plugins.ready().then(function () {
-
-                $scope.getPlugins();
-
-            });
+            Plugins.ready()
+                .then(function(){
+                    return Plugins.getPluginsList();
+                })
+                .then(handleSearchResults)
+                .finally(function () {
+                    $scope.getPlugins();
+                });
         };
 
         $scope.results = [];
         $scope.allResults = [];
 
-        var handleSearchResults = function (res) {
-            if(!res){
-                res = {
-                    data : {
-                        results : []
-                    }
-                };
+        var handleSearchResults = function (data) {
+            if(!data){
+                data  = [];
             }
             $timeout(function () {
-                var data = res.data;
 
-                $scope.results = $scope.results.concat(data.results || []);
+                $scope.results = $scope.results.concat(data || []);
 
                 $scope.allResults = $scope.results;
 
@@ -93,13 +85,12 @@ angular.module('main.plugins')
         };
 
         $scope.redownload = function () {
-            $rootScope.loading = true;
+            $rootScope.loading = false;
 
             Plugins.download($scope.plugin)
                 .timeout(15 * 1000)
                 .then(function (plugin) {
                     $timeout(function () {
-                        $rootScope.loading = false;
                         $scope.plugin = plugin;
                         alert('Updated!');
                         window.location.reload();
@@ -107,7 +98,6 @@ angular.module('main.plugins')
                 }, function (err) {
                     console.log('Error ', err);
                     $timeout(function () {
-                        $rootScope.loading = false;
                         $rootScope.redirectToCustomError('Unable to install that plugin. Missing required bundle.js file or a JavaScript error occurred.');
                     }, 0);
                 });
@@ -332,10 +322,8 @@ angular.module('main.plugins')
             ).then(function (err) {
                     if (err) console.log('Error removing plugin', err);
                     console.log('Removed plugin');
-                    setTimeout(function () {
-                        $scope.$apply(function () {
-                            $location.path('/plugins');
-                        });
+                    $timeout(function () {
+                        $location.path('/plugins');
                     }, 0);
                 }, $rootScope.redirectToError);
         };

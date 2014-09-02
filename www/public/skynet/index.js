@@ -27,6 +27,12 @@ app.conn = null;
 
 app.settingsUpdated = false;
 
+app.dataTimeout = null;
+
+app.dataQueue = [];
+
+app.dataLastSent = null;
+
 var ls = window.localStorage;
 var ms = window.mobibluStorage;
 
@@ -468,9 +474,30 @@ app.sendData = function(data) {
 
     $(document).trigger(eventName, data);
 
-    app.conn.data(data, function() {
-        deferred.resolve();
-    });
+
+    function send(data, i){
+        if(!_.isUndefined(i) && i >= 0){
+            app.dataQueue.splice(i, 1);
+        }
+        app.dataLastSent = new Date();
+        console.log('Sending Data');
+        app.conn.data(data, function() {});
+    }
+    var timeout = 15 * 1000;
+    var currentTime = new Date().getTime();
+    if(app.dataLastSent && currentTime > ( app.dataLastSent.getTime() + timeout )){
+        send(data);
+    }else if(!app.dataTimeout){
+        send(data);
+        app.dataTimeout = setTimeout(function(){
+            _.each(app.dataQueue, send);
+            clearTimeout(app.dataTimeout);
+            app.dataTimeout = null;
+        }, timeout);
+    }else{
+        app.dataQueue.push(data);
+    }
+    deferred.resolve();
 
     return deferred.promise;
 };

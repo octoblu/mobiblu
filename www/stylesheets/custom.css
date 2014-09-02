@@ -103,3 +103,8 @@ input {
     text-align: center;
     vertical-align: middle;
 }
+
+.mostly-table-cell {
+    width: 90%;
+    word-wrap: break-word;
+}

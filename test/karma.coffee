@@ -35,13 +35,14 @@ module.exports = (config) ->
       'www/public/controllers/*.js',
       'www/public/plugins/bundle.js',
       'www/public/plugins/init.js',
+      'www/components/angular-mocks.js',
       'test/unit/**/*-spec.js'
     ]
 
 
     # list of files to exclude
     exclude: [
-
+      'www/public/**/init.js',
     ]
 
 

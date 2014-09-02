@@ -136,4 +136,9 @@ lib.delete = function (topic) {
     write();
 };
 
+lib.clear = function(){
+    topics = [];
+    write();
+};
+
 module.exports = lib;
