@@ -25,8 +25,10 @@
     <preference name="DisableDoubleTapToFocus" value="true" />
     <preference name="ViewIgnoresStatusBar" value="false" />
 
-    <preference name="com.urbanairship.production_app_key" value="BbFhUodQS6KondqSehTy0w" />
-    <preference name="com.urbanairship.production_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
+    <preference name="com.urbanairship.production_app_key" value="3LCIPsspSdavTijgTGo12g" />
+    <preference name="com.urbanairship.production_app_secret" value="SlsX5yTQRQWTW1mEsI2WFg" />
+    <preference name="com.urbanairship.development_app_key" value="BbFhUodQS6KondqSehTy0w" />
+    <preference name="com.urbanairship.development_app_secret" value="54rfS28wQR-xc4wdxjJEFQ" />
     <preference name="com.urbanairship.in_production" value="true" />
 
     <plugin name="BackgroundGeoLocation" value="BackgroundGeoLocation" onload="true"/>

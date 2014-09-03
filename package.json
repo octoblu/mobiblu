@@ -1,17 +1,28 @@
 {
   "name": "Mobiblu",
-  "version": "0.13.3",
+  "version": "0.13.4",
   "description": "Octoblu Mobile Hub",
   "repository": "https://github.com/octoblu/mobiblu",
   "readme": "https://github.com/octoblu/mobiblu/README.md",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test mocha -r test/test_helper.js --recursive && node_modules/karma/bin/karma start --single-run"
   },
   "author": "",
   "devDependencies": {
     "grunt-steroids": "0.2.2",
-    "grunt-browserify": "~2.1.4"
+    "grunt-browserify": "~2.1.4",
+    "chai": "^1.9.1",
+    "karma": "^0.12.19",
+    "karma-mocha": "~0.1.6",
+    "karma-ng-html2js-preprocessor": "~0.1.0",
+    "karma-cordova-launcher": "0.0.7",
+    "karma-osx-reporter": "^0.1.0",
+    "karma-sinon-chai": "^0.2.0",
+    "karma-spec-reporter": "0.0.13",
+    "karma-chai-plugins": "~0.2.3",
+    "sinon": "^1.10.3",
+    "sinon-chai": "^2.5.0"
   },
   "license": "none",
   "engines": {

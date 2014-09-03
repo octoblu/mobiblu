@@ -92,7 +92,7 @@ angular.module('main.flows')
             $location.path('/flows');
         };
 
-        $scope.deleteTopics = function () {
+        $scope.deleteTopic = function () {
             localTopics.delete($scope.topic);
             $location.path('/flows');
         };

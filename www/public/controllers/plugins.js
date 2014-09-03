@@ -75,7 +75,7 @@ angular.module('main.plugins')
                     $scope.addDevice();
 
                 }, function (err) {
-                    console.log('Error ', err);
+                    console.log('Error ' +  JSON.stringify(err));
                     $scope.$apply(function () {
                         $rootScope.loading = false;
                         $rootScope.redirectToCustomError('Unable to install that plugin. Missing required bundle.js file or a JavaScript error occurred.');
