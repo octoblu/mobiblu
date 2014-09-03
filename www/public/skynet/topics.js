@@ -1,5 +1,9 @@
 'use strict';
 
+/*
+* !!! Local Topics: No longer in use
+*/
+
 var lib = {},
     key = 'topics',
     defaultKey = 'default_topics',

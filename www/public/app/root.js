@@ -1,13 +1,15 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $timeout, $location, $q, Auth, SkynetRest, Skynet) {
+    .run(function ($rootScope, $timeout, $location, $q, Auth, SkynetRest, Skynet, Config) {
 
         var timeouts = [];
 
         $rootScope.loading = true;
 
         $rootScope.isDeveloper = false;
+
+        $rootScope.Config = Config;
 
         $rootScope.matchRoute = function (route) {
             var regex = new RegExp('\\#\\!' + route);

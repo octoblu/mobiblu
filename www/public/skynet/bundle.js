@@ -1559,7 +1559,7 @@ obj.editDevice = function (device) {
 obj.logout = function (uuid, token) {
     var deferred = Px.defer();
     $.ajax({
-        url: 'https://app.octoblu.com/api/auth',
+        url: window.mobilbluConfig.OCTOBLU_URL + '/api/auth',
         method: 'DELETE',
         headers: {
             skynet_auth_uuid: uuid,
@@ -1586,6 +1586,10 @@ obj.getIPAddress = function(){
 module.exports = obj;
 },{}],8:[function(_dereq_,module,exports){
 'use strict';
+
+/*
+* !!! Local Topics: No longer in use
+*/
 
 var lib = {},
     key = 'topics',

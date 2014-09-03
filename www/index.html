@@ -53,6 +53,8 @@
     -->
     <script src="/components/json-editor/dist/jsoneditor.min.js" type="text/javascript"></script>
 
+    <script src="/config/mobiblu.js"></script>
+
     <script src="/javascripts/boost-storage.js"></script>
     <script src="/javascripts/mobiblu-storage.js"></script>
 
@@ -71,6 +73,8 @@
     <script src="/public/models/plugins.js"></script>
     <script src="/public/models/sensors.js"></script>
     <script src="/public/models/topic.js"></script>
+    <script src="/public/models/localTopics.js"></script>
+    <script src="/public/models/config.js"></script>
 
     <script src="/public/angular/directives/message-grapher/message-grapher.js"></script>
     <script src="/public/angular/directives/toggle-switch/toggle-switch.js"></script>
@@ -105,23 +109,23 @@
         <header ng-controller="HeaderCtrl" ng-init="init()" class="bar bar-nav">
             <button ng-show="backbtn" ng-click="goBack()" class="ng-hide btn btn-link btn-nav pull-left">
                 <span class="icon icon-left-nav"></span>
-                Back
+                {{ Config.BACK_BTN }}
             </button>
-            <h1 class="title">Mobiblu</h1>
+            <h1 class="title">{{ Config.APP_NAME }</h1>
             <button ng-show="loggedin && !showLogout" ng-click="settings()" class="ng-hide btn btn-link btn-nav pull-right">
-                Settings
+                {{ Config.SETTINGS }}
             </button>
             <button ng-show="loggedin && showLogout" ng-click="logout()" class="btn btn-link btn-nav pull-right">
-                Logout
+                {{ Config.LOGOUT }}
             </button>
         </header>
         <div ng-controller="SubHeaderCtrl" class="bar bar-standard bar-header-secondary">
             <a href ng-click="showDevicesModal()" class="btn pull-left" ng-show="loggedin && claimDeviceBtn">
-                Devices
+                {{ Config.DEVICES }}
             </a>
 
             <a href="index.html#!/activity" id="sensor-activity" class="btn pull-right" ng-show="loggedin">
-                Activity <span class="badge badge-negative" id="sensor-activity-badge">0</span>
+                {{ Config.ACTIVITY }} <span class="badge badge-negative" id="sensor-activity-badge">0</span>
             </a>
         </div>
         <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
@@ -135,23 +139,23 @@
         <nav ng-controller="FooterCtrl" ng-init="init()" class="bar bar-tab" ng-show="loggedin">
             <a class="tab-item" href="index.html#!/" ng-class="{active: isActive('/')}" data-ignore="push">
                 <span class="icon fa fa-tachometer"></span>
-                <span class="tab-label">Dashboard</span>
+                <span class="tab-label">{{ Config.DASHBOARD }}</span>
             </a>
             <a class="tab-item" href="index.html#!/plugins" ng-class="{active: isActive('/plugins')}" data-transition="fade">
                 <span class="icon fa fa-puzzle-piece"></span>
-                <span class="tab-label">Devices</span>
+                <span class="tab-label">{{ Config.PLUGINS }}</span>
             </a>
             <a class="tab-item" href="index.html#!/sensors" ng-class="{active: isActive('/sensors')}" data-transition="fade">
                 <span class="icon fa fa-crosshairs"></span>
-                <span class="tab-label">Sensors</span>
+                <span class="tab-label">{{ Config.SENSORS }}</span>
             </a>
             <a class="tab-item" href="index.html#!/messages" ng-class="{active: isActive('/messages')}" data-transition="fade">
                 <span class="icon fa fa-comments"></span>
-                <span class="tab-label">Messages</span>
+                <span class="tab-label">{{ Config.MESSAGES }}</span>
             </a>
             <a class="tab-item" href="index.html#!/flows" ng-class="{active: isActive('/flows')}" data-transition="fade">
                 <span class="icon fa fa-sitemap"></span>
-                <span class="tab-label">Flows</span>
+                <span class="tab-label">{{ Config.FLOWS }}</span>
             </a>
         </nav>
 

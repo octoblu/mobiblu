@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.user')
-    .controller('UserCtrl', function ($rootScope, $scope, $location, $timeout, Auth) {
+    .controller('UserCtrl', function ($rootScope, $scope, $location, $timeout, Auth, Config, Skynet) {
 
         $scope.signup = false;
 
@@ -13,7 +13,7 @@ angular.module('main.user')
 
         $scope.loginViaProvider = function (provider) {
             $rootScope.loading = true;
-            var url = 'http://app.octoblu.com/auth/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent('http://localhost/index.html#!/login');
+            var url = Config.OCTOBLU_URL + '/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent(Config.LOCAL_URL + '/login');
             var authWindow = window.open(url, '_blank', 'location=no,toolbar=no');
 
             $(authWindow).on('loadstart', function (e) {
@@ -53,7 +53,7 @@ angular.module('main.user')
                         Skynet.login(newskynetuuid, newskynettoken);
                     } else {
                         console.log('No Credentials Backup' + JSON.stringify([newskynetuuid, newskynettoken]));
-                        window.location = 'error.html';
+                        window.location = '/error.html';
                         return;
                     }
 
@@ -145,12 +145,12 @@ angular.module('main.user')
 
         $scope.getTerms = function () {
             $('#terms')
-                .load('http://app.octoblu.com/pages/terms.html', function () {
+                .load(Config.OCTOBLU_URL + '/pages/terms.html', function () {
 
                     var imgs = $('#terms img');
                     imgs.each(function () {
                         var src = $(this).attr('src');
-                        $(this).attr('src', 'https://app.octoblu.com/' + src);
+                        $(this).attr('src', Config.OCTOBLU_URL + src);
                     });
 
                 });

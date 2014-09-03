@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('main.flows')
-    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams, Topic, Skynet) {
+    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams, localTopics, Skynet) {
 
         var timeouts = {};
 
         $scope.init = function () {
 
-            $scope.topics = Topic.getAll();
+            $scope.topics = localTopics.getAll();
 
         };
 
@@ -76,7 +76,7 @@ angular.module('main.flows')
 
                 }, $rootScope.redirectToError);
 
-        };
+        }
 
         $scope.goToTopic = function (topic) {
             $location.path('/flows/' + topic.id);
@@ -84,16 +84,16 @@ angular.module('main.flows')
 
         $scope.findOne = function () {
             console.log('Flow ID ', $routeParams.flowId);
-            $scope.topic = Topic.get($routeParams.flowId);
+            $scope.topic = localTopics.get($routeParams.flowId);
         };
 
         $scope.save = function () {
-            $scope.topic = Topic.save($scope.topic);
+            $scope.topic = localTopics.save($scope.topic);
             $location.path('/flows');
         };
 
-        $scope.deleteTopic = function () {
-            Topic.delete($scope.topic);
+        $scope.deleteTopics = function () {
+            localTopics.delete($scope.topic);
             $location.path('/flows');
         };
 

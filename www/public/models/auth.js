@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('main.user')
-    .service('Auth', function ($q, $http, $rootScope) {
+    .service('Auth', function ($q, $http, $rootScope, Config) {
         var currentUser = {},
-            baseUrl = 'http://app.octoblu.com',
+            baseUrl = Config.OCTOBLU_URL,
             service;
 
         function getCurrentUser(force) {
