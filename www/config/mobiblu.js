@@ -3,7 +3,8 @@
 
 	global.mobibluConfig = {
 		OCTOBLU_URL : 'http://app.octoblu.com',
-		SKYNET_HOST : 'http://meshblu.octoblu.com',
+		SKYNET_URL : 'http://meshblu.octoblu.com',
+		SKYNET_HOST : 'meshblu.octoblu.com',
 		LOCAL_URL : 'http://localhost/index.html#!',
 		SKYNET_PORT : 80,
 		APP_NAME : 'Mobiblu',

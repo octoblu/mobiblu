@@ -1,7 +1,7 @@
 'use strict';
 
 var timeout = 10 * 1000;
-var baseURL = 'http://meshblu.octoblu.com';
+var baseURL = window.mobibluConfig.SKYNET_URL;
 
 var uuid, token;
 

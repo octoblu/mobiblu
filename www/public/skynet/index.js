@@ -276,8 +276,8 @@ app.skynet = function(callback, errorCallback) {
     console.log('Connecting Creds: ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
     var config = {
-        port: 80,
-        server: 'ws://meshblu.octoblu.com'
+        port: window.mobibluConfig.SKYNET_PORT,
+        server: 'ws://' + window.mobibluConfig.SKYNET_HOST
     };
 
     if (app.mobileuuid && app.mobiletoken) {

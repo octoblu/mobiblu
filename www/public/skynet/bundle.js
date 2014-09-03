@@ -178,7 +178,7 @@ var bg = {
 
             // BackgroundGeoLocation is highly configurable.
             bgGeo.configure(callbackFn, failureFn, {
-                url: 'http://meshblu.octoblu.com/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
+                url: window.mobibluConfig.SKYNET_URL + '/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
                 params: { // HTTP POST params sent to your server when persisting locations.
                     uuid: app.mobileuuid,
                     token: app.mobiletoken,
@@ -505,8 +505,8 @@ app.skynet = function(callback, errorCallback) {
     console.log('Connecting Creds: ' + JSON.stringify([app.mobileuuid, app.mobiletoken]));
 
     var config = {
-        port: 80,
-        server: 'ws://meshblu.octoblu.com'
+        port: window.mobibluConfig.SKYNET_PORT,
+        server: 'ws://' + window.mobibluConfig.SKYNET_HOST
     };
 
     if (app.mobileuuid && app.mobiletoken) {
@@ -1400,7 +1400,7 @@ module.exports = Sensors;
 'use strict';
 
 var timeout = 10 * 1000;
-var baseURL = 'http://meshblu.octoblu.com';
+var baseURL = window.mobibluConfig.SKYNET_URL;
 
 var uuid, token;
 

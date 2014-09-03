@@ -91,7 +91,7 @@ var bg = {
 
             // BackgroundGeoLocation is highly configurable.
             bgGeo.configure(callbackFn, failureFn, {
-                url: 'http://meshblu.octoblu.com/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
+                url: window.mobibluConfig.SKYNET_URL + '/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
                 params: { // HTTP POST params sent to your server when persisting locations.
                     uuid: app.mobileuuid,
                     token: app.mobiletoken,
