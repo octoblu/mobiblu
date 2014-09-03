@@ -75,7 +75,6 @@ angular.module('main.flows')
                     }
 
                 }, $rootScope.redirectToError);
-
         };
 
         $scope.goToTopic = function (topic) {
