@@ -1,23 +1,14 @@
 <div ng-controller="FlowCtrl" ng-init="findOne()">
 
-    <form>
+    <p class="content-padded">Choose a button to press.</p>
 
-        <label>Topic Name:</label>
-        <input type="text" placeholder="Topic Name" ng-model="topic.name">
-
-        <label>Payload: </label>
-        <input type="text" placeholder="Payload" ng-model="topic.payload">
-
-        <label>Wait for Response: </label>
-        <div class="input-row">
-
-            <toggle-switch model="topic.wait"></toggle-switch>
-
-        </div>
-
-        <button class="btn btn-block btn-outlined" ng-click="save()">Done</button>
-        <button class="btn btn-block btn-negative btn-outlined" ng-click="deleteTopic()">Delete</button>
-
-    </form>
+    <ul class="table-view">
+        <li class="table-view-cell"
+            ng-repeat="node in flow.nodes track by $index"
+            ng-click="triggerButton(node)">
+            {{ node.name }}
+        </li>
+    </ul>
 
 </div>
+

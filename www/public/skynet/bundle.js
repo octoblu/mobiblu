@@ -731,21 +731,6 @@ app.sendData = function(data) {
     return deferred.promise;
 };
 
-app.triggerTopic = function(name, payload) {
-    var deferred = Px.defer();
-
-    app.message({
-        topic: name,
-        payload: payload,
-        devices: app.skynetuuid,
-        uuid: app.skynetuuid,
-        token: app.skynettoken
-    }).then(deferred.resolve,
-        deferred.reject);
-
-    return deferred.promise;
-};
-
 app.whoami = function(uuid, token) {
     var deferred = Px.defer();
 

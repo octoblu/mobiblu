@@ -1,104 +1,96 @@
 'use strict';
 
 angular.module('main.flows')
-    .controller('FlowCtrl', function ($rootScope, $location, $scope, $timeout, $routeParams, localTopics, Skynet) {
+    .controller('FlowCtrl', function ($rootScope, $q, $location, $scope, $timeout, $routeParams, Flows, Skynet) {
 
-        var timeouts = {};
+        var wait = false;
 
-        $scope.init = function () {
-
-            $scope.topics = localTopics.getAll();
-
-        };
-
-        function markSent(id) {
-            var index = _.findIndex($scope.topics, { id: id });
-            $timeout(function () {
-                $scope.topics[index].sent = false;
-                $scope.loading = false;
-            }, 0);
+        function getFlows(){
+            return Flows.testGetFlows()
+                .then(function(res){
+                    var deferred = $q.defer();
+                    var flows = res.data;
+                    $rootScope.loading = false;
+                    $scope.flows = _.filter(flows, function(flow){
+                        return _.findWhere(flow.nodes, { type : 'button' });
+                    });
+                    deferred.resolve();
+                    return deferred.promise;
+                });
         }
 
-        $scope.triggerTopic = function (topic) {
+        $scope.init = function () {
+            $rootScope.loading = true;
+            getFlows();
+        };
+
+        function markSent() {
+            $scope.loading = false;
+
+            Skynet.logActivity({
+                type: 'flows',
+                html: 'Flow button "' + $scope.flow.name + '" Triggered'
+            });
+        }
+
+        $scope.triggerButton = function (button) {
             $scope.loading = true;
-
-            topic.sent = true;
-            $scope.topic = topic;
-
-            var defaultPayload = new Date(),
-                name = $scope.topic.name;
 
             var start = new Date().getTime();
 
-            var id = $scope.topic.id;
-
-            if (typeof timeouts[id] === 'function') {
-                $timeout.clear(timeouts[id]);
-                delete timeouts[id];
+            if (!wait) {
+                markSent();
             }
 
-            function setSentTimeout(id){
-                timeouts[id] = $timeout(function () {
-                        markSent(id);
-                    }, 5000);
-            }
+            Skynet.message({
+                devices : $scope.flow.flowId,
+                topic : 'button',
+                payload : {
+                    from : button.id
+                }
+            })
+            .then(function (data) {
 
-            if (!$scope.topic.wait) {
-                setSentTimeout(id);
-                $scope.loading = false;
-            }
+                if (wait) {
 
-            Skynet.triggerTopic(name, $scope.topic.payload || defaultPayload)
-                .then(function (data) {
-                    Skynet.logActivity({
-                        type: 'flows',
-                        html: 'Topic "' + name + '" Triggered'
-                    });
+                    var end = new Date().getTime();
+                    var response;
 
-                    if ($scope.topic.wait) {
-
-                        var end = new Date().getTime();
-                        var response;
-
-                        if (/^timeout/.test(data.error)) {
-                            response = 'No response received';
-                        } else {
-                            response = JSON.stringify(data);
-                        }
-
-                        $scope.$apply(function(){
-                            $rootScope.alertModal('Response - ' + (end - start) + ' ms', response);
-                        });
-
-                        setSentTimeout(id);
-
+                    if (/^timeout/.test(data.error)) {
+                        response = 'No response received';
+                    } else {
+                        response = JSON.stringify(data);
                     }
 
-                }, $rootScope.redirectToError);
+                    $scope.$apply(function(){
+                        $rootScope.alertModal('Response - ' + (end - start) + ' ms', response);
+                        markSent();
+                    });
 
-        }
+                }
 
-        $scope.goToTopic = function (topic) {
-            $location.path('/flows/' + topic.id);
+            }, $rootScope.redirectToError);
+
+        };
+
+        $scope.goToFlow = function (flowId) {
+            console.log('Going to flow: ' + flowId);
+            $location.path('/flows/' + flowId);
         };
 
         $scope.findOne = function () {
             console.log('Flow ID ', $routeParams.flowId);
-            $scope.topic = localTopics.get($routeParams.flowId);
-        };
+            getFlows().then(function(){
+                $scope.flow = _.findWhere($scope.flows, { flowId : $routeParams.flowId });
 
-        $scope.save = function () {
-            $scope.topic = localTopics.save($scope.topic);
-            $location.path('/flows');
-        };
+                $scope.flow.nodes = _.filter($scope.flow.nodes, { type : 'button' });
 
-        $scope.deleteTopic = function () {
-            localTopics.delete($scope.topic);
-            $location.path('/flows');
-        };
+                /*
+                Skynet.conn.on('message', function(){
 
-        $scope.createTopic = function () {
-            $location.path('/flows/' + utils.createID());
+                });
+                */
+            });
         };
 
     });
