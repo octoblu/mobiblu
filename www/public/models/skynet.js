@@ -1,78 +1,90 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('Skynet', function ($rootScope, $q, Auth, $location, $timeout) {
+  .service('Skynet', function($rootScope, $q, Auth, $location, $timeout) {
     var loaded = false;
 
     var lib = window.Skynet;
 
-		var _skynetInit = function () {
-        var deferred = $q.defer();
-        if ($rootScope.isErrorPage() && $rootScope.matchRoute('/login')) {
-            deferred.reject();
-        } else {
-          Auth.getCurrentUser()
-              .then(function (currentUser) {
-                  var uuid, token;
-                  if (currentUser && currentUser.skynet) {
-                      uuid = currentUser.skynet.uuid;
-                      token = currentUser.skynet.token;
-                  }
+    var _init = function() {
+      var deferred = $q.defer();
+      if ($rootScope.isErrorPage() && $rootScope.matchRoute('/login')) {
+        deferred.reject();
+      } else {
+        Auth.getCurrentUser()
+          .then(function(currentUser) {
+            var uuid, token;
+            if (currentUser && currentUser.skynet) {
+              uuid = currentUser.skynet.uuid;
+              token = currentUser.skynet.token;
+            }
 
-                  lib.init(uuid, token)
-                      .timeout(1000 * 15)
-                      .then(function () {
-                          console.log('_skynetInit successful');
-                          $rootScope.clearAppTimeouts();
-                          deferred.resolve();
-                      }, function () {
-                          console.log('Unable to connect to Meshblu');
-                          $rootScope.redirectToError('Unable to connect to Meshblu');
-                      });
+            lib.init(uuid, token)
+              .timeout(1000 * 15)
+              .then(function() {
+                console.log('_init successful');
+                $rootScope.clearAppTimeouts();
+                deferred.resolve();
+              }, function() {
+                console.log('Unable to connect to Meshblu');
+                $rootScope.redirectToError('Unable to connect to Meshblu');
+              });
 
-            }, deferred.reject);
+          }, deferred.reject);
 
-        }
-        return deferred.promise;
+      }
+      return deferred.promise;
     };
 
-    var _skynetLoad = function () {
+    var _start = function(){
+      var deferred = $q.defer();
 
-        var deferred = $q.defer();
+      $rootScope.setSettings();
 
-        $(document).on('skynet-ready', function () {
-            loaded = true;
-            deferred.resolve();
-        });
+      lib.conn = lib.getCurrentSettings().conn;
 
-        return deferred.promise;
+      if (lib.conn) {
+
+        console.log('SKYNET LOADED');
+        $(document).trigger('skynet-ready');
+        loaded = true;
+
+        _startListen();
+
+        deferred.resolve();
+
+      } else {
+        deferred.reject();
+      }
+
+      $rootScope.isAuthenticated();
+
+      $rootScope.loading = false;
+
+      return deferred.promise;
     };
 
-    lib.ready = function (cb) {
-    		var deferred = $q.defer();
+    var _skynetIsReady = function() {
 
-    		function done(){
-    			if(typeof cb === 'function'){
-    				cb(lib.conn);
-    			}
-          deferred.resolve(lib.conn);
-    		}
+      var deferred = $q.defer();
 
-        $rootScope.setSettings();
+      $(document).on('skynet-ready', function() {
+        loaded = true;
+        deferred.resolve();
+      });
 
-        if (loaded || $rootScope.isErrorPage() || $rootScope.matchRoute('/login')) {
-            done();
-        } else {
-            _skynetLoad().then(done, function (err) {
-                $rootScope.redirectToError(err || 'Meshblu can\'t connect');
-                deferred.reject();
-            });
-        }
-        return deferred.promise;
+      // We Start Here because the promises don't work after window.location.reload()
+      $(document).on('skynet-loaded', function(){
+          $timeout(function(){
+            _start();
+          }, 0);
+      });
+
+      return deferred.promise;
     };
 
-    var _startListen = function () {
-      lib.conn.on('message', function (message) {
+    var _startListen = function() {
+      lib.conn.on('message', function(message) {
 
         $rootScope.$broadcast('skynet:message', message);
 
@@ -80,62 +92,52 @@ angular.module('main.skynet')
 
         $rootScope.$broadcast('skynet:message:' + device, message);
         if (message.payload && _.has(message.payload, 'online')) {
-            device = _.findWhere($rootScope.myDevices, {uuid: message.fromUuid});
-            if (device) {
-                device.online = message.payload.online;
-            }
+          device = _.findWhere($rootScope.myDevices, {
+            uuid: message.fromUuid
+          });
+          if (device) {
+            device.online = message.payload.online;
+          }
         }
 
       });
     };
 
-    lib.start = function () {
+    lib.ready = function(cb) {
+      var deferred = $q.defer();
 
-				if(lib.hasAuth()){
-            $rootScope.loading = true;
-
-            _skynetLoad();
-
-            return _skynetInit()
-              .then(function () {
-                var deferred = $q.defer();
-
-                $rootScope.setSettings();
-
-                lib.conn = lib.getCurrentSettings().conn;
-
-                if (lib.conn) {
-
-                  console.log('SKYNET LOADED');
-                  $(document).trigger('skynet-ready');
-                  loaded = true;
-
-                  _startListen();
-
-                  deferred.resolve();
-
-                }else{
-                  deferred.reject();
-                }
-
-                $timeout(function(){
-
-                  $rootScope.isAuthenticated();
-
-                  $rootScope.loading = false;
-
-                }, 0);
-
-
-                return deferred.promise;
-
-              }, function(){
-                  console.log('Rejected _skynetInit();');
-              });
-        }else{
-            $rootScope.loading = false;
-            $location.path('/login');
+      function done() {
+        if (typeof cb === 'function') {
+          cb(lib.conn);
         }
+        deferred.resolve(lib.conn);
+      }
+
+      $rootScope.setSettings();
+
+      if (loaded || $rootScope.isErrorPage() || $rootScope.matchRoute('/login')) {
+        done();
+      } else {
+        _skynetIsReady().then(done, function(err) {
+          $rootScope.redirectToError(err || 'Meshblu can\'t connect');
+          deferred.reject();
+        });
+      }
+      return deferred.promise;
+    };
+
+    lib.start = function() {
+
+      if (lib.hasAuth()) {
+        $rootScope.loading = true;
+
+        _skynetIsReady();
+
+        return _init();
+      } else {
+        $rootScope.loading = false;
+        $location.path('/login');
+      }
 
     };
 

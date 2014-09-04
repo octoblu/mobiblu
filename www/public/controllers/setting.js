@@ -1,13 +1,15 @@
 'use strict';
 
 angular.module('main.setting')
-    .controller('SettingCtrl', function ($rootScope, $scope, $q, Skynet, Plugins) {
+    .controller('SettingCtrl', function ($rootScope, $window, $scope, $location, $timeout, $q, Skynet, Plugins, Config) {
 
         // This will be populated with Restangula
         $scope.device = {
             settings : {},
             name : ''
         };
+
+        var envClicks = 0;
 
         var tokenmask = '*************************';
         $rootScope.loading = true;
@@ -19,6 +21,7 @@ angular.module('main.setting')
         }
 
         $scope.init = function () {
+            envClicks = 0;
             Skynet.ready().then(function () {
                 $scope.skynettoken_dummy = tokenmask;
                 $scope.mobiletoken_dummy = tokenmask;
@@ -66,7 +69,7 @@ angular.module('main.setting')
         $scope.clearPlugins = function () {
             if (confirm('Are you sure you want to clear the plugins?')) {
                 Plugins.clearStorage();
-                window.location = 'index.html';
+                $window.location = 'index.html';
             }
         };
 
@@ -83,6 +86,35 @@ angular.module('main.setting')
                 $scope.skynettoken_dummy = $scope.skynettoken;
             } else {
                 $scope.skynettoken_dummy = tokenmask;
+            }
+        };
+
+        $scope.enableStaging = function(){
+            envClicks++;
+
+            if(envClicks === 3){
+                envClicks = 0;
+
+                var next;
+                switch(Config.env){
+                    case 'production':
+                        next = 'staging';
+                        break;
+                    case 'staging':
+                        next = 'production';
+                        break;
+                    default:
+                        next = 'production';
+                        break;
+                }
+                var reload = Config.env !== next;
+
+                Config.setEnv(next);
+
+                if(reload){
+                    $window.location.reload();
+                }
+
             }
         };
 

@@ -32,6 +32,10 @@ input {
     text-align: left;
 }
 
+.green {
+    color: green;
+}
+
 .subtile {
     font-size: 11px;
     color: gray;

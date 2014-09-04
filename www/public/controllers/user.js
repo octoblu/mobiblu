@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.user')
-    .controller('UserCtrl', function ($rootScope, $scope, $location, $timeout, Auth, Config, Skynet) {
+    .controller('UserCtrl', function ($rootScope, $scope, $location, $window, $timeout, Auth, Config, Skynet) {
 
         $scope.signup = false;
 
@@ -62,7 +62,7 @@ angular.module('main.user')
 
                         console.log('Reloading app (in user.js)');
 
-                        window.location.reload(true);
+                        $window.location.reload(true);
                     });
                     $scope.$apply(function(){
                         $location.path('/');
