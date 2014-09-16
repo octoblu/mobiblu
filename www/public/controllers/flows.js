@@ -19,20 +19,6 @@ angular.module('main.flows')
                 });
         }
 
-        function onFlowMessage(data){
-            console.log('On Flow Message', JSON.stringify(data));
-            if(data.topic === 'pulse'){
-                var index = _.findIndex($scope.flow.nodes, { uuid : data.payload.node });
-
-                $scope.$apply(function(){
-                    $scope.flow.nodes[index].pulsing = true;
-                });
-                $timeout(function(){
-                    $scope.flow.nodes[index].pulsing = false;
-                }, 10);
-            }
-        }
-
         $scope.init = function () {
             $rootScope.loading = true;
             getFlows();
@@ -50,7 +36,9 @@ angular.module('main.flows')
                     html: 'Flow button "' + $scope.flow.name + '" Triggered'
                 });
 
-                $scope.flow.nodes[index].sending = false;
+                $timeout(function(){
+                    $scope.flow.nodes[index].sending = false;
+                }, 10);
             }
 
             $scope.loading = true;
@@ -105,11 +93,6 @@ angular.module('main.flows')
                 $scope.flow = _.findWhere($scope.flows, { flowId : $routeParams.flowId });
 
                 $scope.flow.nodes = _.filter($scope.flow.nodes, { type : 'button' });
-
-                Skynet.conn.subscribe({
-                    uuid : $scope.flow.flowId,
-                    token : $scope.flow.token
-                }, onFlowMessage);
 
             });
         };
