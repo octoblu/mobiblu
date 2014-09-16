@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('main.home')
-    .controller('HomeCtrl', function ($rootScope, $scope, $location, Auth, Plugins) {
+    .controller('HomeCtrl', function ($rootScope, $scope, $location, Auth, Plugins, Subdevices) {
 
         $scope.init = function () {
             Plugins.ready().then(function () {
-                $scope.subdevices = Plugins.getSubdevices();
+                $scope.subdevices = Subdevices.retrieve();
             });
         };
 

@@ -137,6 +137,9 @@ angular.module('main.skynet')
       } else {
         $rootScope.loading = false;
         $location.path('/login');
+        var deferred = $q.defer();
+        deferred.reject();
+        return deferred.promise;
       }
 
     };

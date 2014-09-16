@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.plugins')
-    .controller('PluginCtrl', function ($rootScope, $scope, $routeParams, $timeout, $location, OctobluRest, Plugins, Skynet) {
+    .controller('PluginCtrl', function ($rootScope, $scope, $routeParams, $timeout, $location, OctobluRest, Subdevices, Plugins, PluginInstances) {
 
         $scope.init = function () {
             $rootScope.loading = false;
@@ -26,18 +26,13 @@ angular.module('main.plugins')
         $scope.results = [];
         $scope.allResults = [];
 
-        var handleSearchResults = function (data) {
-            if(!data){
-                data  = [];
-            }
-            $timeout(function () {
+        var handleSearchResults = function (res) {
 
-                $scope.results = $scope.results.concat(data || []);
+            $scope.results = $scope.results.concat(res.data || []);
 
-                $scope.allResults = $scope.results;
+            $scope.allResults = $scope.results;
 
-                $rootScope.loading = false;
-            }, 0);
+            $rootScope.loading = false;
         };
 
         $scope.search = function () {
@@ -67,7 +62,6 @@ angular.module('main.plugins')
             plugin.enabled = true;
 
             Plugins.download(plugin)
-                .timeout(15 * 1000)
                 .then(function (plugin) {
                     $rootScope.loading = false;
                     $scope.plugin = plugin;
@@ -76,10 +70,8 @@ angular.module('main.plugins')
 
                 }, function (err) {
                     console.log('Error ' +  JSON.stringify(err));
-                    $scope.$apply(function () {
-                        $rootScope.loading = false;
-                        $rootScope.redirectToCustomError('Unable to install that plugin. Missing required bundle.js file or a JavaScript error occurred.');
-                    });
+                    $rootScope.loading = false;
+                    $rootScope.redirectToCustomError('Unable to install that plugin. Missing required bundle.js file or a JavaScript error occurred.');
                 });
 
         };
@@ -116,7 +108,7 @@ angular.module('main.plugins')
 
         $scope.getSubdevices = function () {
             Plugins.ready().then(function () {
-                $scope.subdevices = Plugins.getSubdevices();
+                $scope.subdevices = Subdevices.retrieve();
                 console.log('Subdevices :: ' + JSON.stringify($scope.subdevices));
             });
         };
@@ -157,7 +149,7 @@ angular.module('main.plugins')
         };
 
         $scope.getSubdevicesName = function (name) {
-            if (!$scope.subdevices) $scope.subdevices = Plugins.getSubdevices();
+            if (!$scope.subdevices) $scope.subdevices = Subdevices.retrieve();
             var number = 2;
             var found = false;
             for (var x in $scope.subdevices) {
@@ -203,7 +195,7 @@ angular.module('main.plugins')
 
             _.remove($scope.plugin.subdevices, { uuid : $scope.subdevice.uuid });
 
-            Plugins.triggerDeviceEvent(
+            PluginInstances.triggerDeviceEvent(
                 $scope.subdevice,
                 'destroy'
             ).then(function (err, data) {
