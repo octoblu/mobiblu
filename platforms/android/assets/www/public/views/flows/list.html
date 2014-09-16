@@ -1,0 +1,17 @@
+<div ng-controller="FlowCtrl" ng-init="init()">
+
+    <p class="content-padded">Trigger flows with a click of a button.</p>
+
+    <ul class="table-view">
+        <li class="table-view-cell navigate-right"
+            ng-repeat="flow in flows track by $index"
+            ng-show="flow.name"
+            ng-click="goToFlow(flow.flowId)">
+            {{ flow.name }}
+        </li>
+    </ul>
+
+    <div class="content-padded" ng-if="!flows || flows.length === 0">There are no available flows</div>
+
+</div>
+

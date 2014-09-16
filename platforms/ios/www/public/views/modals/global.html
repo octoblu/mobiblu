@@ -1,0 +1,10 @@
+<div id="globalModal" class="modal">
+    <header class="bar bar-nav">
+        <span class="icon icon-close pull-right" ng-click="closeModal()"></span>
+        <h1 class="title">{{ globalModal.title }}</h1>
+    </header>
+
+    <div class="content">
+        <p class="content-padded" ng-bind-html="globalModal.msg"></p>
+    </div>
+</div>

@@ -1,0 +1,114 @@
+html, body {
+    height: 100%;
+}
+
+.page-title {
+    background-color: white;
+    padding: 10px;
+    margin: 0;
+}
+
+.no-sub-header {
+    margin-top: -20px;
+}
+
+input {
+    background-color: white;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.green {
+    color: green;
+}
+
+.subtile {
+    font-size: 11px;
+    color: gray;
+}
+
+#loading-screen {
+    background-color: rgba(255,255,255, 0.9);
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0; bottom: 0; right: 0;
+    z-index: 9;
+}
+
+#loading {
+    padding-top: 50%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#loading .fa-spin {
+    margin: auto;
+    vertical-align: middle;
+}
+
+.content {
+    padding-bottom: 50px;
+}
+
+.error-block {
+    color: red !important;
+}
+
+#sensor-activity {
+    font-size: 14px;
+}
+
+.smoothie-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.smoothie-grapher {
+    display: block;
+    width: 100%;
+    height: 120px;
+}
+
+.compass {
+    font-size: 10em;
+}
+
+.compass-text {
+    font-size: 5em;
+    margin: 0 auto;
+    margin-top: 50px;
+    clear: both;
+    text-align: center;
+}
+
+.compass-wrap {
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0; bottom: 0; right: 0;
+    z-index: 9;
+}
+
+.compass-box {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.mostly-table-cell {
+    width: 90%;
+    word-wrap: break-word;
+}

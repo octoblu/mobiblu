@@ -1,0 +1,15 @@
+
+    <div ng-controller="SensorCtrl" ng-init="initList()">
+
+        <ul class="table-view">
+            <li class="table-view-cell media" ng-repeat="sensor in sensorTypes">
+                <a href="index.html#!/sensors/{{ sensor.type }}" class="navigate-right">
+                    <span class="media-object pull-left icon {{ sensor.icon }}"></span>
+                    <div class="media-body">
+                        {{ sensor.label }}
+                    </div>
+                </a>
+            </li>
+        </ul>
+
+    </div>

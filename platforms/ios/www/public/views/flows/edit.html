@@ -1,0 +1,14 @@
+<div ng-controller="FlowCtrl" ng-init="findOne()">
+
+    <p class="content-padded">Choose a button to press.</p>
+
+    <ul class="table-view">
+        <li class="table-view-cell"
+            ng-repeat="node in flow.nodes track by $index"
+            ng-click="triggerButton(node)">
+            {{ node.name }}
+        </li>
+    </ul>
+
+</div>
+

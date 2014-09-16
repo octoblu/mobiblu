@@ -1,0 +1,428 @@
+[{
+  "_id": "5400b3166c2c6cc5d062366a",
+  "flowId": "d16a4b60-2f9e-11e4-8e24-172bf88e394b",
+  "name": "Flow 2",
+  "zoomScale": 1,
+  "zoomX": 0.666717529296875,
+  "zoomY": -72.33335876464844,
+  "resource": {
+    "nodeType": "flow",
+    "owner": {
+      "uuid": "70eda910-2efb-11e4-a317-69c14c2549d3",
+      "nodeType": "user"
+    }
+  },
+  "links": [{
+    "from": "d54b0800-2f9e-11e4-8e24-172bf88e394b",
+    "fromPort": 0,
+    "to": "d8671510-2f9e-11e4-8e24-172bf88e394b",
+    "toPort": 0
+  }],
+  "nodes": [{
+    "id": "d54b0800-2f9e-11e4-8e24-172bf88e394b",
+    "resourceType": "flow-node",
+    "payloadType": "date",
+    "once": false,
+    "name": "button",
+    "class": "button",
+    "category": "operation",
+    "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+    "logo": "/assets/images/designer/button.svg",
+    "type": "button",
+    "defaults": {
+      "payloadType": "date",
+      "once": false
+    },
+    "input": 0,
+    "output": 1,
+    "formTemplatePath": "/assets/node_forms/button_form.html",
+    "inputLocations": [],
+    "outputLocations": [30],
+    "x": 811.8773193359375,
+    "y": 408.42425537109375,
+    "debug": true
+  }, {
+    "id": "d8671510-2f9e-11e4-8e24-172bf88e394b",
+    "resourceType": "flow-node",
+    "active": true,
+    "debug": true,
+    "complete": false,
+    "name": "debug",
+    "class": "debug",
+    "category": "operation",
+    "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+    "logo": "/assets/images/designer/debug.svg",
+    "type": "debug",
+    "defaults": {
+      "active": true,
+      "debug": true,
+      "complete": false
+    },
+    "color": "#87a980",
+    "input": 1,
+    "output": 0,
+    "align": "right",
+    "inputLocations": [30],
+    "outputLocations": [],
+    "x": 774.6666259765625,
+    "y": 252.66668701171875
+  }]
+}, {
+  "_id": "5407a95b6c2c6cc5d062366b",
+  "flowId": "2215b7a0-33c5-11e4-90ca-1bb650e9c9aa",
+  "name": "Test Flow",
+  "zoomScale": 1.8000038595870256,
+  "zoomX": -1113.7559469817488,
+  "zoomY": -1149.180171734282,
+  "resource": {
+    "nodeType": "flow",
+    "owner": {
+      "uuid": "70eda910-2efb-11e4-a317-69c14c2549d3",
+      "nodeType": "user"
+    }
+  },
+  "links": [{
+    "from": "2671e5d0-33c5-11e4-90ca-1bb650e9c9aa",
+    "fromPort": 0,
+    "to": "2a7ac3e0-33c5-11e4-90ca-1bb650e9c9aa",
+    "toPort": 0
+  }],
+  "nodes": [{
+    "id": "2671e5d0-33c5-11e4-90ca-1bb650e9c9aa",
+    "resourceType": "flow-node",
+    "payloadType": "date",
+    "once": false,
+    "name": "button",
+    "class": "button",
+    "category": "operation",
+    "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+    "logo": "/assets/images/designer/button.svg",
+    "type": "button",
+    "defaults": {
+      "payloadType": "date",
+      "once": false
+    },
+    "input": 0,
+    "output": 1,
+    "formTemplatePath": "/assets/node_forms/button_form.html",
+    "inputLocations": [],
+    "outputLocations": [30],
+    "x": 769.0908813476562,
+    "y": 289.0909118652344
+  }, {
+    "id": "2a7ac3e0-33c5-11e4-90ca-1bb650e9c9aa",
+    "resourceType": "flow-node",
+    "active": true,
+    "debug": true,
+    "complete": false,
+    "name": "debug",
+    "class": "debug",
+    "category": "operation",
+    "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+    "logo": "/assets/images/designer/debug.svg",
+    "type": "debug",
+    "defaults": {
+      "active": true,
+      "debug": true,
+      "complete": false
+    },
+    "color": "#87a980",
+    "input": 1,
+    "output": 0,
+    "align": "right",
+    "inputLocations": [30],
+    "outputLocations": [],
+    "x": 1034.0909423828125,
+    "y": 282.0909118652344
+  }]
+}, {
+  "_id": "53ffa9b7bb8c47a412d730a0",
+  "flowId": "a4cdbe50-2f00-11e4-ae43-d9589777a0c1",
+  "name": "Flow 1",
+  "zoomScale": 0.25013845331824613,
+  "zoomX": 22842.022521066487,
+  "zoomY": 7074.198082345829,
+  "resource": {
+    "nodeType": "flow",
+    "owner": {
+      "uuid": "70eda910-2efb-11e4-a317-69c14c2549d3",
+      "nodeType": "user"
+    }
+  },
+  "links": [{
+    "toPort": 0,
+    "to": "af2f5de0-2f00-11e4-ae43-d9589777a0c1",
+    "fromPort": 0,
+    "from": "aa30d530-2f00-11e4-ae43-d9589777a0c1"
+  }],
+  "nodes": [{
+    "y": 187.9310302734375,
+    "x": 593.603759765625,
+    "outputLocations": [30],
+    "inputLocations": [],
+    "once": false,
+    "payloadType": "date",
+    "category": "button",
+    "formTemplatePath": "/assets/node_forms/button_form.html",
+    "output": 1,
+    "input": 0,
+    "defaults": {
+      "once": false,
+      "payloadType": "date",
+      "category": "button"
+    },
+    "type": "button",
+    "logo": "/assets/images/designer/button.svg",
+    "class": "button",
+    "name": "button",
+    "id": "aa30d530-2f00-11e4-ae43-d9589777a0c1"
+  }, {
+    "y": 184.31874084472656,
+    "x": 882.5872802734375,
+    "outputLocations": [],
+    "inputLocations": [30],
+    "complete": false,
+    "debug": true,
+    "active": true,
+    "category": "debug",
+    "align": "right",
+    "output": 0,
+    "input": 1,
+    "color": "#87a980",
+    "defaults": {
+      "complete": false,
+      "debug": true,
+      "active": true,
+      "category": "debug"
+    },
+    "type": "debug",
+    "logo": "/assets/images/designer/debug.svg",
+    "class": "debug",
+    "name": "debug",
+    "id": "af2f5de0-2f00-11e4-ae43-d9589777a0c1"
+  }, {
+    "y": -142.2967486336589,
+    "x": 557.4745337824877,
+    "outputLocations": [30],
+    "inputLocations": [30],
+    "func": "\nreturn msg;",
+    "category": "function",
+    "formTemplatePath": "/assets/node_forms/function_form.html",
+    "output": 1,
+    "input": 1,
+    "defaults": {
+      "func": "\nreturn msg;",
+      "output": 1,
+      "category": "function"
+    },
+    "type": "function",
+    "logo": "/assets/images/designer/function.svg",
+    "class": "function",
+    "name": "function",
+    "id": "e3dd4640-2f0c-11e4-8270-b5b13443f26d"
+  }, {
+    "id": "563d3650-2f0d-11e4-9820-cf187e54bd66",
+    "name": "button",
+    "class": "button",
+    "logo": "/assets/images/designer/button.svg",
+    "type": "button",
+    "defaults": {
+      "category": "button",
+      "payloadType": "date",
+      "once": false
+    },
+    "input": 0,
+    "output": 1,
+    "formTemplatePath": "/assets/node_forms/button_form.html",
+    "category": "button",
+    "payloadType": "date",
+    "once": false,
+    "inputLocations": [],
+    "outputLocations": [30],
+    "x": 500.11790131940245,
+    "y": 141.7773591895677
+  }, {
+    "id": "5a9c4ab0-2f0d-11e4-9820-cf187e54bd66",
+    "name": "interval",
+    "class": "interval",
+    "logo": "/assets/images/designer/interval.svg",
+    "type": "interval",
+    "defaults": {
+      "category": "interval",
+      "payloadType": "date",
+      "repeat": "1",
+      "once": false
+    },
+    "input": 0,
+    "output": 1,
+    "formTemplatePath": "/assets/node_forms/interval_form.html",
+    "category": "interval",
+    "payloadType": "date",
+    "repeat": "1",
+    "once": false,
+    "inputLocations": [],
+    "outputLocations": [30],
+    "x": 261.14075103893094,
+    "y": -17.91678941202133
+  }, {
+    "id": "5f7ff860-2f0d-11e4-9820-cf187e54bd66",
+    "name": "button",
+    "class": "button",
+    "logo": "/assets/images/designer/button.svg",
+    "type": "button",
+    "defaults": {
+      "category": "button",
+      "payloadType": "date",
+      "once": false
+    },
+    "input": 0,
+    "output": 1,
+    "formTemplatePath": "/assets/node_forms/button_form.html",
+    "category": "button",
+    "payloadType": "date",
+    "once": false,
+    "inputLocations": [],
+    "outputLocations": [30],
+    "x": -554.6535259142718,
+    "y": 175.38765176216202
+  }, {
+    "id": "607c0ba0-2f0d-11e4-9820-cf187e54bd66",
+    "name": "schedule",
+    "class": "schedule",
+    "logo": "/assets/images/designer/schedule.svg",
+    "type": "schedule",
+    "defaults": {
+      "category": "schedule",
+      "payloadType": "date",
+      "crontab": "* * * * *",
+      "once": false
+    },
+    "input": 0,
+    "output": 1,
+    "formTemplatePath": "/assets/node_forms/schedule_form.html",
+    "category": "schedule",
+    "payloadType": "date",
+    "crontab": "* * * * *",
+    "once": false,
+    "inputLocations": [],
+    "outputLocations": [30],
+    "x": -2081.1562321293213,
+    "y": -271.71254016617206
+  }, {
+    "id": "610056d0-2f0d-11e4-9820-cf187e54bd66",
+    "name": "http request",
+    "class": "http-request",
+    "logo": "/assets/images/designer/http.svg",
+    "type": "http request",
+    "defaults": {
+      "category": "http request",
+      "method": "GET"
+    },
+    "input": 1,
+    "output": 1,
+    "align": "right",
+    "formTemplatePath": "/assets/node_forms/http_request_form.html",
+    "category": "http request",
+    "method": "GET",
+    "inputLocations": [30],
+    "outputLocations": [30],
+    "x": -4937.526493495521,
+    "y": -1108.3200921054229
+  }, {
+    "id": "61d88e60-2f0d-11e4-9820-cf187e54bd66",
+    "name": "switch",
+    "class": "switch",
+    "logo": "/assets/images/designer/switch.svg",
+    "type": "switch",
+    "defaults": {
+      "category": "switch",
+      "property": "payload",
+      "required": true,
+      "rules": [{
+        "t": "eq",
+        "v": ""
+      }],
+      "checkall": "true",
+      "output": 1
+    },
+    "input": 1,
+    "output": 1,
+    "formTemplatePath": "/assets/node_forms/switch_form.html",
+    "category": "switch",
+    "property": "payload",
+    "required": true,
+    "rules": [{
+      "t": "eq",
+      "v": ""
+    }],
+    "checkall": "true",
+    "inputLocations": [30],
+    "outputLocations": [30],
+    "x": -10282.326104265303,
+    "y": -2673.768303932573
+  }, {
+    "id": "6552c100-2f0d-11e4-9820-cf187e54bd66",
+    "name": "comment",
+    "class": "comment",
+    "logo": "/assets/images/designer/comment.svg",
+    "type": "comment",
+    "defaults": {
+      "category": "comment"
+    },
+    "input": 0,
+    "output": 0,
+    "formTemplatePath": "/assets/node_forms/comment_form.html",
+    "category": "comment",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": -20283.439498304524,
+    "y": -5603.0128442577015
+  }, {
+    "y": -26072.35311417075,
+    "x": -87479.64269702439,
+    "outputLocations": [30],
+    "inputLocations": [],
+    "formTemplatePath": "/assets/node_forms/button_form.html",
+    "output": 1,
+    "input": 0,
+    "defaults": {
+      "once": false,
+      "payloadType": "date"
+    },
+    "type": "button",
+    "logo": "/assets/images/designer/button.svg",
+    "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+    "category": "operation",
+    "class": "button",
+    "name": "button",
+    "once": false,
+    "payloadType": "date",
+    "resourceType": "flow-node",
+    "id": "847da5e0-33bd-11e4-89bd-9b33ed92d2c3"
+  }, {
+    "y": -26072.35311417075,
+    "x": -87479.64269702439,
+    "outputLocations": [],
+    "inputLocations": [30],
+    "align": "right",
+    "output": 0,
+    "input": 1,
+    "color": "#87a980",
+    "defaults": {
+      "complete": false,
+      "debug": true,
+      "active": true
+    },
+    "type": "debug",
+    "logo": "/assets/images/designer/debug.svg",
+    "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+    "category": "operation",
+    "class": "debug",
+    "name": "debug",
+    "complete": false,
+    "debug": true,
+    "active": true,
+    "resourceType": "flow-node",
+    "id": "8fcc6490-33bd-11e4-89bd-9b33ed92d2c3"
+  }]
+}]

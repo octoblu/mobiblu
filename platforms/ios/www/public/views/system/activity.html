@@ -1,0 +1,27 @@
+<div style="clear: both;">
+
+  <div ng-controller="ActivityCtrl" ng-init="init()">
+
+    <p class="content-padded">Activity</p>
+
+    <div class="content-padded" id="sensor-activity">
+
+        <div ng-repeat="activity in activities track by $index" ng-class="{'error-block' : activity.error}">
+            <strong>Type:</strong><span> {{ activity.type }}</span>
+            <div ng-show="activity.error" class="text-error">
+                <span ng-show="activity.error.code"><strong>Error Code:</strong> {{ activity.error.code }}</span>
+                <span ng-show="activity.error.message"><strong>Error Message:</strong> {{ activity.error.message }}</span>
+                <span ng-show="!activity.error.message && !activity.error.code"><strong>Error:</strong> {{ activity.error }}</span>
+            </div>
+            <div ng-show="!activity.error" ng-bind-html="activity.html">
+                {{ activity.html }}
+            </div>
+            <strong ng-show="activity.date">
+                {{ activity.date | date: 'medium' }}
+            </strong>
+            <hr>
+        </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,24 @@
+<div ng-controller="PluginCtrl" ng-init="initSearch()">
+
+    <form class="input-group">
+        <input ng-change="search()" ng-model="term" type="search" placeholder="Search Plugins">
+        <button class="btn btn-block" ng-click="search()">
+            Search
+            <span class="icon icon-search"></span>
+        </button>
+    </form>
+
+    <div ng-hide="loading">
+        <ul class="table-view" ng-show="results && results.length">
+            <li ng-repeat="plugin in results track by $index" class="table-view-cell">
+                <div class="mostly-table-cell">{{ plugin.name }}</div>
+                <button class="btn" ng-click="installPlugin(plugin)">
+                    <span>Add Device</span>
+                </button>
+            </li>
+        </ul>
+        <div class="content-padding" ng-show="!results || !results.length">No Results</div>
+    </div>
+
+
+</div>

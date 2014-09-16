@@ -104,6 +104,7 @@ var bg = {
                 desiredAccuracy: 100,
                 stationaryRadius: 100,
                 distanceFilter: 30,
+                activityType : 'OtherNavigation',
                 debug: false // <-- Enable for Debug Sounds on Android
             });
 

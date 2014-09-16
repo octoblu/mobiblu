@@ -1,0 +1,33 @@
+{
+	"name": "asynquence",
+	"version": "0.5.2-g",
+	"description": "asynquence: promise-style async sequence flow-control",
+	"main": "./asq.js",
+	"scripts": {
+		"test": "./node-tests.js",
+		"build-core": "./build-core.js"
+	},
+	"devDependencies": {
+		"uglify-js": "~2.4.8",
+		"native-promise-only": "latest"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/getify/asynquence.git"
+	},
+	"keywords": [
+		"async",
+		"flow-control",
+		"sequences",
+		"promise",
+		"iterator",
+		"generator"
+	],
+	"bugs": {
+		"url": "https://github.com/getify/asynquence/issues",
+		"email": "getify@gmail.com"
+	},
+	"homepage": "http://github.com/getify/asynquence",
+	"author": "Kyle Simpson <getify@gmail.com>",
+	"license": "MIT"
+}

@@ -1,0 +1,17 @@
+<div ng-controller="PluginCtrl" ng-init="installed()">
+
+    <p class="content-padded">Installed plugins.</p>
+
+    <div class="card">
+        <ul class="table-view">
+            <li class="table-view-cell" ng-repeat="plugin in plugins track by $index">
+                <a ng-href="index.html#!/plugins/{{ plugin.name }}" class="navigate-right">
+                        <span>
+                            {{ plugin.name }}
+                        </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>

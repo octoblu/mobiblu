@@ -1,0 +1,36 @@
+{
+	"name": "asynquence-contrib",
+	"version": "0.3.0-c",
+	"description": "contrib plugins for asynquence",
+	"main": "./contrib.js",
+	"scripts": {
+		"test": "./node-tests.js",
+		"bundle": "./bundle.js"
+	},
+	"peerDependencies": {
+		"asynquence": "*"
+	},
+	"devDependencies": {
+		"uglify-js": "~2.4.8",
+		"native-promise-only": "latest"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/getify/asynquence.git"
+	},
+	"keywords": [
+		"async",
+		"flow-control",
+		"sequences",
+		"promise",
+		"iterator",
+		"generator"
+	],
+	"bugs": {
+		"url": "https://github.com/getify/asynquence/issues",
+		"email": "getify@gmail.com"
+	},
+	"homepage": "https://github.com/getify/asynquence/blob/master/contrib",
+	"author": "Kyle Simpson <getify@gmail.com>",
+	"license": "MIT"
+}

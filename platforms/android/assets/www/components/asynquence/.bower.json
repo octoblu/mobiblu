@@ -1,0 +1,15 @@
+{
+  "name": "asynquence",
+  "homepage": "https://github.com/getify/asynquence",
+  "version": "0.5.2-g",
+  "_release": "0.5.2-g",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.5.2-g",
+    "commit": "d5b9c324f28c8ecedc26e7e7c552741a37071bdd"
+  },
+  "_source": "https://github.com/getify/asynquence.git",
+  "_target": "0.5.2-g",
+  "_originalSource": "https://github.com/getify/asynquence.git",
+  "_direct": true
+}

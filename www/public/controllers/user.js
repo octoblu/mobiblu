@@ -11,9 +11,15 @@ angular.module('main.user')
             $scope.error = '';
         };
 
-        $scope.loginViaProvider = function (provider) {
+        $scope.loginViaProvider = function (provider, old) {
             $rootScope.loading = true;
-            var url = Config.OCTOBLU_URL + '/' + provider + '?js=1&mobile=true&referrer=' + encodeURIComponent(Config.LOCAL_URL + '/login');
+            var url = Config.OCTOBLU_URL;
+            if(old){
+                url += '/auth/' + provider;
+            }else{
+                url += '/api/oauth/' + provider;
+            }
+            url += '?mobile=true&referrer=' + encodeURIComponent(Config.LOCAL_URL + '/login');
             var authWindow = window.open(url, '_blank', 'location=no,toolbar=no');
 
             $(authWindow).on('loadstart', function (e) {

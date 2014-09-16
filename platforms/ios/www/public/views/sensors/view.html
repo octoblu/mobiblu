@@ -1,0 +1,40 @@
+<div ng-controller="SensorCtrl" ng-init="init()">
+
+    <div ng-hide="loading">
+
+        <h3 class="page-title content-padded"><span class="pull-left icon {{ sensor.icon }}"></span>{{ sensor.label }}
+        </h3>
+
+        <form class="input-group">
+            <label>Enable streaming while open</label>
+
+            <div class="input-row">
+
+                <toggle-switch model="setting" change="toggleSwitch"></toggle-switch>
+
+            </div>
+            <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
+            <div id="sensorData"></div>
+        </form>
+        <button class="btn btn-block" ng-click="openGraphModal()" ng-show="sensor.graph">View {{ sensor.label }} Graph</button>
+        <button class="btn btn-block" ng-click="clearSensorGraph()">Clear Previous</button>
+        <div id="graphModal" class="modal">
+            <header class="bar bar-nav">
+                <span class="icon icon-close pull-right" ng-click="closeGraphModal()"></span>
+                <h1 class="title">{{ sensor.label }}</h1>
+            </header>
+
+            <div class="content">
+                <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
+                <div ng-if="sensor.graph === 'map'">
+                    <leaflet defaults="sensor.defaults" center="sensor.center" paths="sensor.paths" height="100%" width="100%" ></leaflet>
+                </div>
+                <div ng-if="sensor.graph === 'compass'">
+                    <compass heading="sensor.heading"></compass>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

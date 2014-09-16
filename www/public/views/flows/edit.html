@@ -5,8 +5,9 @@
     <ul class="table-view">
         <li class="table-view-cell"
             ng-repeat="node in flow.nodes track by $index"
-            ng-click="triggerButton(node)">
-            {{ node.name }}
+            ng-click="triggerButton(node)"
+            ng-class="{ 'pulse-on' : node.pulsing, 'pulse-off' : !node.pulsing }">
+            <span>{{ node.name }}</span>
         </li>
     </ul>
 

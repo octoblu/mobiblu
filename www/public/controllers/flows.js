@@ -6,7 +6,7 @@ angular.module('main.flows')
         var wait = false;
 
         function getFlows(){
-            return Flows.testGetFlows()
+            return Flows.getFlows()
                 .then(function(res){
                     var deferred = $q.defer();
                     var flows = res.data;
@@ -19,24 +19,45 @@ angular.module('main.flows')
                 });
         }
 
+        function onFlowMessage(data){
+            console.log('On Flow Message', JSON.stringify(data));
+            if(data.topic === 'pulse'){
+                var index = _.findIndex($scope.flow.nodes, { uuid : data.payload.node });
+
+                $scope.$apply(function(){
+                    $scope.flow.nodes[index].pulsing = true;
+                });
+                $timeout(function(){
+                    $scope.flow.nodes[index].pulsing = false;
+                }, 10);
+            }
+        }
+
         $scope.init = function () {
             $rootScope.loading = true;
             getFlows();
         };
 
-        function markSent() {
-            $scope.loading = false;
-
-            Skynet.logActivity({
-                type: 'flows',
-                html: 'Flow button "' + $scope.flow.name + '" Triggered'
-            });
-        }
 
         $scope.triggerButton = function (button) {
+            var index = _.findIndex($scope.flow.nodes, { id : button.id });
+
+            function markSent() {
+                $scope.loading = false;
+
+                Skynet.logActivity({
+                    type: 'flows',
+                    html: 'Flow button "' + $scope.flow.name + '" Triggered'
+                });
+
+                $scope.flow.nodes[index].sending = false;
+            }
+
             $scope.loading = true;
 
             var start = new Date().getTime();
+
+            $scope.flow.nodes[index].sending = true;
 
             if (!wait) {
                 markSent();
@@ -85,11 +106,11 @@ angular.module('main.flows')
 
                 $scope.flow.nodes = _.filter($scope.flow.nodes, { type : 'button' });
 
-                /*
-                Skynet.conn.on('message', function(){
+                Skynet.conn.subscribe({
+                    uuid : $scope.flow.flowId,
+                    token : $scope.flow.token
+                }, onFlowMessage);
 
-                });
-                */
             });
         };
 
