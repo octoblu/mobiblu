@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.plugins')
-    .controller('PluginCtrl', function ($rootScope, $scope, $routeParams, $timeout, $location, OctobluRest, Subdevices, Plugins, PluginInstances) {
+    .controller('PluginCtrl', function ($rootScope, $scope, $routeParams, $timeout, $location, OctobluRest, Utils, Subdevices, Plugins, PluginInstances) {
 
         $scope.init = function () {
             $rootScope.loading = false;
@@ -173,7 +173,7 @@ angular.module('main.plugins')
         };
 
         $scope.addSubdevice = function (select) {
-            var uuid = utils.createID();
+            var uuid = Utils.createID();
             var subdevice = {
                 uuid: uuid,
                 name: $scope.getSubdevicesName($scope.plugin.name),
@@ -198,7 +198,7 @@ angular.module('main.plugins')
             PluginInstances.triggerDeviceEvent(
                 $scope.subdevice,
                 'destroy'
-            ).then(function (err, data) {
+            ).then(function (err) {
                     if (err) console.log('Error deleting device', err);
                     $scope.subdevice = null;
                     $scope.writePlugin();

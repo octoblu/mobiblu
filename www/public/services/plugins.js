@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.plugins')
-  .service('Plugins', function($window, $rootScope, $http, PluginInstances, Skynet, Subdevices, $q) {
+  .service('Plugins', function($window, $rootScope, $http, PluginInstances, Utils, Skynet, Subdevices, $q) {
 
     var service = {},
       plugins = [];
@@ -45,7 +45,7 @@ angular.module('main.plugins')
         var subdevices = plugin.subdevices || [];
 
         subdevices = _.map(subdevices, function(subdevice) {
-          if (!subdevice.uuid) subdevice.uuid = $window.utils.createID();
+          if (!subdevice.uuid) subdevice.uuid = Utils.createID();
           return subdevice;
         });
 

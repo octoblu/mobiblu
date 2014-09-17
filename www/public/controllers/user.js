@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.user')
-    .controller('UserCtrl', function ($rootScope, $scope, $location, $window, $timeout, Auth, Config, Skynet) {
+    .controller('UserCtrl', function ($rootScope, $scope, $location, $window, $timeout, Utils, Auth, Config, Skynet) {
 
         $scope.signup = false;
 
@@ -30,8 +30,8 @@ angular.module('main.user')
 
                 if (uuid) {
                     authWindow.close();
-                    var newskynetuuid = utils.getParam('uuid', url),
-                        newskynettoken = utils.getParam('token', url),
+                    var newskynetuuid = Utils.getParam('uuid', url),
+                        newskynettoken = Utils.getParam('token', url),
                         skynetuuid = window.localStorage.getItem('skynetuuid'),
                         skynettoken = window.localStorage.getItem('skynettoken');
 
