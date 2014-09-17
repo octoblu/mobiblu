@@ -126,3 +126,11 @@ input {
    -o-transform:scale(1.1);
    transform:scale(1.1);
 }
+
+.modal-fix {
+    padding-top: 0;
+}
+
+.modal-fix-content {
+    padding-top: 22px;
+}

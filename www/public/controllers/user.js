@@ -11,6 +11,19 @@ angular.module('main.user')
             $scope.error = '';
         };
 
+        function redirectAndReload(){
+            $rootScope.$on('$locationChangeSuccess', function () {
+                $rootScope.loading = false;
+
+                console.log('Reloading app (in user.js)');
+
+                $window.location.reload(true);
+            });
+            $timeout(function(){
+                $location.path('/');
+            }, 0);
+        }
+
         $scope.loginViaProvider = function (provider, old) {
             $rootScope.loading = true;
             var url = Config.OCTOBLU_URL;
@@ -29,7 +42,6 @@ angular.module('main.user')
                 console.log('Auth window loading url : ', url);
 
                 if (uuid) {
-                    authWindow.close();
                     var newskynetuuid = Utils.getParam('uuid', url),
                         newskynettoken = Utils.getParam('token', url),
                         skynetuuid = window.localStorage.getItem('skynetuuid'),
@@ -63,16 +75,9 @@ angular.module('main.user')
                         return;
                     }
 
-                    $rootScope.$on('$locationChangeSuccess', function () {
-                        $rootScope.loading = false;
+                    redirectAndReload();
 
-                        console.log('Reloading app (in user.js)');
-
-                        $window.location.reload(true);
-                    });
-                    $scope.$apply(function(){
-                        $location.path('/');
-                    });
+                    authWindow.close();
                 }
 
             });
@@ -81,12 +86,7 @@ angular.module('main.user')
         $scope.loginMethod = function () {
             $rootScope.loading = true;
             Auth.login($scope.user.email, $scope.user.password)
-                .then(function () {
-                    console.log('Logged In');
-
-                    window.location.reload(true);
-
-                }, function (err) {
+                .then(redirectAndReload, function (err) {
                     console.log('Error', err);
                     $timeout(function () {
                         $scope.error = 'Error logging in!';
@@ -120,13 +120,7 @@ angular.module('main.user')
             $scope.loading = true;
 
             Auth.signup($scope.user.email, $scope.user.password)
-                .then(function () {
-                    console.log('Signed up');
-                    $scope.error = '';
-
-                    window.location.reload(true);
-
-                }, function (err) {
+                .then(redirectAndReload, function (err) {
                     console.log('Error', err);
                     $scope.error = 'Error logging in!';
                 });

@@ -99,7 +99,7 @@ angular.module('main.messages')
 
             for (var i in device.plugins) {
                 var plugin = device.plugins[i];
-                if (plugin.name === subdevice.type && plugin.messageSchema) {
+                if (subdevice && plugin.name === subdevice.type && plugin.messageSchema) {
                     $scope.schema = plugin.messageSchema;
                     $scope.schema.title = subdevice.name;
                 }
@@ -182,13 +182,10 @@ angular.module('main.messages')
                     'payload': message
                 }).then(function (data) {
 
-                    $scope.$apply(function(){
 
-                        $rootScope.globalModal.msg += '<br><br>' +
-                            '<strong>Received Data:</strong>' +
-                            '<br>' + JSON.stringify(data);
-
-                    });
+                    $rootScope.globalModal.msg += '<br><br>' +
+                        '<strong>Received Data:</strong>' +
+                        '<br>' + JSON.stringify(data);
 
 
                 }, $rootScope.redirectToError);

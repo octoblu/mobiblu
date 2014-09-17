@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.user')
-  .service('Auth', function($q, $http, $rootScope, Config) {
+  .service('Auth', function($q, $http, $window, $rootScope, Config) {
     var currentUser = {},
       baseUrl = Config.OCTOBLU_URL,
       service;
@@ -30,7 +30,7 @@ angular.module('main.user')
             .then(function(result) {
               var deferred = $q.defer();
               loginHandler(result);
-              deferred.resolve();
+              deferred.resolve(result.data);
               return deferred.promise;
             }, function(err) {
               var deferred = $q.defer();
@@ -56,6 +56,8 @@ angular.module('main.user')
 
       window.localStorage.setItem('loggedin', 'true');
 
+      $rootScope.loggedin = $window.loggedin = true;
+
       return currentUser;
     }
 
@@ -80,6 +82,8 @@ angular.module('main.user')
       window.localStorage.removeItem('loggedin');
       window.localStorage.removeItem('skynetuuid');
       window.localStorage.removeItem('skynettoken');
+
+      $rootScope.loggedin = $window.loggedin = false;
 
       $rootScope.setSettings();
     }

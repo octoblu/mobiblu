@@ -114,6 +114,9 @@ angular.module('main.sensors')
         $scope.openGraphModal = function(){
             $('#graphModal').addClass('active');
             $('#graphModal').height($('#content>.content').height());
+            setTimeout(function(){
+                $('#graphModal .bar').css('position', 'absolute');
+            }, 500);
         };
 
         $scope.clearSensorGraph = function() {

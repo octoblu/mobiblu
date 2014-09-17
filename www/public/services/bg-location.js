@@ -47,7 +47,6 @@ angular.module('main.skynet')
               GeoSensor.store(response);
 
               Activity.logActivity({
-                debug: true,
                 type: type,
                 html: 'Successfully updated ' + type
               });
@@ -85,7 +84,6 @@ angular.module('main.skynet')
           };
 
           Activity.logActivity({
-            debug: true,
             type: type,
             html: 'Started Background Location'
           });
@@ -129,7 +127,6 @@ angular.module('main.skynet')
 
         if (app.bgRunning) {
           Activity.logActivity({
-            debug: true,
             type: type,
             html: 'Stopped Background Location'
           });

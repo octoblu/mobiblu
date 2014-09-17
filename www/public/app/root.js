@@ -115,11 +115,16 @@ angular.module('main')
         // Modals
 
         $rootScope.alertModal = function (title, msg) {
-            $rootScope.globalModal = {};
-            $rootScope.globalModal.title = title;
-            $rootScope.globalModal.msg = msg;
+            $timeout(function(){
+                $rootScope.globalModal = {};
+                $rootScope.globalModal.title = title;
+                $rootScope.globalModal.msg = msg;
+            }, 0);
 
             $('#globalModal').addClass('active');
+            setTimeout(function(){
+                $('#globalModal .bar').css('position', 'absolute');
+            }, 200);
         };
 
         $rootScope.closeModal = function () {

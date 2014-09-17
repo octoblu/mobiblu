@@ -108,6 +108,10 @@ angular.module('main.system').controller('DeviceCtrl',
 
             $('#devicesModal').addClass('active');
 
+            setTimeout(function(){
+                $('#devicesModal .bar').css('position', 'absolute');
+            }, 200);
+
             $timeout(function () {
                 $rootScope.loading = false;
             }, 100);

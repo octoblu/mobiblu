@@ -161,9 +161,10 @@
   var maxCacheLength = 20;
   var cacheMapping   = sessionStorage;
   var domCache       = {};
+  // Change these to unquoted camelcase in the next major version bump
   var transitionMap  = {
-    slideIn  : 'slide-out',
-    slideOut : 'slide-in',
+    'slide-in'  : 'slide-out',
+    'slide-out' : 'slide-in',
     fade     : 'fade'
   };
 
@@ -181,7 +182,6 @@
     }
     cacheMapping[data.id] = JSON.stringify(data);
     window.history.replaceState(data.id, data.title, data.url);
-    domCache[data.id] = document.body.cloneNode(true);
   };
 
   var cachePush = function () {
@@ -199,7 +199,7 @@
       delete cacheMapping[cacheBackStack.shift()];
     }
 
-    window.history.pushState(null, '', cacheMapping[PUSH.id].url);
+    window.history.pushState(null, '', getCached(PUSH.id).url);
 
     cacheMapping.cacheForwardStack = JSON.stringify(cacheForwardStack);
     cacheMapping.cacheBackStack    = JSON.stringify(cacheBackStack);
@@ -330,7 +330,9 @@
     swapContent(
       (activeObj.contents || activeDom).cloneNode(true),
       document.querySelector('.content'),
-      transition
+      transition, function() {
+        triggerStateChange();
+      }
     );
 
     PUSH.id = id;
@@ -378,9 +380,11 @@
         url        : window.location.href,
         title      : document.title,
         timeout    : options.timeout,
-        transition : null
+        transition : options.transition
       });
     }
+
+    cacheCurrentContent();
 
     if (options.timeout) {
       options._timeout = setTimeout(function () {  xhr.abort('timeout'); }, options.timeout);
@@ -392,6 +396,10 @@
       cachePush();
     }
   };
+
+  function cacheCurrentContent() {
+    domCache[PUSH.id] = document.body.cloneNode(true);
+  }
 
 
   // Main XHR handlers
@@ -712,6 +720,7 @@
   var slideNumber;
   var isScrolling;
   var scrollableArea;
+  var startedMoving;
 
   var getSlider = function (target) {
     var i;
@@ -772,12 +781,17 @@
       return; // Exit if a pinch || no slider
     }
 
+    // adjust the starting position if we just started to avoid jumpage
+    if (!startedMoving) {
+      pageX += (e.touches[0].pageX - pageX) - 1;
+    }
+
     deltaX = e.touches[0].pageX - pageX;
     deltaY = e.touches[0].pageY - pageY;
     pageX  = e.touches[0].pageX;
     pageY  = e.touches[0].pageY;
 
-    if (typeof isScrolling === 'undefined') {
+    if (typeof isScrolling === 'undefined' && startedMoving) {
       isScrolling = Math.abs(deltaY) > Math.abs(deltaX);
     }
 
@@ -793,12 +807,18 @@
                  slideNumber === lastSlide && deltaX < 0 ? (Math.abs(pageX) / sliderWidth) + 1.25 : 1;
 
     slider.style.webkitTransform = 'translate3d(' + offsetX + 'px,0,0)';
+
+    // started moving
+    startedMoving = true;
   };
 
   var onTouchEnd = function (e) {
     if (!slider || isScrolling) {
       return;
     }
+
+    // we're done moving
+    startedMoving = false;
 
     setSlideNumber(
       (+new Date()) - startTime < 1000 && Math.abs(deltaX) > 15 ? (deltaX < 0 ? -1 : 1) : 0

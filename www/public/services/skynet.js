@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('Skynet', function($rootScope, $q, Auth, Push, BGLocation, SkynetRest, Sensors, Activity, $location) {
+  .service('Skynet', function($rootScope, $window, $q, Auth, Push, BGLocation, SkynetRest, Sensors, Activity, $location) {
 
     var service = {};
 
@@ -51,14 +51,14 @@ angular.module('main.skynet')
         service.skynetuuid = skynetuuid;
         service.skynettoken = skynettoken;
         // Logged In
-        service.loggedin = ls.getItem('loggedin');
+        $window.loggedin = ls.getItem('loggedin');
 
-        if (service.loggedin === 'true') {
-          service.loggedin = true;
-        } else if (service.loggedin === 'false') {
-          service.loggedin = false;
+        if ($window.loggedin === 'true') {
+          $window.loggedin = true;
+        } else if ($window.loggedin === 'false') {
+          $window.loggedin = false;
         } else {
-          service.loggedin = !!service.loggedin;
+          $window.loggedin = !!$window.loggedin;
         }
 
         //Push ID
@@ -96,29 +96,28 @@ angular.module('main.skynet')
     }
 
     function connect() {
-      return new Promise(function(resolve, reject){
-        console.log('Connecting to skynet...');
+      console.log('Connecting to skynet...');
+      var deferred = $q.defer();
+      function connected() {
+        console.log('Connected');
 
-        function connected() {
-          console.log('Connected');
+        deferred.resolve();
+      }
 
-          resolve();
+      function notConnected(e, conn) {
+        if (e) {
+          console.log('Error Connecting to Skynet: ' + e.toString());
         }
-
-        function notConnected(e, conn) {
-          if (e) {
-            console.log('Error Connecting to Skynet: ' + e.toString());
-          }
-          if (conn) {
-            service.registerDevice()
-              .done(resolve, reject);
-          } else {
-            reject(e);
-          }
+        if (conn) {
+          service.registerDevice()
+            .done(deferred.resolve, deferred.reject);
+        } else {
+          deferred.reject(e);
         }
-        service.skynet(connected, notConnected);
-      });
+      }
+      service.skynet(connected, notConnected);
 
+      return deferred.promise;
     }
 
     function doBackground() {
@@ -185,35 +184,7 @@ angular.module('main.skynet')
       return data;
     }
 
-    var _init = function() {
-      var deferred = $q.defer();
-      if ($rootScope.isErrorPage() && $rootScope.matchRoute('/login')) {
-        deferred.reject();
-      } else {
-        Auth.getCurrentUser()
-          .then(function(currentUser) {
-            var uuid, token;
-            if (currentUser && currentUser.skynet) {
-              uuid = currentUser.skynet.uuid;
-              token = currentUser.skynet.token;
-            }
-
-            service.init(uuid, token)
-              .then(function() {
-                console.log('_init successful');
-                $rootScope.clearAppTimeouts();
-                deferred.resolve();
-              }, function() {
-                console.log('Unable to connect to Meshblu');
-                $rootScope.redirectToError('Unable to connect to Meshblu');
-              });
-
-          }, deferred.reject);
-
-      }
-      return deferred.promise;
-    };
-    var _startListen = function() {
+    function _startListen() {
       service.conn.on('message', function(message) {
 
         $rootScope.$broadcast('skynet:message', message);
@@ -231,10 +202,10 @@ angular.module('main.skynet')
         }
 
       });
-    };
+    }
 
     service.isAuthenticated = function() {
-      return !!(service.loggedin && service.skynetuuid && service.skynettoken);
+      return !!($window.loggedin && service.skynetuuid && service.skynettoken);
     };
 
     service.hasAuth = function() {
@@ -530,12 +501,12 @@ angular.module('main.skynet')
 
     service.login = function(uuid, token) {
       setData(uuid, token);
-      window.loggedin = service.loggedin = true;
+      window.loggedin = $window.loggedin = true;
     };
 
     service.logout = function() {
 
-      window.loggedin = service.loggedin = false;
+      window.loggedin = $window.loggedin = false;
 
       ls.removeItem('loggedin');
       ls.removeItem('skynetuuid');
@@ -561,7 +532,7 @@ angular.module('main.skynet')
       if($rootScope.isErrorPage() && $rootScope.matchRoute('/login')){
         // Doesn't need Auth
         deferred.reject();
-      } else if(!service.hasAuth()){
+      } else if(!service.isAuthenticated()){
         // Doesn't have credentials
         $location.path('/login');
         deferred.reject();
@@ -569,21 +540,26 @@ angular.module('main.skynet')
         // Start Auth Flow
         return Auth.getCurrentUser()
                 .then(function(currentUser){
+                  console.log('Retrieved Current User');
                   var deferred = $q.defer();
                   if (currentUser && currentUser.skynet) {
                     setData(currentUser.skynet.uuid, currentUser.skynet.token);
                     deferred.resolve();
                   }else{
+                    console.log('Bad Current User');
                     deferred.reject();
                   }
                   return deferred.promise;
-                }, onError)
+                })
                 .then(function(){
-                  return new Promise(function(resolve){
-                    document.addEventListener('deviceready',resolve);
+                  var deferred = $q.defer();
+                  document.addEventListener('deviceready',function(){
+                    console.log('Device Ready');
+                    deferred.resolve();
                   });
-                }, onError)
-                .then(connect, onError)
+                  return deferred.promise;
+                })
+                .then(connect)
                 .then(function(){
                   postConnect();
 
@@ -641,7 +617,7 @@ angular.module('main.skynet')
       return {
         conn: service.conn,
         devicename: service.devicename,
-        loggedin: service.loggedin,
+        loggedin: $window.loggedin,
         mobileuuid: service.mobileuuid,
         mobiletoken: service.mobiletoken,
         skynetuuid: service.skynetuuid,

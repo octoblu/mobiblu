@@ -22,9 +22,10 @@
   var maxCacheLength = 20;
   var cacheMapping   = sessionStorage;
   var domCache       = {};
+  // Change these to unquoted camelcase in the next major version bump
   var transitionMap  = {
-    slideIn  : 'slide-out',
-    slideOut : 'slide-in',
+    'slide-in'  : 'slide-out',
+    'slide-out' : 'slide-in',
     fade     : 'fade'
   };
 
@@ -42,7 +43,6 @@
     }
     cacheMapping[data.id] = JSON.stringify(data);
     window.history.replaceState(data.id, data.title, data.url);
-    domCache[data.id] = document.body.cloneNode(true);
   };
 
   var cachePush = function () {
@@ -60,7 +60,7 @@
       delete cacheMapping[cacheBackStack.shift()];
     }
 
-    window.history.pushState(null, '', cacheMapping[PUSH.id].url);
+    window.history.pushState(null, '', getCached(PUSH.id).url);
 
     cacheMapping.cacheForwardStack = JSON.stringify(cacheForwardStack);
     cacheMapping.cacheBackStack    = JSON.stringify(cacheBackStack);
@@ -191,7 +191,9 @@
     swapContent(
       (activeObj.contents || activeDom).cloneNode(true),
       document.querySelector('.content'),
-      transition
+      transition, function() {
+        triggerStateChange();
+      }
     );
 
     PUSH.id = id;
@@ -239,9 +241,11 @@
         url        : window.location.href,
         title      : document.title,
         timeout    : options.timeout,
-        transition : null
+        transition : options.transition
       });
     }
+
+    cacheCurrentContent();
 
     if (options.timeout) {
       options._timeout = setTimeout(function () {  xhr.abort('timeout'); }, options.timeout);
@@ -253,6 +257,10 @@
       cachePush();
     }
   };
+
+  function cacheCurrentContent() {
+    domCache[PUSH.id] = document.body.cloneNode(true);
+  }
 
 
   // Main XHR handlers
