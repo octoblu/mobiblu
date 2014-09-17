@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.system').controller('ActivityCtrl',
-    function ($rootScope, $scope, $routeParams, Skynet) {
+    function ($rootScope, $scope, $routeParams, Skynet, Activity) {
 
         $scope.errors = [];
 
@@ -12,7 +12,7 @@ angular.module('main.system').controller('ActivityCtrl',
         var setActivity = function () {
             setTimeout(function () {
                 $scope.$apply(function () {
-                    $scope.activities = Skynet.getActivity($routeParams.pluginName, $scope.limit);
+                    $scope.activities = Activity.getActivity($routeParams.pluginName, $scope.limit);
                 });
             }, 0);
         };
@@ -24,8 +24,8 @@ angular.module('main.system').controller('ActivityCtrl',
                 $scope.limit = 10;
             }
             Skynet.ready(function () {
-                Skynet.clearActivityCount();
-                $scope.activities = Skynet.getActivity($routeParams.pluginName, $scope.limit);
+                Activity.clearActivityCount();
+                $scope.activities = Activity.getActivity($routeParams.pluginName, $scope.limit);
                 $(document).on('skynetactivity', function () {
                     setActivity();
                 });

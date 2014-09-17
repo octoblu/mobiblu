@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('main.plugins')
-  .service('PublicAPI', function(Skynet) {
+  .service('PublicAPI', function(Activity) {
     return {
-      logActivity: Skynet.logActivity
+      logActivity: Activity.logActivity
     };
   });

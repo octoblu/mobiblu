@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.flows')
-    .controller('FlowCtrl', function ($rootScope, $q, $location, $scope, $timeout, $routeParams, Flows, Skynet) {
+    .controller('FlowCtrl', function ($rootScope, $q, $location, $scope, $timeout, $routeParams, Flows, Skynet, Activity) {
 
         var wait = false;
 
@@ -31,7 +31,7 @@ angular.module('main.flows')
             function markSent() {
                 $scope.loading = false;
 
-                Skynet.logActivity({
+                Activity.logActivity({
                     type: 'flows',
                     html: 'Flow button "' + $scope.flow.name + '" Triggered'
                 });

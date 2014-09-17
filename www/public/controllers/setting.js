@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.setting')
-    .controller('SettingCtrl', function ($rootScope, $window, $scope, $location, $timeout, $q, Skynet, Plugins, Config) {
+    .controller('SettingCtrl', function ($rootScope, $window, $scope, $location, $timeout, $q, Skynet, Sensors, Plugins, Config) {
 
         // This will be populated with Restangula
         $scope.device = {
@@ -46,9 +46,8 @@ angular.module('main.setting')
             };
 
             Skynet.updateDeviceSetting(data)
-                .timeout(1000 * 15)
                 .then(function () {
-                    Skynet.logSensorData();
+                    Sensors.logSensorData(Skynet);
                     deferred.resolve();
                 }, $rootScope.redirectToError);
 

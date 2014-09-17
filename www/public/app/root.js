@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $timeout, $location, $q, Plugins, Auth, SkynetRest, Skynet, Config) {
+    .run(function ($rootScope, $timeout, $location, $q, Activity, Plugins, Auth, SkynetRest, Skynet, Config) {
 
         var timeouts = [];
 
@@ -107,6 +107,8 @@ angular.module('main')
         };
 
         $rootScope.setSettings();
+
+        Activity.init();
 
         Skynet.start().then(Plugins.init);
 

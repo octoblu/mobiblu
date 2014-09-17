@@ -1,10 +1,189 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('Skynet', function($rootScope, $q, Auth, $location, $timeout) {
-    var loaded = false;
+  .service('Skynet', function($rootScope, $q, Auth, Push, BGLocation, SkynetRest, Sensors, Activity, $location) {
 
-    var lib = window.Skynet;
+    var service = {};
+
+    var ls = window.localStorage;
+    var ms = window.mobibluStorage;
+
+    service.loaded = false;
+
+    service.defaultSettings = {
+      compass: false,
+      accelerometer: false,
+      geolocation: false,
+      update_interval: 3,
+      bg_updates: false,
+      developer_mode: false
+    };
+
+    service.bgRunning = false;
+
+    service.conn = null;
+
+    service.settingsUpdated = false;
+
+    service.dataTimeout = null;
+
+    service.dataQueue = [];
+
+    service.dataLastSent = null;
+
+    function setData(skynetuuid, skynettoken) {
+      if (!skynetuuid) {
+        skynetuuid = ls.getItem('skynetuuid');
+      }
+      if (!skynettoken) {
+        skynettoken = ls.getItem('skynettoken');
+      }
+
+      // Set new Skynet Tokens
+      if (skynetuuid && skynettoken) {
+        console.log('Octoblu Credentials');
+
+        ms.writeConfig({
+          user: skynetuuid
+        });
+
+        // Octoblu User Data
+        service.skynetuuid = skynetuuid;
+        service.skynettoken = skynettoken;
+        // Logged In
+        service.loggedin = ls.getItem('loggedin');
+
+        if (service.loggedin === 'true') {
+          service.loggedin = true;
+        } else if (service.loggedin === 'false') {
+          service.loggedin = false;
+        } else {
+          service.loggedin = !!service.loggedin;
+        }
+
+        //Push ID
+        service.pushID = ls.getItem('pushID');
+        // Mobile App Data
+        service.mobileuuid = ms.getItem('mobileuuid');
+        service.mobiletoken = ms.getItem('mobiletoken');
+
+        var devicename = ms.getItem('devicename');
+
+        console.log('Device Name: ' + JSON.stringify(devicename));
+
+        if (devicename && devicename.length) {
+          service.devicename = devicename;
+        } else {
+          var platform = window.device ? ' ' + window.device.platform : '';
+          service.devicename = 'Mobiblu' + platform;
+        }
+
+        service.settings = ms.getItem('settings') || {};
+        if (_.isEmpty(service.settings)) {
+          service.settings = service.defaultSettings;
+        } else {
+          service.settingsUpdated = true;
+        }
+      }
+
+      console.log('Owner UUID : ' + JSON.stringify(service.skynetuuid));
+
+      console.log('Mobile Data Credentials : ' + JSON.stringify([service.mobileuuid, service.mobiletoken]));
+
+      service.socketid = null;
+
+      return true;
+    }
+
+    function connect() {
+      return new Promise(function(resolve, reject){
+        console.log('Connecting to skynet...');
+
+        function connected() {
+          console.log('Connected');
+
+          resolve();
+        }
+
+        function notConnected(e, conn) {
+          if (e) {
+            console.log('Error Connecting to Skynet: ' + e.toString());
+          }
+          if (conn) {
+            service.registerDevice()
+              .done(resolve, reject);
+          } else {
+            reject(e);
+          }
+        }
+        service.skynet(connected, notConnected);
+      });
+
+    }
+
+    function doBackground() {
+      if (service.bgRunning && !service.settings.bg_updates) {
+        BGLocation.stopBG(service);
+      } else if (!service.bgRunning) {
+        BGLocation.startBG(service);
+      }
+    }
+
+    function postConnect() {
+
+      service.loaded = true;
+
+      doBackground();
+
+      service.registerPushID()
+        .then(function() {
+          if (service.pushID) console.log('Push ID Registered (end)');
+        }, function(err) {
+          console.log(err);
+          Activity.logActivity({
+            type: 'push',
+            error: 'Unable to enable Push Notifications'
+          });
+        });
+
+      service.conn.on('message', function(data) {
+
+        var message;
+        if (typeof data.payload !== 'string') {
+          message = JSON.stringify(data.payload);
+        } else {
+          message = data.payload;
+        }
+
+        console.log('On Message: ' + message);
+
+        Activity.logActivity({
+          type: 'message',
+          html: 'From: ' + data.fromUuid +
+            '<br>Message: ' + message
+        });
+      });
+
+      Sensors.logSensorData(service);
+    }
+
+    function regData() {
+      var data = {
+        'name': service.devicename,
+        'owner': service.skynetuuid,
+        'type': 'octobluMobile',
+        'online': true
+      };
+
+      if (service.mobileuuid && service.mobiletoken) {
+        data.uuid = service.mobileuuid;
+        data.token = service.mobiletoken;
+      }
+
+      if (service.pushID) data.pushID = service.pushID;
+
+      return data;
+    }
 
     var _init = function() {
       var deferred = $q.defer();
@@ -19,8 +198,7 @@ angular.module('main.skynet')
               token = currentUser.skynet.token;
             }
 
-            lib.init(uuid, token)
-              .timeout(1000 * 15)
+            service.init(uuid, token)
               .then(function() {
                 console.log('_init successful');
                 $rootScope.clearAppTimeouts();
@@ -35,56 +213,8 @@ angular.module('main.skynet')
       }
       return deferred.promise;
     };
-
-    var _start = function(){
-      var deferred = $q.defer();
-
-      $rootScope.setSettings();
-
-      lib.conn = lib.getCurrentSettings().conn;
-
-      if (lib.conn) {
-
-        console.log('SKYNET LOADED');
-        $(document).trigger('skynet-ready');
-        loaded = true;
-
-        _startListen();
-
-        deferred.resolve();
-
-      } else {
-        deferred.reject();
-      }
-
-      $rootScope.isAuthenticated();
-
-      $rootScope.loading = false;
-
-      return deferred.promise;
-    };
-
-    var _skynetIsReady = function() {
-
-      var deferred = $q.defer();
-
-      $(document).on('skynet-ready', function() {
-        loaded = true;
-        deferred.resolve();
-      });
-
-      // We Start Here because the promises don't work after window.location.reload()
-      $(document).on('skynet-loaded', function(){
-          $timeout(function(){
-            _start();
-          }, 0);
-      });
-
-      return deferred.promise;
-    };
-
     var _startListen = function() {
-      lib.conn.on('message', function(message) {
+      service.conn.on('message', function(message) {
 
         $rootScope.$broadcast('skynet:message', message);
 
@@ -103,47 +233,423 @@ angular.module('main.skynet')
       });
     };
 
-    lib.ready = function(cb) {
+    service.isAuthenticated = function() {
+      return !!(service.loggedin && service.skynetuuid && service.skynettoken);
+    };
+
+    service.hasAuth = function() {
+      return !!(service.skynetuuid && service.skynettoken);
+    };
+
+    service.registerPushID = function() {
+      return new Push(service).then(function(pushID) {
+        return new Promise(function(resolve) {
+          service.pushID = pushID;
+          resolve();
+        });
+      });
+    };
+
+    // Register New Device
+    service.registerDevice = function(newDevice) {
+
+      console.log('Registering...');
+
+      var deferred = $q.defer();
+
+      var newDeviceData = regData();
+
+      if (newDevice) {
+        delete newDeviceData.uuid;
+        delete newDeviceData.token;
+      }
+
+      console.log('Registration Data: ', JSON.stringify(newDeviceData));
+
+      service.conn.register(
+        newDeviceData,
+        function(data) {
+          if (newDevice) {
+            service.conn.identify();
+          }
+          console.log('Registration Response: ', JSON.stringify(data));
+          ms.setItem('mobileuuid', data.uuid);
+          ms.setItem('mobiletoken', data.token);
+          ms.setItem('devicename', data.name);
+
+          service.mobileuuid = data.uuid;
+          service.mobiletoken = data.token;
+          service.devicename = data.name;
+
+          deferred.resolve();
+        });
+      return deferred.promise;
+    };
+
+    service.skynet = function(callback, errorCallback) {
+
+      console.log('Connecting Creds: ' + JSON.stringify([service.mobileuuid, service.mobiletoken]));
+
+      var config = {
+        port: window.mobibluConfig.SKYNET_PORT,
+        server: 'ws://' + window.mobibluConfig.SKYNET_HOST
+      };
+
+      if (service.mobileuuid && service.mobiletoken) {
+        config = _.extend(config, {
+          uuid: service.mobileuuid,
+          token: service.mobiletoken
+        });
+      }
+
+      var conn = skynet.createConnection(config);
+
+      conn.on('ready', function(data) {
+
+        service.conn = conn;
+
+        console.log('Connected data: ' + JSON.stringify(data));
+
+        service.socketid = data.socketid;
+
+        ms.setItem('mobileuuid', data.uuid);
+        ms.setItem('mobiletoken', data.token);
+
+        service.mobileuuid = data.uuid;
+        service.mobiletoken = data.token;
+
+        console.log('Connected to skynet');
+        callback(data);
+
+      });
+
+      conn.on('notReady', function(error) {
+        console.log('Skynet notReady during connect');
+        service.conn = conn;
+        errorCallback(error, conn);
+      });
+
+      conn.on('error', function(error) {
+        console.log('Skynet Error during connect');
+        errorCallback(error);
+      });
+    };
+
+    service.updateDeviceSetting = function(data) {
+      if (!_.isObject(data)) data = {};
+      var deferred = $q.defer();
+      // Extend the data option
+      data.uuid = service.mobileuuid;
+      data.token = service.mobiletoken;
+      data.online = true;
+      data.owner = service.skynetuuid;
+      data.pushID = service.pushID;
+      data.platform = window.device ? window.device.platform : 'iOS';
+      data.name = service.devicename = data.name || service.devicename;
+
+      data.type = 'octobluMobile';
+
+      ms.setItem('devicename', data.name);
+
+      if (data.setting) {
+        ms.setItem('settings', data.setting);
+        service.settings = data.setting;
+      }
+
+      doBackground();
+
+      delete data['$$hashKey'];
+
+      console.log('Updating Device: ' + JSON.stringify(data));
+      service.conn.update(data, function() {
+        console.log('Device Updated');
+        deferred.resolve();
+      });
+
+      return deferred.promise;
+    };
+
+    service.message = function(data) {
+      var deferred = $q.defer();
+      if (!data.uuid) data.uuid = service.mobileuuid;
+      if (!data.token) data.token = service.mobiletoken;
+      var toStr = '';
+      if (data.devices) {
+        toStr += '<br>' + 'To UUID: ';
+        if (typeof data.devices === 'string') {
+          toStr += data.devices;
+        } else {
+          toStr += JSON.stringify(data.devices);
+        }
+      }
+
+      service.conn.message(data, function(d) {
+        Activity.logActivity({
+          type: 'sent_message',
+          html: 'Sending Message: ' + JSON.stringify(data.payload) + toStr
+        });
+        deferred.resolve(d);
+      });
+
+      return deferred.promise;
+    };
+
+    service.subscribe = function(data, fn) {
+      if (!data.uuid) data.uuid = service.mobileuuid;
+      if (!data.token) data.token = service.mobiletoken;
+
+      service.conn.subscribe(data, fn);
+    };
+
+    service.claimDevice = function(deviceUuid) {
+      var deferred = $q.defer();
+
+      service.conn.claimdevice({
+        uuid: deviceUuid
+      }, function(result) {
+        service.conn.update({
+          uuid: deviceUuid,
+          owner: service.skynetuuid
+        }, function() {
+          deferred.resolve(result);
+        });
+      });
+
+      return deferred.promise;
+    };
+
+    service.localDevices = function() {
+      return new Promise(function(resolve) {
+        service.conn.localdevices(resolve);
+      });
+    };
+
+    service.myDevices = function() {
+      return SkynetRest.myDevices();
+    };
+
+    service.sendData = function(data) {
+      var deferred = $q.defer();
+
+      var defaults = {
+        'uuid': service.mobileuuid,
+        'token': service.mobiletoken
+      };
+      data = _.extend(defaults, data);
+
+      var eventName = 'sensor';
+      if (data.sensorData && data.sensorData.type) {
+        eventName += ':' + data.sensorData.type;
+      } else if (data.device) {
+        eventName += ':' + data.device;
+      } else if (data.subdevice) {
+        eventName += ':' + data.subdevice;
+      } else if (data.name) {
+        eventName += ':' + data.name;
+      }
+
+      $(document).trigger(eventName, data);
+
+      function send(data, i) {
+        if (!_.isUndefined(i) && i >= 0) {
+          service.dataQueue.splice(i, 1);
+        }
+        service.dataLastSent = new Date();
+        console.log('Sending Data');
+        service.conn.data(data, function() {});
+      }
+      var timeout = 15 * 1000;
+      var currentTime = new Date().getTime();
+      if (service.dataLastSent && currentTime > (service.dataLastSent.getTime() + timeout)) {
+        send(data);
+      } else if (!service.dataTimeout) {
+        send(data);
+        service.dataTimeout = setTimeout(function() {
+          _.each(service.dataQueue, send);
+          clearTimeout(service.dataTimeout);
+          service.dataTimeout = null;
+        }, timeout);
+      } else {
+        service.dataQueue.push(data);
+      }
+      deferred.resolve();
+
+      return deferred.promise;
+    };
+
+    service.whoami = function(uuid, token) {
+      var deferred = $q.defer();
+
+      service.conn.whoami({
+        uuid: uuid || service.mobileuuid,
+        token: token || service.mobiletoken
+      }, deferred.resolve);
+
+      return deferred.promise;
+    };
+
+    service.getDeviceSetting = function(uuid, token) {
+      var deferred = $q.defer();
+
+      if (service.settingsUpdated) {
+        deferred.resolve({
+          setting: service.settings
+        });
+      } else {
+        SkynetRest.getDevice(
+          uuid || service.mobileuuid,
+          token || service.mobiletoken)
+          .then(function(data) {
+            var device;
+
+            if (!data) return deferred.reject('No Device Found');
+
+            if (data.devices && data.devices.length) {
+              device = data.devices[0];
+            } else {
+              device = data;
+            }
+            if (!uuid || uuid !== service.mobileuuid) {
+              if (device.setting) {
+                service.settingsUpdated = true;
+                service.settings = device.setting;
+              } else {
+                service.settings = service.defaultSettings;
+              }
+            }
+
+            deferred.resolve(device);
+          }, function(err) {
+            console.log(err);
+            deferred.reject('Unable to Retrieve Device');
+          });
+      }
+
+      return deferred.promise;
+    };
+
+    service.login = function(uuid, token) {
+      setData(uuid, token);
+      window.loggedin = service.loggedin = true;
+    };
+
+    service.logout = function() {
+
+      window.loggedin = service.loggedin = false;
+
+      ls.removeItem('loggedin');
+      ls.removeItem('skynetuuid');
+      ls.removeItem('skynettoken');
+
+      setData();
+    };
+
+    service.start = function(){
+      var deferred = $q.defer();
+
+      function onError(){
+          console.log('Unable to load the Skynet Module');
+
+          Activity.logActivity({
+            type: 'meshblu',
+            html: 'Failed to connect to Meshblu'
+          });
+
+          deferred.reject();
+      }
+      $rootScope.loading = false;
+      if($rootScope.isErrorPage() && $rootScope.matchRoute('/login')){
+        // Doesn't need Auth
+        deferred.reject();
+      } else if(!service.hasAuth()){
+        // Doesn't have credentials
+        $location.path('/login');
+        deferred.reject();
+      } else {
+        // Start Auth Flow
+        return Auth.getCurrentUser()
+                .then(function(currentUser){
+                  var deferred = $q.defer();
+                  if (currentUser && currentUser.skynet) {
+                    setData(currentUser.skynet.uuid, currentUser.skynet.token);
+                    deferred.resolve();
+                  }else{
+                    deferred.reject();
+                  }
+                  return deferred.promise;
+                }, onError)
+                .then(function(){
+                  return new Promise(function(resolve){
+                    document.addEventListener('deviceready',resolve);
+                  });
+                }, onError)
+                .then(connect, onError)
+                .then(function(){
+                  postConnect();
+
+                  console.log('Skynet Module Connected');
+
+                  Activity.logActivity({
+                    type: 'meshblu',
+                    html: 'Connected to Meshblu'
+                  });
+
+                  $rootScope.$emit('skynet-ready');
+
+                  $rootScope.setSettings();
+
+                  $rootScope.isAuthenticated();
+
+                  _startListen();
+
+                  var deferred = $q.defer();
+                  deferred.resolve();
+                  return deferred.promise;
+                }, onError);
+      }
+      return deferred.promise;
+    };
+
+    service.ready = function(cb) {
       var deferred = $q.defer();
 
       function done() {
         if (typeof cb === 'function') {
-          cb(lib.conn);
+          cb(service.conn);
         }
-        deferred.resolve(lib.conn);
+        deferred.resolve(service.conn);
       }
 
       $rootScope.setSettings();
 
-      if (loaded || $rootScope.isErrorPage() || $rootScope.matchRoute('/login')) {
+      if (service.loaded || $rootScope.isErrorPage() || $rootScope.matchRoute('/login')) {
         done();
       } else {
-        _skynetIsReady().then(done, function(err) {
-          $rootScope.redirectToError(err || 'Meshblu can\'t connect');
-          deferred.reject();
+        $rootScope.$on('skynet-ready', function(){
+          done();
         });
       }
       return deferred.promise;
     };
 
-    lib.start = function() {
+    service.getCurrentSettings = function() {
 
-      if (lib.hasAuth()) {
-        $rootScope.loading = true;
-
-        _skynetIsReady();
-
-        return _init();
-      } else {
-        $rootScope.loading = false;
-        $location.path('/login');
-        var deferred = $q.defer();
-        deferred.reject();
-        return deferred.promise;
+      if (!service.skynetuuid) {
+        setData();
       }
 
+      return {
+        conn: service.conn,
+        devicename: service.devicename,
+        loggedin: service.loggedin,
+        mobileuuid: service.mobileuuid,
+        mobiletoken: service.mobiletoken,
+        skynetuuid: service.skynetuuid,
+        skynettoken: service.skynettoken,
+        settings: service.settings
+      };
     };
 
-    return lib;
+    return service;
 
   });

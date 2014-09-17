@@ -9,35 +9,35 @@
 
 module.exports = function (grunt) {
 
-    grunt.initConfig({
-        browserify: {
-            plugins: {
-                src: ['./www/public/plugins/index.js'],
-                dest: './www/public/plugins/bundle.js',
-                options: {
-                    debug : true,
-                    bundleOptions: {
-                        standalone : 'octobluMobile'
-                    }
-                }
-            },
-            skynet: {
-                src: ['./www/public/skynet/index.js'],
-                dest: './www/public/skynet/bundle.js',
-                options: {
-                    debug : true,
-                    bundleOptions: {
-                        standalone : 'Skynet'
-                    }
-                }
-            }
-        }
-    });
+    // grunt.initConfig({
+    //     browserify: {
+    //         plugins: {
+    //             src: ['./www/public/plugins/index.js'],
+    //             dest: './www/public/plugins/bundle.js',
+    //             options: {
+    //                 debug : true,
+    //                 bundleOptions: {
+    //                     standalone : 'octobluMobile'
+    //                 }
+    //             }
+    //         },
+    //         skynet: {
+    //             src: ['./www/public/skynet/index.js'],
+    //             dest: './www/public/skynet/bundle.js',
+    //             options: {
+    //                 debug : true,
+    //                 bundleOptions: {
+    //                     standalone : 'Skynet'
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
 
     grunt.loadNpmTasks('grunt-steroids');
 
-    grunt.loadNpmTasks('grunt-browserify');
+    //grunt.loadNpmTasks('grunt-browserify');
 
-    grunt.registerTask('default', ['browserify', 'steroids-make', 'steroids-compile-sass']);
+    grunt.registerTask('default', ['steroids-make', 'steroids-compile-sass']);
 
 };

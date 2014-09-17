@@ -79,7 +79,7 @@ angular.module('main.sensors')
 
             Skynet.updateDeviceSetting(data)
                 .then(function () {
-                    Skynet.logSensorData();
+                    Sensors.logSensorData(Skynet);
                 }, $rootScope.redirectToError);
         };
 
