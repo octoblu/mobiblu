@@ -13,27 +13,23 @@ angular.module('main.system').controller('DeviceCtrl',
                 if (!info) info = '';
                 info = '<br>' + info;
                 console.log('ERROR ' + action + ' device: ' + JSON.stringify(err));
-                $rootScope.$apply(function () {
-                    $scope.closeDevicesModal();
-                    $rootScope.redirectToCustomError('Unable to ' + action + ' that device. ' + info);
-                });
+                $scope.closeDevicesModal();
+                $rootScope.redirectToCustomError('Unable to ' + action + ' that device. ' + info);
             }
 
             function onSuccess(action, result, info) {
-                console.log(action + ' device result' + JSON.stringify(result));
-                var error = result.err || result.error;
+                console.log(action + ' device result: ' + JSON.stringify(result));
+                var error = result ? result.err || result.error : null;
                 if (error) {
                     onError(action, error, info);
                 } else {
-                    $rootScope.$apply(function () {
-                        $scope.closeDevicesModal();
-                        if (action === 'delete') {
-                            action += 'd';
-                        } else {
-                            action += 'ed';
-                        }
-                        $rootScope.alertModal('Device ' + action, 'Device successfully ' + action + '!');
-                    });
+                    $scope.closeDevicesModal();
+                    if (action === 'delete') {
+                        action += 'd';
+                    } else {
+                        action += 'ed';
+                    }
+                    $rootScope.alertModal('Device ' + action, 'Device successfully ' + action + '!');
                 }
             }
 

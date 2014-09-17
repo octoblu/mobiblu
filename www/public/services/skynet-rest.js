@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('SkynetRest', function($q, $http) {
+  .service('SkynetRest', function($q, Config, $http) {
 
     var timeout = 10 * 1000;
-    var baseURL = window.mobibluConfig.SKYNET_URL;
+    var baseURL = Config.SKYNET_URL;
 
     var uuid, token;
 
@@ -95,9 +95,7 @@ angular.module('main.skynet')
         url: baseURL + '/mydevices',
         method: 'GET'
       }))
-        .success(function(res) {
-          deferred.resolve(res.data);
-        })
+        .success(deferred.resolve)
         .error(deferred.reject);
       return deferred.promise;
     };
@@ -176,7 +174,7 @@ angular.module('main.skynet')
     service.logout = function(uuid, token) {
       var deferred = $q.defer();
       $http({
-        url: window.mobilbluConfig.OCTOBLU_URL + '/api/auth',
+        url: Config.OCTOBLU_URL + '/api/auth',
         method: 'DELETE',
         headers: {
           skynet_auth_uuid: uuid,

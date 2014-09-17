@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('BGLocation', function(Sensors, SkynetRest) {
+  .service('BGLocation', function(Sensors, Config, SkynetRest) {
 
     var type = 'Background Geolocation';
 
@@ -92,7 +92,7 @@ angular.module('main.skynet')
 
           // BackgroundGeoLocation is highly configurable.
           bgGeo.configure(callbackFn, failureFn, {
-            url: window.mobibluConfig.SKYNET_URL + '/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
+            url: Config.SKYNET_URL + '/data/' + app.mobileuuid, // <-- only required for Android; ios allows javascript callbacks for your http
             params: { // HTTP POST params sent to your server when persisting locations.
               uuid: app.mobileuuid,
               token: app.mobiletoken,
