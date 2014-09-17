@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('BGLocation', function(Sensors, Config, SkynetRest) {
+  .service('BGLocation', function(Sensors, Config, Activity, SkynetRest) {
 
     var type = 'Background Geolocation';
 
@@ -20,10 +20,10 @@ angular.module('main.skynet')
 
     var bg = {
 
-      startBG: function(app, activity) {
+      startBG: function(app) {
         if (!getBGPlugin()) return;
 
-        if (!app.settings.bg_updates) return bg.stopBG(app, activity);
+        if (!app.settings.bg_updates) return bg.stopBG(app, Activity);
 
         console.log('Started: ' + type);
 
@@ -46,7 +46,7 @@ angular.module('main.skynet')
             function onSuccess() {
               GeoSensor.store(response);
 
-              activity.logActivity({
+              Activity.logActivity({
                 debug: true,
                 type: type,
                 html: 'Successfully updated ' + type
@@ -56,7 +56,7 @@ angular.module('main.skynet')
             }
 
             function onFailure() {
-              activity.logActivity({
+              Activity.logActivity({
                 debug: true,
                 type: type,
                 error: 'Failed to update ' + type
@@ -78,13 +78,13 @@ angular.module('main.skynet')
           };
 
           var failureFn = function(err) {
-            activity.logActivity({
+            Activity.logActivity({
               type: type,
               error: err
             });
           };
 
-          activity.logActivity({
+          Activity.logActivity({
             debug: true,
             type: type,
             html: 'Started Background Location'
@@ -105,7 +105,7 @@ angular.module('main.skynet')
             desiredAccuracy: 100,
             stationaryRadius: 100,
             distanceFilter: 30,
-            activityType: 'OtherNavigation',
+            ActivityType: 'OtherNavigation',
             debug: false // <-- Enable for Debug Sounds on Android
           });
 
@@ -119,7 +119,7 @@ angular.module('main.skynet')
 
       },
 
-      stopBG: function(app, activity) {
+      stopBG: function(app) {
 
         if (!getBGPlugin()) return;
 
@@ -128,7 +128,7 @@ angular.module('main.skynet')
         bgGeo.stop();
 
         if (app.bgRunning) {
-          activity.logActivity({
+          Activity.logActivity({
             debug: true,
             type: type,
             html: 'Stopped Background Location'
