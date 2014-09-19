@@ -12,7 +12,7 @@ angular.module('main.flows')
                     var flows = res.data;
                     $rootScope.loading = false;
                     $scope.flows = _.filter(flows, function(flow){
-                        return _.findWhere(flow.nodes, { type : 'trigger' });
+                        return _.findWhere(flow.nodes, { type : 'operation:trigger' });
                     });
                     deferred.resolve();
                     return deferred.promise;
@@ -92,7 +92,7 @@ angular.module('main.flows')
             getFlows().then(function(){
                 $scope.flow = _.findWhere($scope.flows, { flowId : $routeParams.flowId });
 
-                $scope.flow.nodes = _.filter($scope.flow.nodes, { type : 'trigger' });
+                $scope.flow.nodes = _.filter($scope.flow.nodes, { type : 'operation:trigger' });
 
             });
         };
