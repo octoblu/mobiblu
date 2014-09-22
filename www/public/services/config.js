@@ -21,14 +21,14 @@ angular.module('main.system')
 
     var envs = {
       production: {
-        OCTOBLU_URL: 'https://app.octoblu.com',
-        SKYNET_URL: 'https://meshblu.octoblu.com',
+        OCTOBLU_URL: 'http://app.octoblu.com',
+        SKYNET_URL: 'http://meshblu.octoblu.com',
         SKYNET_HOST: 'meshblu.octoblu.com',
         SKYNET_PORT: 80
       },
       staging: {
-        OCTOBLU_URL: 'https://staging.octoblu.com',
-        SKYNET_URL: 'https://meshblu-staging.octoblu.com',
+        OCTOBLU_URL: 'http://staging.octoblu.com',
+        SKYNET_URL: 'http://meshblu-staging.octoblu.com',
         SKYNET_HOST: 'meshblu-staging.octoblu.com',
         SKYNET_PORT: 80
       },
