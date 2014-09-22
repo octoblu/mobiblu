@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.plugins')
-  .service('Plugins', function($window, $rootScope, $http, PluginInstances, Utils, Skynet, Subdevices, $q) {
+  .service('Plugins', function($window, $rootScope, $http, FileSystem, PluginInstances, Utils, Skynet, Subdevices, $q) {
 
     var service = {},
       plugins = [];
@@ -336,18 +336,10 @@ angular.module('main.plugins')
 
     service.download = function(plugin) {
       var deferred = $q.defer();
-      var entry,
-        fileTransfer = new FileTransfer(),
-        uri = encodeURI(plugin.bundle);
-
-      function gotFS() {
-        var file = '/plugin-' + plugin.name + '.js';
-        console.log('File: ' + file);
-        fileTransfer.download(
-          uri,
-          entry.toURL() + file,
-          function(entry) {
-            console.log('download complete: ' + entry.toURL());
+      var file = '/plugin-' + plugin.name + '.js';
+      FileSystem.download(plugin.bundle, file)
+        .then(function(entry) {
+            console.log('Download complete: ' + entry.toURL());
 
             plugin._url = entry.toURL();
             plugin._path = file;
@@ -359,25 +351,7 @@ angular.module('main.plugins')
               .then(function() {
                 deferred.resolve(plugin);
               }, deferred.reject);
-          },
-          deferred.reject,
-          false
-        );
-      }
-
-      try {
-        if (window.FSRoot) {
-          console.log('FS Setup');
-          entry = window.FSRoot;
-          gotFS();
-        } else {
-          console.log('Error no access to the file system');
-          deferred.reject(new Error('Error no access to file system.'));
-        }
-      } catch (e) {
-        console.log('Error installing plugin');
-        deferred.reject(new Error('Error installing plugin'));
-      }
+          });
 
       return deferred.promise;
     };
