@@ -558,7 +558,7 @@ angular.module('main.skynet')
                     deferred.resolve();
                   });
                   return deferred.promise;
-                })
+                }, onError)
                 .then(connect)
                 .then(function(){
                   postConnect();

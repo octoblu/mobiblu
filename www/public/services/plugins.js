@@ -338,34 +338,19 @@ angular.module('main.plugins')
       var deferred = $q.defer();
       var entry,
         fileTransfer = new FileTransfer(),
-        directories = ['plugins', plugin.name],
         uri = encodeURI(plugin.bundle);
 
       function gotFS() {
-        entry.getDirectory(directories[0], {
-          create: true,
-          exclusive: false
-        }, createPluginDir, deferred.reject);
-      }
-
-      function createPluginDir() {
-        entry.getDirectory(directories.join('/'), {
-          create: true,
-          exclusive: false
-        }, onGetDirectorySuccess, deferred.reject);
-      }
-
-      function onGetDirectorySuccess(dir) {
-        console.log('Created dir ' + dir.name);
-        var file = '/bundle.js';
+        var file = '/plugin-' + plugin.name + '.js';
+        console.log('File: ' + file);
         fileTransfer.download(
           uri,
-          steroids.app.absoluteUserFilesPath + '/' + directories.join('/') + file,
+          entry.toURL() + file,
           function(entry) {
             console.log('download complete: ' + entry.toURL());
 
             plugin._url = entry.toURL();
-            plugin._path = '/plugins/' + plugin.name + file;
+            plugin._path = file;
 
             if (!plugin.subdevices) plugin.subdevices = [];
 
@@ -382,13 +367,16 @@ angular.module('main.plugins')
 
       try {
         if (window.FSRoot) {
+          console.log('FS Setup');
           entry = window.FSRoot;
           gotFS();
         } else {
+          console.log('Error no access to the file system');
           deferred.reject(new Error('Error no access to file system.'));
         }
       } catch (e) {
-        deferred.reject(new Error('No Error Installing Plugin'));
+        console.log('Error installing plugin');
+        deferred.reject(new Error('Error installing plugin'));
       }
 
       return deferred.promise;
