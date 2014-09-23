@@ -2,14 +2,14 @@
 
     <div ng-controller="MessageCtrl" ng-init="init()">
 
-        <h3 class="page-title"><i class='fa fa-magic'></i> Message Devices</h3>
+        <h3 class="page-title"><i class='fa fa-comments'></i> Message Devices</h3>
 
         <div class="input-group">
             Select Device or Enter UUID:
             <br />
             <br />
             <div class="">
-                <select ng-model="device" style="height: 40px;" ng-options="device.name for device in devices" class="form-control" id="device" ng-change="getSubdevices(device)"></select>
+                <select ng-model="device" style="height: 40px;" ng-options="device.name for device in devices" class="form-control" id="device"></select>
             </div>
             <div ng-if="subdevices.length === 0">
                 <div class="input-row text-center subtile">-- OR --</div>
@@ -21,7 +21,7 @@
                 Select a Gateway Subdevice:
                 <br />
                 <br />
-                <select ng-model="subdevice" style="height: 40px;" ng-options="subdevice.name for subdevice in subdevices" class="form-control" id="subdevice" ng-change="getSchema(device, subdevice)"></select>
+                <select ng-model="subdevice" style="height: 40px;" ng-options="subdevice.name for subdevice in subdevices" class="form-control" id="subdevice"></select>
                 <br />
                 <br />
             </div>

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.system').controller('DeviceCtrl',
-    function ($rootScope, $scope, Skynet, SkynetRest, $timeout) {
+    function ($rootScope, $scope, Skynet, SkynetRest, Device, $timeout) {
 
         $scope.showDevicesModal = function (obj) {
 
@@ -39,7 +39,7 @@ angular.module('main.system').controller('DeviceCtrl',
                 editDevice: function (device) {
                     var action = 'edit', info = 'You may not have permission to edit that device.';
 
-                    SkynetRest.editDevice(device)
+                    Device.updateDevice(device)
                         .then(function (result) {
                             onSuccess(action, result, info);
                         }, function (err) {
@@ -49,15 +49,12 @@ angular.module('main.system').controller('DeviceCtrl',
                 claimDevice: function (device) {
                     var action = 'claim', info = 'You may not have permission to claim that device.';
 
-                    Skynet.ready(function () {
-                        Skynet.claimDevice(device.uuid)
-                            .timeout(5 * 1000)
-                            .then(function (result) {
-                                onSuccess(action, result, info);
-                            }, function (err) {
-                                onError(action, err, info);
-                            });
-                    });
+                    Device.claimDevice(device)
+                        .then(function (result) {
+                            onSuccess(action, result, info);
+                        }, function (err) {
+                            onError(action, err, info);
+                        });
                 },
                 deleteDevice: function (device) {
                     var action = 'delete', info = 'You may not have permission to delete that device.';
@@ -127,14 +124,13 @@ angular.module('main.system').controller('DeviceCtrl',
             }
             $scope.devicesMethod = method;
             Skynet.ready(function () {
-                if (typeof Skynet[method] !== 'function') {
+                if (_.isFunction(Device[method])) {
                     console.log('Not Valid Function: ' + method);
                     return false;
                 }
 
-                Skynet[method]().then(function (result) {
-                    console.log('Devices result', result);
-                    var devices = result ? result.devices : [];
+                Device[method]().then(function (devices) {
+                    console.log('Devices result', devices);
                     $scope.showDevicesModal({
                         devices: devices,
                         skipSearch: true

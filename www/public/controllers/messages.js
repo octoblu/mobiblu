@@ -2,7 +2,7 @@
 
 angular.module('main.messages')
     .controller('MessageCtrl',
-    function ($rootScope, $scope, OctobluRest, $q, Skynet) {
+    function ($rootScope, $scope, OctobluRest, Device, GatebluPlugins, $q, Skynet) {
 
         // This will be populated with Restangula
         $scope.messages = {};
@@ -16,105 +16,61 @@ angular.module('main.messages')
         $scope.device = $scope.devices[0] || null;
 
         $scope.init = function () {
-            Skynet.ready().then(function () {
-                $rootScope.loading = true;
-                $scope.skynetuuid = $rootScope.settings.skynetuuid;
-                $scope.skynettoken = $rootScope.settings.skynettoken;
-
-                $scope.mobileuuid = $rootScope.settings.mobileuuid;
-                $scope.mobiletoken = $rootScope.settings.mobiletoken;
-                $scope.getDevices();
+            Device.getDevices().then(function(devices){
+                $scope.devices = $scope.devices.concat(_.sortBy(_.cloneDeep(devices),'name'));
+                console.log('Devices, ', devices);
             });
         };
 
         $scope.subdevices = [];
 
-        $scope.getSubdevices = function (device) {
-            $scope.device = device;
-            if (device.subdevices) {
-
-                console.log('Device :: ' + JSON.stringify(device));
-                $scope.subdevices = device.subdevices;
-                $scope.subdevice = $scope.subdevices ? $scope.subdevices[0] : null;
-
-                $scope.getSchema();
-
+        $scope.$watch('device', function(newDevice){
+            $scope.subdevice = null;
+            if (newDevice && newDevice.type !== 'dummy') {
+                if (newDevice.type !== 'gateway') {
+                    $scope.schema = {};
+                } else {
+                    Device.gatewayConfig({
+                        uuid: newDevice.uuid,
+                        token: newDevice.token,
+                        method: "configurationDetails"
+                    }).then(function (response) {
+                        if (response && response.result) {
+                            $scope.subdevices = response.result.subdevices || [];
+                            $scope.plugins = response.result.plugins || [];
+                        }
+                    });
+                }
+            } else {
+                delete $scope.schema;
             }
-        };
+        });
 
-        $scope.gatewayConfig = function (options) {
-            var defer = $q.defer(), promise = defer.promise;
-
-            $rootScope.settings.conn
-                .gatewayConfig(options, function (result) {
-                    defer.resolve(result);
-                });
-
-            return promise;
-        };
-
-        $scope.getGateways = function (myDevices) {
-            $scope.devices = $scope.devices.concat(myDevices);
-            var gateways = _.filter(myDevices, { type: 'gateway' });
-            _.map(gateways, function (gateway) {
-                gateway.subdevices = [];
-                gateway.plugins = [];
-
-                return $scope.gatewayConfig({
-                    'uuid': gateway.uuid,
-                    'token': gateway.token,
-                    'method': 'configurationDetails'
-                }).then(function (response) {
-                    if (response && response.result) {
-                        var index = _.findIndex($scope.devices, { uuid : gateway.uuid });
-                        $scope.devices[index].subdevices = response.result.subdevices || [];
-                        $scope.devices[index].plugins = response.result.plugins || [];
-                    }
-                }, function () {
-                    console.log('couldn\'t get data for: ');
-                    console.log(gateway);
-                });
-            });
-        };
-
-        $scope.getDevices = function () {
-            var promise = OctobluRest.getDevices($scope.skynetuuid, $scope.skynettoken);
-
-            promise.then(function (res) {
-                var myDevices = res ? res.data : [];
-                console.log('Retrieved devices');
-                $scope.getGateways(myDevices);
-
-                $rootScope.loading = false;
-            }, $rootScope.redirectToError);
-        };
-
-        $scope.getSchema = function (device, subdevice) {
-            if (!device) device = $scope.device;
-            if (!subdevice) subdevice = $scope.subdevice;
+        $scope.$watch('subdevice', function (newSubdevice) {
 
             if(!$scope.schemaEditor) $scope.schemaEditor = {};
 
-            $scope.schema = null;
-
-            for (var i in device.plugins) {
-                var plugin = device.plugins[i];
-                if (subdevice && plugin.name === subdevice.type && plugin.messageSchema) {
-                    $scope.schema = plugin.messageSchema;
-                    $scope.schema.title = subdevice.name;
+            if (newSubdevice) {
+                var plugin = _.findWhere($scope.plugins, {name: newSubdevice.type});
+                if (!plugin) {
+                    GatebluPlugins.installPlugin($scope.device, newSubdevice.type)
+                        .then(function () {
+                            return GatebluPlugins.getInstalledPlugins($scope.device);
+                        })
+                        .then(function (result) {
+                            $scope.plugins = result;
+                            $scope.plugin = _.findWhere($scope.recipientDevice.plugins, {name: newSubdevice.type});
+                            $scope.schema = $scope.plugin.messageSchema;
+                        });
+                } else {
+                    $scope.plugin = plugin;
+                    $scope.schema = $scope.plugin.messageSchema;
                 }
             }
 
-        };
+        });
 
         $scope.sendMessage = function () {
-            /*
-             if schema exists - get the value from the editor, validate the input and send the message if valid
-             otherwise notify the user that there was an error.
-
-             if no schema exists, they are doing this manually and we check if the UUID field is populated and that
-             there is a message to send.
-             */
 
             var message, uuid;
 

@@ -372,23 +372,6 @@ angular.module('main.skynet')
       service.conn.subscribe(data, fn);
     };
 
-    service.claimDevice = function(deviceUuid) {
-      var deferred = $q.defer();
-
-      service.conn.claimdevice({
-        uuid: deviceUuid
-      }, function(result) {
-        service.conn.update({
-          uuid: deviceUuid,
-          owner: service.skynetuuid
-        }, function() {
-          deferred.resolve(result);
-        });
-      });
-
-      return deferred.promise;
-    };
-
     service.localDevices = function() {
       return new Promise(function(resolve) {
         service.conn.localdevices(resolve);
