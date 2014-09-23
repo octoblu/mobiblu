@@ -33,7 +33,7 @@ angular.module('main.system')
       if(!/\/$/.test(dest)){
         dest += '/';
       }
-      dest += to;
+      dest += to.replace(/^\//g, '');
 
       console.log('File Download to: ' + dest + ', from : ' + from);
 
