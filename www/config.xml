@@ -7,7 +7,7 @@
     <author email="info@octoblu.com" href="http://octoblu.com/">
         Octoblu, Inc
     </author>
-    <access origin="*" />
+    <access origin=".*" />
     <plugin name="Device" value="org.apache.cordova.Device"/>
 
     <plugin name="InAppBrowser" value="CDVInAppBrowser" />

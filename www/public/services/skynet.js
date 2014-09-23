@@ -421,29 +421,7 @@ angular.module('main.skynet')
 
       $(document).trigger(eventName, data);
 
-      function send(data, i) {
-        if (!_.isUndefined(i) && i >= 0) {
-          service.dataQueue.splice(i, 1);
-        }
-        service.dataLastSent = new Date();
-        console.log('Sending Data');
-        service.conn.data(data, function() {});
-      }
-      var timeout = 15 * 1000;
-      var currentTime = new Date().getTime();
-      if (service.dataLastSent && currentTime > (service.dataLastSent.getTime() + timeout)) {
-        send(data);
-      } else if (!service.dataTimeout) {
-        send(data);
-        service.dataTimeout = setTimeout(function() {
-          _.each(service.dataQueue, send);
-          clearTimeout(service.dataTimeout);
-          service.dataTimeout = null;
-        }, timeout);
-      } else {
-        service.dataQueue.push(data);
-      }
-      deferred.resolve();
+      service.conn.data(data, deferred.resolve);
 
       return deferred.promise;
     };

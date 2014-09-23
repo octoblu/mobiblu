@@ -27,7 +27,7 @@ angular.module('main.system')
     service.download = function(from, to){
       var deferred = $q.defer();
       var fileTransfer = new $window.FileTransfer();
-      console.log('File Download to: ' + to);
+      console.log('File Download to: ' + to + ', from : ' + from);
 
       getFS()
         .then(function(){
