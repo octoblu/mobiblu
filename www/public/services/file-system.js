@@ -28,17 +28,18 @@ angular.module('main.system')
       var deferred = $q.defer();
       var fileTransfer = new $window.FileTransfer();
 
-      var dest = FSRoot.toURL();
-
-      if(!/\/$/.test(dest)){
-        dest += '/';
-      }
-      dest += to.replace(/^\//g, '');
-
-      console.log('File Download to: ' + dest + ', from : ' + from);
-
       getFS()
         .then(function(){
+
+          var dest = FSRoot.toURL();
+
+          if(!/\/$/.test(dest)){
+            dest += '/';
+          }
+          dest += to.replace(/^\//g, '');
+
+          console.log('File Download to: ' + dest + ', from : ' + from);
+
           fileTransfer.download(
             encodeURI(from),
             dest,
