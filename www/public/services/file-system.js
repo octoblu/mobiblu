@@ -27,15 +27,29 @@ angular.module('main.system')
     service.download = function(from, to){
       var deferred = $q.defer();
       var fileTransfer = new $window.FileTransfer();
-      console.log('File Download to: ' + to + ', from : ' + from);
+
+      var dest = FSRoot.toURL();
+
+      if(!/\/$/.test(dest)){
+        dest += '/';
+      }
+      dest += to;
+
+      console.log('File Download to: ' + dest + ', from : ' + from);
 
       getFS()
         .then(function(){
           fileTransfer.download(
             encodeURI(from),
-            FSRoot.toURL() + to,
-            deferred.resolve,
-            deferred.reject,
+            dest,
+            function(entry){
+              console.log('Successful Download');
+              deferred.resolve(entry);
+            },
+            function(err){
+              console.log('Error Downloading: ' + JSON.stringify(err));
+              deferred.reject(err);
+            },
             false);
         }, deferred.reject);
 
