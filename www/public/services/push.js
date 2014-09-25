@@ -36,7 +36,7 @@ angular.module('main.skynet')
             window.localStorage.setItem('pushID', app.pushID);
 
             // Update Meshblu with Push ID
-            app.updateDeviceSetting({})
+            app.updateMobibluSetting({})
               .then(function() {
                 Activity.logActivity({
                   type: 'push',

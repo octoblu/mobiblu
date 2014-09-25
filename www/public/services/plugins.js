@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.plugins')
-  .service('Plugins', function($window, $rootScope, $http, FileSystem, PluginInstances, Utils, Skynet, Subdevices, $q) {
+  .service('Plugins', function($window, $rootScope, $http, FileSystem, SkynetConn, PluginInstances, Utils, Skynet, Subdevices, $q) {
 
     var service = {},
       plugins = [];
@@ -57,7 +57,7 @@ angular.module('main.plugins')
 
     function updateSkynet() {
       // @TODO Move at end of INIT Update Devices
-      return Skynet.updateDeviceSetting({
+      return Skynet.updateMobibluSetting({
         plugins: plugins,
         subdevices: Subdevices.retrieve()
       });
@@ -174,11 +174,11 @@ angular.module('main.plugins')
     }
 
     function startListen() {
-      Skynet.conn.on('message', function(data, fn) {
+      SkynetConn.get('mobiblu').on('message', function(data, fn) {
 
         console.log('On Message' + JSON.stringify(data));
 
-        if (data.devices === $rootScope.settings.mobileuuid) {
+        if (data.devices === Skynet.mobileuuid) {
           try {
             if (typeof data === 'string') {
               data = JSON.parse(data);

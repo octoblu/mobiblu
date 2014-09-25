@@ -3,7 +3,6 @@
 angular.module('main.setting')
     .controller('SettingCtrl', function ($rootScope, $window, $scope, $location, $timeout, $q, Skynet, Sensors, Plugins, Config) {
 
-        // This will be populated with Restangula
         $scope.device = {
             settings : {},
             name : ''
@@ -26,12 +25,8 @@ angular.module('main.setting')
                 $scope.skynettoken_dummy = tokenmask;
                 $scope.mobiletoken_dummy = tokenmask;
 
-                var settings = $rootScope.settings;
-
-                console.log('Load-Settings ' + JSON.stringify([settings.devicename, settings.settings]));
-
-                $scope.device.name = settings.devicename;
-                $scope.device.settings = settings.settings;
+                $scope.device.name = Skynet.devicename;
+                $scope.device.settings = Skynet.settings;
 
                 $rootScope.loading = false;
             });
@@ -45,7 +40,7 @@ angular.module('main.setting')
                 setting: $scope.device.settings
             };
 
-            Skynet.updateDeviceSetting(data)
+            Skynet.updateMobibluSetting(data)
                 .then(function () {
                     Sensors.logSensorData(Skynet);
                     deferred.resolve();

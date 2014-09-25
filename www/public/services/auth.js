@@ -12,8 +12,8 @@ angular.module('main.user')
       if (currentUser.id && !force) {
         deferred.resolve(currentUser);
       } else {
-        var uuid = $rootScope.settings.skynetuuid;
-        var token = $rootScope.settings.skynettoken;
+        var uuid = $rootScope.skynetuuid;
+        var token = $rootScope.skynettoken;
         var req = {
           url: baseUrl + '/api/auth',
           method: 'GET',
@@ -51,10 +51,14 @@ angular.module('main.user')
 
       console.log('User' + JSON.stringify(currentUser));
 
-      window.localStorage.setItem('skynetuuid', currentUser.skynet.uuid);
-      window.localStorage.setItem('skynettoken', currentUser.skynet.token);
+      try{
+        $window.localStorage.setItem('skynetuuid', currentUser.skynet.uuid);
+        $window.localStorage.setItem('skynettoken', currentUser.skynet.token);
+      }catch(e){
 
-      window.localStorage.setItem('loggedin', 'true');
+      }
+
+      $window.localStorage.setItem('loggedin', 'true');
 
       $rootScope.loggedin = $window.loggedin = true;
 
@@ -88,15 +92,14 @@ angular.module('main.user')
       $rootScope.setSettings();
     }
 
-    return service = {
+    return {
       acceptTerms: function() {
-        $rootScope.setSettings();
         return $http({
           url: baseUrl + '/api/auth/accept_terms',
           method: 'PUT',
           headers: {
-            skynet_auth_uuid: $rootScope.settings.skynetuuid,
-            skynet_auth_token: $rootScope.settings.skynettoken
+            skynet_auth_uuid: $rootScope.skynetuuid,
+            skynet_auth_token: $rootScope.skynettoken
           },
           data: {
             accept_terms: true
@@ -105,17 +108,16 @@ angular.module('main.user')
           if (response.status !== 204) {
             $rootScope.redirectToError(response.data);
           }
-          return service.getCurrentUser(true);
+          return getCurrentUser();
         }, $rootScope.redirectToError);
       },
       checkTerms: function() {
-        $rootScope.setSettings();
         return $http({
           url: baseUrl + '/api/user/terms_accepted',
           method: 'GET',
           headers: {
-            skynet_auth_uuid: $rootScope.settings.skynetuuid,
-            skynet_auth_token: $rootScope.settings.skynettoken
+            skynet_auth_uuid: $rootScope.skynetuuid,
+            skynet_auth_token: $rootScope.skynettoken
           }
         }).then(function(response) {
           var deferred = $q.defer();
@@ -129,24 +131,17 @@ angular.module('main.user')
         }, $rootScope.redirectToError);
       },
       login: function(email, password) {
-
         return $http.post(baseUrl + '/api/auth', {
           email: email,
           password: password
-        }).then(loginHandler, function(err) {
-          logoutHandler(err);
-          $rootScope.redirectToError(err);
-        });
+        }).then(loginHandler, $rootScope.redirectToError);
       },
 
       signup: function(email, password) {
         return $http.post(baseUrl + '/api/auth/signup', {
           email: email,
           password: password
-        }).then(loginHandler, function(err) {
-          logoutHandler(err);
-          $rootScope.redirectToError(err);
-        });
+        }).then(loginHandler, $rootScope.redirectToError);
       },
 
       logout: function() {
@@ -154,10 +149,10 @@ angular.module('main.user')
           url: baseUrl + '/api/auth',
           method: 'DELETE',
           headers: {
-            skynet_auth_uuid: $rootScope.settings.skynetuuid,
-            skynet_auth_token: $rootScope.settings.skynettoken
+            skynet_auth_uuid: $rootScope.skynetuuid,
+            skynet_auth_token: $rootScope.skynettoken
           }
-        }).then(logoutHandler, logoutHandler);
+        }).finally(logoutHandler);
       },
 
       getCurrentUser: getCurrentUser

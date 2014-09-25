@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.skynet')
-  .service('Skynet', function($rootScope, $window, $q, Auth, Push, BGLocation, SkynetRest, Sensors, Activity, $location) {
+  .service('Skynet', function($rootScope, $window, $q, Auth, SkynetConn, Config, Push, BGLocation, SkynetRest, Sensors, Activity, $location, reservedProperties) {
 
     var service = {};
 
@@ -20,8 +20,6 @@ angular.module('main.skynet')
     };
 
     service.bgRunning = false;
-
-    service.conn = null;
 
     service.settingsUpdated = false;
 
@@ -51,15 +49,7 @@ angular.module('main.skynet')
         service.skynetuuid = skynetuuid;
         service.skynettoken = skynettoken;
         // Logged In
-        $window.loggedin = ls.getItem('loggedin');
-
-        if ($window.loggedin === 'true') {
-          $window.loggedin = true;
-        } else if ($window.loggedin === 'false') {
-          $window.loggedin = false;
-        } else {
-          $window.loggedin = !!$window.loggedin;
-        }
+        $window.loggedin = !!ls.getItem('loggedin');
 
         //Push ID
         service.pushID = ls.getItem('pushID');
@@ -67,14 +57,10 @@ angular.module('main.skynet')
         service.mobileuuid = ms.getItem('mobileuuid');
         service.mobiletoken = ms.getItem('mobiletoken');
 
-        var devicename = ms.getItem('devicename');
+        service.devicename = ms.getItem('devicename');
 
-        console.log('Device Name: ' + JSON.stringify(devicename));
-
-        if (devicename && devicename.length) {
-          service.devicename = devicename;
-        } else {
-          var platform = window.device ? ' ' + window.device.platform : '';
+        if (!service.devicename) {
+          var platform = $window.device ? ' ' + $window.device.platform : '';
           service.devicename = 'Mobiblu' + platform;
         }
 
@@ -90,34 +76,45 @@ angular.module('main.skynet')
 
       console.log('Mobile Data Credentials : ' + JSON.stringify([service.mobileuuid, service.mobiletoken]));
 
-      service.socketid = null;
-
       return true;
+    }
+
+    function createMobibluIfNeeded(config){
+      var deferred = $q.defer();
+      if(config.conn && !config.uuid && !config.token){
+        return SkynetConn.create(config);
+      }else if(config.conn && config.uuid && config.token){
+        deferred.resolve(config);
+      }else{
+        deferred.reject();
+      }
+      return deferred.promise;
+    }
+
+    function updateMobileConfig(config){
+
+      var deferred = $q.defer();
+
+      ms.setItem('mobileuuid', config.uuid);
+      ms.setItem('mobiletoken', config.token);
+
+      service.mobileuuid = config.uuid;
+      service.mobiletoken = config.token;
+
+      deferred.resolve();
+
+      return deferred.promise;
     }
 
     function connect() {
       console.log('Connecting to skynet...');
-      var deferred = $q.defer();
-      function connected() {
-        console.log('Connected');
-
-        deferred.resolve();
-      }
-
-      function notConnected(e, conn) {
-        if (e) {
-          console.log('Error Connecting to Skynet: ' + e.toString());
-        }
-        if (conn) {
-          service.registerDevice()
-            .done(deferred.resolve, deferred.reject);
-        } else {
-          deferred.reject(e);
-        }
-      }
-      service.skynet(connected, notConnected);
-
-      return deferred.promise;
+      return SkynetConn.connect('octoblu', {
+        uuid : service.skynetuuid,
+        token : service.skynettoken
+      }).then(function(){
+        return SkynetConn.connect('mobiblu', getDefaultMobibluDevice());
+      }).catch(createMobibluIfNeeded)
+        .finally(updateMobileConfig);
     }
 
     function doBackground() {
@@ -145,7 +142,7 @@ angular.module('main.skynet')
           });
         });
 
-      service.conn.on('message', function(data) {
+      SkynetConn.getConn('mobiblu').on('message', function(data) {
 
         var message;
         if (typeof data.payload !== 'string') {
@@ -166,26 +163,8 @@ angular.module('main.skynet')
       Sensors.logSensorData(service);
     }
 
-    function regData() {
-      var data = {
-        'name': service.devicename,
-        'owner': service.skynetuuid,
-        'type': 'octobluMobile',
-        'online': true
-      };
-
-      if (service.mobileuuid && service.mobiletoken) {
-        data.uuid = service.mobileuuid;
-        data.token = service.mobiletoken;
-      }
-
-      if (service.pushID) data.pushID = service.pushID;
-
-      return data;
-    }
-
-    function _startListen() {
-      service.conn.on('message', function(message) {
+    function startListen() {
+      SkynetConn.get('mobiblu').on('message', function(message) {
 
         $rootScope.$broadcast('skynet:message', message);
 
@@ -202,6 +181,21 @@ angular.module('main.skynet')
         }
 
       });
+    }
+
+    function getDefaultMobibluDevice(){
+      var data = {};
+            // Extend the data option
+      data.uuid = service.mobileuuid;
+      data.token = service.mobiletoken;
+      data.owner = service.skynetuuid;
+      data.pushID = service.pushID;
+      data.platform = $window.device ? $window.device.platform : 'iOS';
+      data.name = service.devicename = data.name || service.devicename;
+
+      data.type = 'octobluMobile';
+
+      return data;
     }
 
     service.isAuthenticated = function() {
@@ -221,105 +215,12 @@ angular.module('main.skynet')
       });
     };
 
-    // Register New Device
-    service.registerDevice = function(newDevice) {
-
-      console.log('Registering...');
-
-      var deferred = $q.defer();
-
-      var newDeviceData = regData();
-
-      if (newDevice) {
-        delete newDeviceData.uuid;
-        delete newDeviceData.token;
-      }
-
-      console.log('Registration Data: ', JSON.stringify(newDeviceData));
-
-      service.conn.register(
-        newDeviceData,
-        function(data) {
-          if (newDevice) {
-            service.conn.identify();
-          }
-          console.log('Registration Response: ', JSON.stringify(data));
-          ms.setItem('mobileuuid', data.uuid);
-          ms.setItem('mobiletoken', data.token);
-          ms.setItem('devicename', data.name);
-
-          service.mobileuuid = data.uuid;
-          service.mobiletoken = data.token;
-          service.devicename = data.name;
-
-          deferred.resolve();
-        });
-      return deferred.promise;
-    };
-
-    service.skynet = function(callback, errorCallback) {
-
-      console.log('Connecting Creds: ' + JSON.stringify([service.mobileuuid, service.mobiletoken]));
-
-      var config = {
-        port: window.mobibluConfig.SKYNET_PORT,
-        server: 'ws://' + window.mobibluConfig.SKYNET_HOST
-      };
-
-      if (service.mobileuuid && service.mobiletoken) {
-        config = _.extend(config, {
-          uuid: service.mobileuuid,
-          token: service.mobiletoken
-        });
-      }
-
-      var conn = skynet.createConnection(config);
-
-      conn.on('ready', function(data) {
-
-        service.conn = conn;
-
-        console.log('Connected data: ' + JSON.stringify(data));
-
-        service.socketid = data.socketid;
-
-        ms.setItem('mobileuuid', data.uuid);
-        ms.setItem('mobiletoken', data.token);
-
-        service.mobileuuid = data.uuid;
-        service.mobiletoken = data.token;
-
-        console.log('Connected to skynet');
-        callback(data);
-
-      });
-
-      conn.on('notReady', function(error) {
-        console.log('Skynet notReady during connect');
-        service.conn = conn;
-        errorCallback(error, conn);
-      });
-
-      conn.on('error', function(error) {
-        console.log('Skynet Error during connect');
-        errorCallback(error);
-      });
-    };
-
-    service.updateDeviceSetting = function(data) {
+    service.updateMobibluSetting = function(data) {
       if (!_.isObject(data)) data = {};
       var deferred = $q.defer();
-      // Extend the data option
-      data.uuid = service.mobileuuid;
-      data.token = service.mobiletoken;
+
+      data = _.extend(getDefaultMobibluDevice(), data);
       data.online = true;
-      data.owner = service.skynetuuid;
-      data.pushID = service.pushID;
-      data.platform = window.device ? window.device.platform : 'iOS';
-      data.name = service.devicename = data.name || service.devicename;
-
-      data.type = 'octobluMobile';
-
       ms.setItem('devicename', data.name);
 
       if (data.setting) {
@@ -329,10 +230,10 @@ angular.module('main.skynet')
 
       doBackground();
 
-      delete data['$$hashKey'];
+      var device = _.omit(data, reservedProperties);
 
       console.log('Updating Device: ' + JSON.stringify(data));
-      service.conn.update(data, function() {
+      SkynetConn.get('mobiblu').update(device, function() {
         console.log('Device Updated');
         deferred.resolve();
       });
@@ -354,7 +255,7 @@ angular.module('main.skynet')
         }
       }
 
-      service.conn.message(data, function(d) {
+      SkynetConn.get('mobiblu').message(data, function(d) {
         Activity.logActivity({
           type: 'sent_message',
           html: 'Sending Message: ' + JSON.stringify(data.payload) + toStr
@@ -363,23 +264,6 @@ angular.module('main.skynet')
       });
 
       return deferred.promise;
-    };
-
-    service.subscribe = function(data, fn) {
-      if (!data.uuid) data.uuid = service.mobileuuid;
-      if (!data.token) data.token = service.mobiletoken;
-
-      service.conn.subscribe(data, fn);
-    };
-
-    service.localDevices = function() {
-      return new Promise(function(resolve) {
-        service.conn.localdevices(resolve);
-      });
-    };
-
-    service.myDevices = function() {
-      return SkynetRest.myDevices();
     };
 
     service.sendData = function(data) {
@@ -404,18 +288,7 @@ angular.module('main.skynet')
 
       $(document).trigger(eventName, data);
 
-      service.conn.data(data, deferred.resolve);
-
-      return deferred.promise;
-    };
-
-    service.whoami = function(uuid, token) {
-      var deferred = $q.defer();
-
-      service.conn.whoami({
-        uuid: uuid || service.mobileuuid,
-        token: token || service.mobiletoken
-      }, deferred.resolve);
+      SkynetConn.get('mobiblu').data(data, deferred.resolve);
 
       return deferred.promise;
     };
@@ -462,12 +335,12 @@ angular.module('main.skynet')
 
     service.login = function(uuid, token) {
       setData(uuid, token);
-      window.loggedin = $window.loggedin = true;
+      $window.loggedin = $rootScope.loggedin = true;
     };
 
     service.logout = function() {
 
-      window.loggedin = $window.loggedin = false;
+      $window.loggedin = $rootScope.loggedin = false;
 
       ls.removeItem('loggedin');
       ls.removeItem('skynetuuid');
@@ -537,7 +410,7 @@ angular.module('main.skynet')
 
                   $rootScope.isAuthenticated();
 
-                  _startListen();
+                  startListen();
 
                   var deferred = $q.defer();
                   deferred.resolve();
@@ -550,18 +423,28 @@ angular.module('main.skynet')
     service.ready = function(cb) {
       var deferred = $q.defer();
 
-      function done() {
-        if (typeof cb === 'function') {
-          cb(service.conn);
+      if(!_.isFunction(cb)){
+        cb = deferred.resolve;
+      }
+
+      function done(){
+        var conn = SkynetConn.get('octoblu');
+        if(conn){
+          cb(conn);
+        }else{
+          deferred.reject();
         }
-        deferred.resolve(service.conn);
       }
 
       $rootScope.setSettings();
 
-      if (service.loaded || $rootScope.isErrorPage() || $rootScope.matchRoute('/login')) {
+      if (service.loaded ||
+            $rootScope.isErrorPage() ||
+            $rootScope.matchRoute('/login')) {
+        // No need to be cool
         done();
       } else {
+        // Wait for it to be ready
         $rootScope.$on('skynet-ready', function(){
           done();
         });
@@ -569,23 +452,7 @@ angular.module('main.skynet')
       return deferred.promise;
     };
 
-    service.getCurrentSettings = function() {
-
-      if (!service.skynetuuid) {
-        setData();
-      }
-
-      return {
-        conn: service.conn,
-        devicename: service.devicename,
-        loggedin: $window.loggedin,
-        mobileuuid: service.mobileuuid,
-        mobiletoken: service.mobiletoken,
-        skynetuuid: service.skynetuuid,
-        skynettoken: service.skynettoken,
-        settings: service.settings
-      };
-    };
+    setData();
 
     return service;
 

@@ -12,27 +12,23 @@ angular.module('main.plugins')
 
     service.send = function(data, callback) {
       if (!callback) callback = function() {};
-      if (Skynet.conn) {
-        Skynet.message(data)
+      Skynet.ready().then(function(){
+          Skynet.message(data)
           .then(callback, function() {
             console.log('Error Sending Message');
           });
-      } else {
-        callback(new Error('Socket not available'));
-      }
+      });
     };
 
     service.data = function(data, callback) {
       if (!callback) callback = function() {};
       console.log('Sending Data from Device');
-      if (Skynet.conn) {
+      Skynet.ready().then(function(){
         Skynet.sendData(data)
           .then(callback, function() {
             console.log('Error Sending Message');
           });
-      } else {
-        callback(new Error('Socket not available'));
-      }
+      });
     };
 
     return service;

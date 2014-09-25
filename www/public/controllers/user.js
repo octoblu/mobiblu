@@ -88,10 +88,8 @@ angular.module('main.user')
             Auth.login($scope.user.email, $scope.user.password)
                 .then(redirectAndReload, function (err) {
                     console.log('Error', err);
-                    $timeout(function () {
-                        $scope.error = 'Error logging in!';
-                        $rootScope.loading = false;
-                    }, 0);
+                    $scope.error = 'Error logging in!';
+                    $rootScope.loading = false;
                 });
         };
 

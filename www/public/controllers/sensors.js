@@ -55,10 +55,9 @@ angular.module('main.sensors')
 
         $scope.init = function () {
             Skynet.ready().then(function () {
-                var settings = $rootScope.settings;
                 $rootScope.loading = false;
-                $scope.settings = settings.settings;
-                $scope.setting = settings.settings[$scope.sensor.type];
+                $scope.settings = Skynet.settings;
+                $scope.setting = Skynet.settings[$scope.sensor.type];
 
                 if ($scope.sensor && typeof Sensors[$scope.sensor.label] === 'function') {
                     $scope.sensorObj = Sensors[$scope.sensor.label](3000);
@@ -71,13 +70,13 @@ angular.module('main.sensors')
 
         $scope.update = function () {
             var data = {
-                name: $rootScope.settings.devicename,
+                name: Skynet.devicename,
                 setting: $scope.settings
             };
 
             console.log('Settings ' + JSON.stringify(data));
 
-            Skynet.updateDeviceSetting(data)
+            Skynet.updateMobibluSetting(data)
                 .then(function () {
                     Sensors.logSensorData(Skynet);
                 }, $rootScope.redirectToError);

@@ -41,8 +41,8 @@ angular.module('main.octoblu')
                     keywords: term
                 },
                 headers: {
-                    skynet_auth_uuid: $rootScope.settings.skynetuuid,
-                    skynet_auth_token: $rootScope.settings.skynettoken
+                    skynet_auth_uuid: $rootScope.skynetuuid,
+                    skynet_auth_token: $rootScope.skynettoken
                 },
                 timeout: 10 * 1000
             });

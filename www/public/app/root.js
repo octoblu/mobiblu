@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main')
-    .run(function ($rootScope, $timeout, $location, $q, Activity, Plugins, Auth, SkynetRest, Skynet, Config) {
+    .run(function ($rootScope, $timeout, $location, $q, $window, Activity, Plugins, Auth, SkynetRest, Skynet, Config) {
 
         var timeouts = [];
 
@@ -72,20 +72,18 @@ angular.module('main')
         });
 
         $rootScope.setSettings = function () {
-            $rootScope.settings = Skynet.getCurrentSettings();
 
-            $rootScope.loggedin = $rootScope.settings.loggedin;
+            $rootScope.loggedin = $window.loggedin;
 
-            $rootScope.skynetuuid = $rootScope.settings.skynetuuid;
-            $rootScope.skynettoken = $rootScope.settings.skynettoken;
+            $rootScope.skynetuuid = Skynet.skynetuuid;
+            $rootScope.skynettoken = Skynet.skynettoken;
 
-            $rootScope.mobileuuid = $rootScope.settings.mobileuuid;
-            $rootScope.mobiletoken = $rootScope.settings.mobiletoken;
+            $rootScope.mobileuuid = Skynet.mobileuuid;
+            $rootScope.mobiletoken = Skynet.mobiletoken;
 
-            $rootScope.isDeveloper = $rootScope.settings.settings ? $rootScope.settings.settings.developer_mode : false;
+            $rootScope.isDeveloper = Skynet.settings ? Skynet.settings.developer_mode : false;
 
-            console.log('in $rootScope.setSettings() ++ ' + $rootScope.settings.skynetuuid);
-
+            console.log('in $rootScope.setSettings() ++ ' + $rootScope.skynetuuid);
         };
 
         $rootScope.footerDisabled = false;

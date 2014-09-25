@@ -68,8 +68,8 @@ angular.module('main.system').controller('DeviceCtrl',
                 },
                 canDelete: function () {
                     var device = $scope.devicesModal.device || {},
-                        owner = $rootScope.settings.skynetuuid,
-                        mobileUuid = $rootScope.settings.mobileuuid;
+                        owner = $rootScope.skynetuuid,
+                        mobileUuid = $rootScope.mobileuuid;
 
                     var validOwners = [owner, mobileUuid];
                     if (~validOwners.indexOf(device.uuid)) {
@@ -82,8 +82,8 @@ angular.module('main.system').controller('DeviceCtrl',
                 },
                 canSave: function () {
                     var device = $scope.devicesModal.device || {},
-                        owner = $rootScope.settings.skynetuuid,
-                        mobileUuid = $rootScope.settings.mobileuuid;
+                        owner = $rootScope.skynetuuid,
+                        mobileUuid = $rootScope.mobileuuid;
 
                     var validOwners = [owner, mobileUuid];
                     if (!~validOwners.indexOf(device.owner)) {
