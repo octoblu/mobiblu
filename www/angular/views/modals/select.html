@@ -1,0 +1,17 @@
+<div id="modalSelect" class="modal">
+    <header class="bar bar-nav">
+        <span class="icon icon-close pull-right" ng-click="closeModalSelect()"></span>
+        <h1 class="title">{{ modalSelect.title }}</h1>
+    </header>
+
+    <div class="content modal-fix">
+    		<div class="modal-fix-content">
+		        <div class="card">
+						  <ul class="table-view">
+						    <li class="table-view-cell" ng-repeat="option in modalSelect.options" ng-click="modalSelect.onClick(option)">{{ option.label || option.name  }}</li>
+						    <li ng-if="modalSelect.options.length === 0">No Options</li>
+						  </ul>
+						</div>
+    		</div>
+    </div>
+</div>

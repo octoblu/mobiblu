@@ -20,7 +20,8 @@
     <!-- Include the compiled Ratchet CSS -->
     <link href="/vendor/ratchet/dist/css/ratchet.min.css" rel="stylesheet">
 
-    <link href="/vendor/ratchet/dist/css/ratchet-theme-ios.css" rel="stylesheet">
+    <!-- This should dynamically set the theme -->
+    <link href="/vendor/ratchet/dist/css/ratchet-theme.css" rel="stylesheet">
     <script src="/javascripts/strings.js"></script>
     <script src="/javascripts/touchstart.js"></script>
 
@@ -33,7 +34,7 @@
     <link rel="stylesheet" href="/stylesheets/social-buttons.css" />
 
     <!-- Skynet.js -->
-    <script src="/vendor/skynet/skynet.js"></script>
+    <script src="/vendor/skynet/skynet.bundle.js"></script>
 
     <script src="/components/jquery/dist/jquery.min.js"></script>
     <script src="/components/lodash/dist/lodash.min.js"></script>
@@ -55,55 +56,55 @@
     <script src="/javascripts/boost-storage.js"></script>
     <script src="/javascripts/mobiblu-storage.js"></script>
 
-    <script src="/public/app/app.js"></script>
-    <script src="/public/app/root.js"></script>
-    <script src="/public/app/config.js"></script>
-    <script src="/public/app/routes.js"></script>
+    <script src="/angular/app/app.js"></script>
+    <script src="/angular/app/root.js"></script>
+    <script src="/angular/app/config.js"></script>
+    <script src="/angular/app/routes.js"></script>
 
-    <script src="/public/services/activity.js"></script>
-    <script src="/public/services/auth.js"></script>
-    <script src="/public/services/bg-location.js"></script>
-    <script src="/public/services/config.js"></script>
-    <script src="/public/services/device.js"></script>
-    <script src="/public/services/file-system.js"></script>
-    <script src="/public/services/flows.js"></script>
-    <script src="/public/services/gateblu-plugins.js"></script>
-    <script src="/public/services/messenger.js"></script>
-    <script src="/public/services/label.js"></script>
-    <script src="/public/services/octoblu.js"></script>
-    <script src="/public/services/plugin-instances.js"></script>
-    <script src="/public/services/plugins.js"></script>
-    <script src="/public/services/public.js"></script>
-    <script src="/public/services/push.js"></script>
-    <script src="/public/services/sensors.js"></script>
-    <script src="/public/services/skynet-connection.js"></script>
-    <script src="/public/services/skynet-rest.js"></script>
-    <script src="/public/services/skynet.js"></script>
-    <script src="/public/services/subdevices.js"></script>
-    <script src="/public/services/utils.js"></script>
+    <script src="/angular/services/activity.js"></script>
+    <script src="/angular/services/auth.js"></script>
+    <script src="/angular/services/bg-location.js"></script>
+    <script src="/angular/services/config.js"></script>
+    <script src="/angular/services/device.js"></script>
+    <script src="/angular/services/file-system.js"></script>
+    <script src="/angular/services/flows.js"></script>
+    <script src="/angular/services/gateblu-plugins.js"></script>
+    <script src="/angular/services/messenger.js"></script>
+    <script src="/angular/services/label.js"></script>
+    <script src="/angular/services/octoblu.js"></script>
+    <script src="/angular/services/plugin-instances.js"></script>
+    <script src="/angular/services/plugins.js"></script>
+    <script src="/angular/services/public.js"></script>
+    <script src="/angular/services/push.js"></script>
+    <script src="/angular/services/sensors.js"></script>
+    <script src="/angular/services/skynet-connection.js"></script>
+    <script src="/angular/services/skynet-rest.js"></script>
+    <script src="/angular/services/skynet.js"></script>
+    <script src="/angular/services/subdevices.js"></script>
+    <script src="/angular/services/utils.js"></script>
 
-    <script src="/public/angular/directives/message-grapher/message-grapher.js"></script>
-    <script src="/public/angular/directives/toggle-switch/toggle-switch.js"></script>
-    <script src="/public/angular/directives/sensor-grapher/sensor-grapher.js"></script>
-    <script src="/public/angular/directives/schema-editor/schema-editor.js"></script>
-    <script src="/public/angular/directives/compass/compass.js"></script>
+    <script src="/angular/directives/message-grapher/message-grapher.js"></script>
+    <script src="/angular/directives/toggle-switch/toggle-switch.js"></script>
+    <script src="/angular/directives/sensor-grapher/sensor-grapher.js"></script>
+    <script src="/angular/directives/schema-editor/schema-editor.js"></script>
+    <script src="/angular/directives/compass/compass.js"></script>
     <script src="/components/angular-leaflet-directive/dist/angular-leaflet-directive.min.js"></script>
 
-    <script src="/public/controllers/home.js"></script>
-    <script src="/public/controllers/user.js"></script>
-    <script src="/public/controllers/messages.js"></script>
-    <script src="/public/controllers/setting.js"></script>
-    <script src="/public/controllers/error.js"></script>
-    <script src="/public/controllers/activity.js"></script>
-    <script src="/public/controllers/footer.js"></script>
-    <script src="/public/controllers/header.js"></script>
-    <script src="/public/controllers/subheader.js"></script>
-    <script src="/public/controllers/sensors.js"></script>
-    <script src="/public/controllers/plugins.js"></script>
-    <script src="/public/controllers/flows.js"></script>
-    <script src="/public/controllers/devices.js"></script>
+    <script src="/angular/controllers/home.js"></script>
+    <script src="/angular/controllers/user.js"></script>
+    <script src="/angular/controllers/messages.js"></script>
+    <script src="/angular/controllers/setting.js"></script>
+    <script src="/angular/controllers/error.js"></script>
+    <script src="/angular/controllers/activity.js"></script>
+    <script src="/angular/controllers/footer.js"></script>
+    <script src="/angular/controllers/header.js"></script>
+    <script src="/angular/controllers/subheader.js"></script>
+    <script src="/angular/controllers/sensors.js"></script>
+    <script src="/angular/controllers/plugins.js"></script>
+    <script src="/angular/controllers/flows.js"></script>
+    <script src="/angular/controllers/devices.js"></script>
 
-    <script src="/public/app/init.js"></script>
+    <script src="/angular/app/init.js"></script>
 
 </head>
 
@@ -134,7 +135,7 @@
         <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
         <div class="content">
 
-            <div ng-include src="'/public/views/system/loading.html'"></div>
+            <div ng-include src="'/angular/views/system/loading.html'"></div>
 
             <div data-ng-view></div>
         </div>
@@ -162,8 +163,9 @@
             </a>
         </nav>
 
-        <div ng-include src="'/public/views/modals/devices.html'"></div>
-        <div ng-include src="'/public/views/modals/global.html'"></div>
+        <div ng-include src="'/angular/views/modals/devices.html'"></div>
+        <div ng-include src="'/angular/views/modals/global.html'"></div>
+        <div ng-include src="'/angular/views/modals/select.html'"></div>
 
     </div>
 </body>

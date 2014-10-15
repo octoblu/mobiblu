@@ -1,0 +1,43 @@
+<div ng-app="messagesApp">
+
+  <div ng-controller="MessageCtrl">
+
+    <h3 class="page-title"><i class='fa fa-comments'></i> Message Devices</h3>
+
+    <div class="input-group">
+      <ul class="table-view">
+        <li ng-click="showDevicesList()" class="table-view-cell"><i class="fa fa-sort"></i>&nbsp;&nbsp;&nbsp;{{ device.name || 'Select Device'}}</li>
+      </ul>
+      <div ng-if="subdevices.length === 0">
+          <div class="input-row text-center subtile">-- OR --</div>
+          <input type="text" ng-model="sendUuid" placeholder="UUID..." />
+          <hr>
+      </div>
+
+      <div ng-if="subdevices">
+          Select a Subdevice:
+          <br />
+          <ul class="table-view">
+            <li ng-click="showSubdevicesList()" class="table-view-cell"><i class="fa fa-sort"></i>&nbsp;&nbsp;&nbsp;{{ subdevice.name || 'Select Subdevice'}} </li>
+          </ul>
+          <br />
+      </div>
+
+      <div ng-if="schema">
+          <schema-editor control="schemaEditor" schema="schema" allow-json-edit="true" additional-properties="true"></schema-editor>
+          <hr>
+      </div>
+
+      <div ng-if="subdevices.length === 0">
+          <textarea  rows="3" ng-model="sendText" placeholder="Message..."></textarea>
+          <hr>
+      </div>
+
+      <button ng-click="sendMessage()" class="btn btn-positive btn-outlined btn-block">Send</button>
+
+    </div>
+
+
+  </div>
+
+</div>
