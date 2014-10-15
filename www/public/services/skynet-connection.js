@@ -34,7 +34,8 @@ angular.module('main.skynet')
 
       config = _.extend(config, {
         port: Config.SKYNET_PORT,
-        server: 'ws://' + Config.SKYNET_HOST
+        server: 'ws://' + Config.SKYNET_HOST,
+        forceNew: true
       });
 
       var conn = skynet.createConnection(config);
