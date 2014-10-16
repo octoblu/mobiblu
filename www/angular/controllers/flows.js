@@ -14,6 +14,18 @@ angular.module('main.flows')
                     $scope.flows = _.filter(flows, function(flow){
                         return _.findWhere(flow.nodes, { type : 'operation:trigger' });
                     });
+                    var combinedFlows = [];
+                    _.each(flows, function(flow){
+                        combinedFlows.push({type : 'flow', object : flow});
+                        var triggers = _.filter(flow.nodes, { type : 'operation:trigger' });
+
+                        triggers = _.map(triggers, function(trigger){
+                            return {type : 'trigger', object : trigger, flow : flow};
+                        });
+                        combinedFlows = combinedFlows.concat(triggers);
+                    });
+
+                    $scope.combinedFlows = combinedFlows;
                     deferred.resolve();
                     return deferred.promise;
                 });
@@ -29,18 +41,22 @@ angular.module('main.flows')
 
 
         $scope.triggerButton = function (button) {
-            var index = _.findIndex($scope.flow.nodes, { id : button.id });
+            var index = _.findIndex($scope.combinedFlows, function(obj){
+                return obj.type === 'trigger' && obj.object.id === button.id;
+            });
+
+            var flow = $scope.combinedFlows[index].flow;
 
             function markSent() {
                 $scope.loading = false;
 
                 Activity.logActivity({
                     type: 'flows',
-                    html: 'Flow "' + $scope.flow.name + '" Triggered'
+                    html: 'Flow "' + flow.name + '" Triggered'
                 });
 
                 $timeout(function(){
-                    $scope.flow.nodes[index].sending = false;
+                    $scope.combinedFlows[index].sending = false;
                 }, 10);
             }
 
@@ -48,14 +64,14 @@ angular.module('main.flows')
 
             var start = new Date().getTime();
 
-            $scope.flow.nodes[index].sending = true;
+            $scope.combinedFlows[index].sending = true;
 
             if (!wait) {
                 markSent();
             }
 
             Skynet.message({
-                devices : $scope.flow.flowId,
+                devices : flow.flowId,
                 topic : 'button',
                 payload : {
                     from : button.id
@@ -88,16 +104,6 @@ angular.module('main.flows')
         $scope.goToFlow = function (flowId) {
             console.log('Going to flow: ' + flowId);
             $location.path('/flows/' + flowId);
-        };
-
-        $scope.findOne = function () {
-            console.log('Flow ID ', $routeParams.flowId);
-            getFlows().then(function(){
-                $scope.flow = _.findWhere($scope.flows, { flowId : $routeParams.flowId });
-
-                $scope.flow.nodes = _.filter($scope.flow.nodes, { type : 'operation:trigger' });
-
-            });
         };
 
     });

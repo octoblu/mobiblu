@@ -3,11 +3,10 @@
     <p class="content-padded">Trigger flows with a click of a button.</p>
 
     <ul class="table-view">
-        <li class="table-view-cell navigate-right"
-            ng-repeat="flow in flows track by $index"
-            ng-show="flow.name"
-            ng-click="goToFlow(flow.flowId)">
-            {{ flow.name }}
+        <li ng-repeat="flow in combinedFlows track by $index"
+            ng-class="{ 'table-view-cell': flow.type === 'trigger', 'table-view-divider': flow.type === 'flow', 'pulse-on' : flow.sending, 'pulse-off' : !flow.sending }">
+            <span ng-if="flow.type === 'flow'">{{ flow.object.name }}</span>
+            <span ng-if="flow.type === 'trigger'" ng-click="triggerButton(flow.object)">{{ flow.object.name }}</span>
         </li>
     </ul>
 
