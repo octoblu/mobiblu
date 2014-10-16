@@ -165,8 +165,8 @@
         </nav>
 
         <div ng-controller="HeaderCtrl" class="android-only bar bar-standard bar-footer">
-          <a class="icon fa fa-sign-out pull-right" ng-show="loggedin && showLogout" ng-click="logout()"></a>
-          <a class="icon fa fa-gear pull-right" ng-show="loggedin && !showLogout" ng-click="settings()"></a>
+          <a class="icon fa fa-sign-out pull-left" ng-show="loggedin && showLogout" ng-click="logout()"></a>
+          <a class="icon fa fa-gear pull-right" ng-show="loggedin" ng-click="settings()"></a>
         </div>
 
         <div ng-include src="'/angular/views/modals/devices.html'"></div>

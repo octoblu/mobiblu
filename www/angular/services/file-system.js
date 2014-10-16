@@ -31,7 +31,7 @@ angular.module('main.system')
       getFS()
         .then(function(){
 
-          var dest = FSRoot.toURL();
+          var dest = steroids.app.absoluteUserFilesPath; //FSRoot.toURL();
 
           if(!/\/$/.test(dest)){
             dest += '/';
