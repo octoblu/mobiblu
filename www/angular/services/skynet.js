@@ -407,6 +407,10 @@ angular.module('main.skynet')
     };
 
     service.login = function(uuid, token) {
+    	ls.setItem('skynetuuid', uuid);
+      ls.setItem('skynettoken', token);
+      ls.setItem('loggedin', true);
+
       setData(uuid, token);
       $window.loggedin = $rootScope.loggedin = true;
     };

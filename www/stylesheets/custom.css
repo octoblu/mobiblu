@@ -48,6 +48,7 @@ input {
     height: 100%;
     top: 0; left: 0; bottom: 0; right: 0;
     z-index: 9;
+    position: fixed;
 }
 
 #loading {
@@ -134,7 +135,9 @@ input {
 .modal-fix-content {
     padding-top: 22px;
 }
-
+.view-fix {
+	position: fixed;
+}
 .modal {
     position: fixed;
     top: 0;

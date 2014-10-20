@@ -36,6 +36,13 @@ angular.module('main')
             return false;
         };
 
+        $rootScope.isLoginPage = function () {
+            if ($rootScope.matchRoute('/login')) {
+                return true;
+            }
+            return false;
+        };
+
         var redirectToError = function (err, type) {
             if ($rootScope.isErrorPage()) return false;
             $rootScope.clearAppTimeouts();
@@ -65,10 +72,10 @@ angular.module('main')
             $rootScope.clearAppTimeouts();
             timeouts.push(setTimeout(function () {
                 console.log('Loading :: ' + $rootScope.loading);
-                if ($rootScope.loading) {
+                if ($rootScope.loading && $rootScope.isLoginPage()) {
                     $rootScope.redirectToError('Request Timeout.');
                 }
-            }, 1000 * 20));
+            }, 1000 * 30));
         });
 
         $rootScope.setSettings = function () {
