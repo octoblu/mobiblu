@@ -5,8 +5,8 @@ angular.module('main.skynet')
 
     var service = {};
 
-    var ls = window.localStorage;
-    var ms = window.mobibluStorage;
+    var ls = $window.localStorage;
+    var ms = $window.mobibluStorage;
 
     service.loaded = false;
 
@@ -233,6 +233,10 @@ angular.module('main.skynet')
         .catch(onConnectError)
         .then(deviceReady)
         .then(function() {
+        	Activity.logActivity({
+	          type: 'meshblu',
+	          html: 'Connecting to Meshblu...'
+	        });
           return SkynetConn.connect('octoblu', getOctobluDevice());
         })
         .then(function() {
@@ -294,7 +298,10 @@ angular.module('main.skynet')
 
       data = _.extend(getDefaultMobibluDevice(), data);
       data.online = true;
-      ms.setItem('devicename', data.name);
+      if(data.name){
+      	service.devicename = data.name;
+	      ms.setItem('devicename', data.name);
+      }
 
       if (data.setting) {
         ms.setItem('settings', data.setting);

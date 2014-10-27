@@ -49,14 +49,10 @@ angular.module('main.user')
     function processCurrentUser(data) {
       angular.copy(data, currentUser);
 
-      console.log('User' + JSON.stringify(currentUser));
-
       try{
         $window.localStorage.setItem('skynetuuid', currentUser.skynet.uuid);
         $window.localStorage.setItem('skynettoken', currentUser.skynet.token);
-      }catch(e){
-
-      }
+      }catch(e){}
 
       $window.localStorage.setItem('loggedin', 'true');
 

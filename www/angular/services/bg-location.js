@@ -27,7 +27,7 @@ angular.module('main.skynet')
 
         console.log('Started: ' + type);
 
-        var GeoSensor = Sensors.Geolocation(1000);
+        var GeoSensor = new Sensors.Geolocation(1000);
         // If BG Updates is turned off
         GeoSensor.start(function() {
           // Send POST to SkyNet

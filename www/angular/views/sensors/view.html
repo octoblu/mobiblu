@@ -13,7 +13,8 @@
                 <toggle-switch model="setting" change="toggleSwitch"></toggle-switch>
 
             </div>
-            <button class="btn btn-block" ng-click="sendTracking()">Send {{ sensor.label }} Data</button>
+            <button class="btn btn-block" ng-click="sendTracking()" ng-if="!sensorObj.watchID">{{ sensorObj.methodLabel }} {{ sensor.label }} Data</button>
+            <button class="btn btn-block" ng-click="stopWatching()" ng-if="sensorObj.watchID">Stop {{ sensor.label }}</button>
             <div id="sensorData"></div>
         </form>
         <button class="btn btn-block" ng-click="openGraphModal()" ng-show="sensor.graph">View {{ sensor.label }} Graph</button>
