@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.messages')
-  .controller('MessageCtrl', function($rootScope, $scope, OctobluRest, Device, GatebluPlugins, $q, Skynet) {
+  .controller('MessageCtrl', function($rootScope, $scope, Device, GatebluPlugins, $q, Skynet) {
 
       $scope.messages = {};
 

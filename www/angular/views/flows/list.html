@@ -7,6 +7,17 @@
             ng-class="{ 'table-view-cell': flow.type === 'trigger', 'table-view-divider': flow.type === 'flow', 'pulse-on' : flow.sending, 'pulse-off' : !flow.sending }">
             <span ng-if="flow.type === 'flow'">{{ flow.object.name }}</span>
             <span ng-if="flow.type === 'trigger'" ng-click="triggerButton(flow.object)">{{ flow.object.name }}</span>
+            <div ng-if="flow.type === 'flow'"  class="pull-right flow-buttons">
+	            <span ng-click="controlFlow('stop', flow)" class="badge" ng-class="{'badge-negative' : !flow.loadingStatus && !flow.online}">
+	            	<i class="fa fa-stop" ng-class="{'pulse-on' : flow.stoping, 'pulse-off' : !flow.stoping}"></i>
+	            </span>
+	            <span ng-click="controlFlow('start', flow)" class="badge" ng-class="{'badge-positive' : !flow.loadingStatus && flow.online}">
+	            	<i class="fa fa-play" ng-class="{'pulse-on' : flow.starting, 'pulse-off' : !flow.starting}"></i>
+	            </span>
+	            <span ng-click="controlFlow('restart', flow)" class="badge">
+	            	<i class="fa fa-refresh" ng-class="{'pulse-on' : flow.restarting, 'pulse-off' : !flow.restarting}"></i>
+	            </span>
+	          </div>
         </li>
     </ul>
 

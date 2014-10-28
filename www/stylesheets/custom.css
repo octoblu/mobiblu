@@ -128,6 +128,11 @@ input {
    transform:scale(1.1);
 }
 
+.flow-buttons {
+	margin-top: -3px;
+	padding-right: 5px;
+}
+
 .modal-fix {
     padding-top: 0;
 }
