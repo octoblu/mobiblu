@@ -80,7 +80,6 @@ angular.module('main.plugins')
             $rootScope.loading = false;
 
             Plugins.download($scope.plugin)
-                .timeout(15 * 1000)
                 .then(function (plugin) {
                     $timeout(function () {
                         $scope.plugin = plugin;

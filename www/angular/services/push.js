@@ -84,11 +84,11 @@ angular.module('main.skynet')
 
           console.log('Starting Push Flow');
 
-          var a = push.notificationType.badge,
-            b = push.notificationType.sound,
-            c = push.notificationType.alert;
+          var typeBadge = push.notificationType.badge,
+            typeSound = push.notificationType.sound,
+            typeAlert = push.notificationType.alert;
 
-          push.registerForNotificationTypes(a | b | c);
+          push.registerForNotificationTypes(typeBadge | typeSound | typeAlert);
 
           isEnabled()
             .then(getPushID, function() {
