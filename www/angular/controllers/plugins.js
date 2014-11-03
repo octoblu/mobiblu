@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('main.plugins')
-    .controller('PluginCtrl', function ($rootScope, $scope, $routeParams, $timeout, $location, OctobluRest, Utils, Subdevices, Plugins, PluginInstances) {
+    .controller('PluginCtrl', function ($rootScope, $scope, $routeParams, $timeout, $location, Utils, Subdevices, Plugins, PluginInstances) {
 
         $scope.init = function () {
             $rootScope.loading = false;

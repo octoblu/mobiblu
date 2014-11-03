@@ -3,26 +3,57 @@
 angular.module('main.flows')
   .controller('FlowCtrl', function($rootScope, $q, $location, $scope, $timeout, $routeParams, FlowDeploy, Flows, Skynet, Activity) {
 
-    var wait = false;
+    var wait = false, myDevices = [];
+
+    function updateOnlineStatus(uuid, online){
+    	var index = _.findIndex($scope.combinedFlows, function(obj) {
+        return obj.type === 'flow' && obj.object.flowId === uuid;
+      });
+    	if ($scope.combinedFlows[index]) {
+    		$scope.combinedFlows[index].loadingStatus = false;
+        $scope.combinedFlows[index].online = online;
+      }
+    }
+
+    function startListening(conn){
+    	conn.on('message', function (message) {
+    		console.log('On Message', message);
+      	var triggerIndex;
+        if (message.topic === 'device-status') {
+        	updateOnlineStatus(message.fromUuid, message.payload.online);
+        	$scope.$apply();
+        }else if(message.topic === 'button'){
+        	triggerIndex = _.findIndex($scope.combinedFlows, function(obj) {
+		        return obj.type === 'trigger' && obj.object.id === message.payload.from;
+		      });
+
+        	$scope.combinedFlows[triggerIndex].sending = true;
+        	$scope.$apply();
+
+        	$timeout(function(){
+	        	$scope.combinedFlows[triggerIndex].sending = false;
+        	}, 10);
+        }
+      });
+    }
 
     function getFlowsStatus(){
     	var deferred = $q.defer();
     	Skynet.ready().then(function (conn) {
 	      conn.mydevices({}, function(result){
-	        _.each(result.devices, function(device){
-	        	var index = _.findIndex($scope.combinedFlows, function(obj) {
-			        return obj.type === 'flow' && obj.object.flowId === device.uuid;
-			      });
-	        	if ($scope.combinedFlows[index]) {
-	        		$scope.combinedFlows[index].loadingStatus = false;
-		          $scope.combinedFlows[index].online = device.online;
-		        }
+	      	myDevices = result.devices || [];
+	        _.each(myDevices, function(device){
+	        	// Subscribe to Flow
+	  	      conn.subscribe({uuid: device.uuid, type: 'octoblu:flow', topic: 'pulse'});
+	  	      // Update Online Status
+	        	updateOnlineStatus(device.uuid, device.online);
 	        });
 
 	        deferred.resolve();
 
 	        $scope.$apply();
 	      });
+	      startListening(conn);
 	    });
 
 	    return deferred.promise;
@@ -48,6 +79,7 @@ angular.module('main.flows')
           };
         });
         newCombinedFlows = newCombinedFlows.concat(triggers);
+
       });
       return newCombinedFlows;
     }
@@ -75,7 +107,6 @@ angular.module('main.flows')
       // Do something?
     };
 
-
     $scope.triggerButton = function(button) {
       var index = _.findIndex($scope.combinedFlows, function(obj) {
         return obj.type === 'trigger' && obj.object.id === button.id;
@@ -90,17 +121,11 @@ angular.module('main.flows')
           type: 'flows',
           html: 'Flow "' + flow.name + '" Triggered'
         });
-
-        $timeout(function() {
-          $scope.combinedFlows[index].sending = false;
-        }, 10);
       }
 
       $scope.loading = true;
 
       var start = new Date().getTime();
-
-      $scope.combinedFlows[index].sending = true;
 
       if (!wait) {
         markSent();
@@ -138,18 +163,7 @@ angular.module('main.flows')
     	var key = command + 'ing';
     	flow[key] = true;
     	FlowDeploy.controlFlow(command, flow.object.flowId)
-    		.then(function(res){
-    			if(res.status >= 200 && res.status < 300){
-    				switch(command){
-	    				case 'start':
-	    				case 'restart':
-	    					flow.online = true;
-	    					break;
-	    				case 'stop':
-	    					flow.online = false;
-	    					break;
-	    			}
-    			}
+    		.then(function(){
      			flow[key] = false;
     		}, function(err){
     			console.log('Error', err);
@@ -157,9 +171,13 @@ angular.module('main.flows')
     		});
     };
 
-    $scope.goToFlow = function(flowId) {
-      console.log('Going to flow: ' + flowId);
-      $location.path('/flows/' + flowId);
-    };
+    $scope.$on('$destroy', function(){
+    	Skynet.ready().then(function(conn){
+    		_.each(myDevices || [], function(device){
+	      	// Unsubscribe to flow
+		      conn.unsubscribe({uuid: device.uuid, type: 'octoblu:flow', topic: 'pulse'});
+	      });
+    	});
+    });
 
   });
