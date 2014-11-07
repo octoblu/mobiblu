@@ -17,7 +17,6 @@ angular.module('main.flows')
 
     function startListening(conn){
     	conn.on('message', function (message) {
-    		console.log('On Message', message);
       	var triggerIndex;
         if (message.topic === 'device-status') {
         	updateOnlineStatus(message.fromUuid, message.payload.online);
