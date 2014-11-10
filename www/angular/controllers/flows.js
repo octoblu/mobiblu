@@ -6,32 +6,38 @@ angular.module('main.flows')
     var wait = false, myDevices = [];
 
     function updateOnlineStatus(uuid, online){
-    	var index = _.findIndex($scope.combinedFlows, function(obj) {
+    	var flowIndex = _.findIndex($scope.combinedFlows, function(obj) {
         return obj.type === 'flow' && obj.object.flowId === uuid;
       });
-    	if ($scope.combinedFlows[index]) {
-    		$scope.combinedFlows[index].loadingStatus = false;
-        $scope.combinedFlows[index].online = online;
-      }
+      $timeout(function(){
+        if ($scope.combinedFlows[flowIndex]) {
+          $scope.combinedFlows[flowIndex].loadingStatus = false;
+          console.log('Online: ', online);
+          $scope.combinedFlows[flowIndex].online = online;
+        }
+      }, 0);
+    }
+
+    function pulseTrigger(nodeId){
+      var triggerIndex = _.findIndex($scope.combinedFlows, function(obj) {
+        return obj.type === 'trigger' && obj.object.id === nodeId;
+      });
+
+      $timeout(function(){
+        $scope.combinedFlows[triggerIndex].sending = true;
+      }, 0);
+
+      $timeout(function(){
+        $scope.combinedFlows[triggerIndex].sending = false;
+      }, 10);
     }
 
     function startListening(conn){
     	conn.on('message', function (message) {
-      	var triggerIndex;
         if (message.topic === 'device-status') {
         	updateOnlineStatus(message.fromUuid, message.payload.online);
-        	$scope.$apply();
         }else if(message.topic === 'button'){
-        	triggerIndex = _.findIndex($scope.combinedFlows, function(obj) {
-		        return obj.type === 'trigger' && obj.object.id === message.payload.from;
-		      });
-
-        	$scope.combinedFlows[triggerIndex].sending = true;
-        	$scope.$apply();
-
-        	$timeout(function(){
-	        	$scope.combinedFlows[triggerIndex].sending = false;
-        	}, 10);
+          pulseTrigger(message.payload.from);
         }
       });
     }
@@ -42,15 +48,17 @@ angular.module('main.flows')
 	      conn.mydevices({}, function(result){
 	      	myDevices = result.devices || [];
 	        _.each(myDevices, function(device){
+            if(device.type !== 'octoblu:flow'){
+              return;
+            }
 	        	// Subscribe to Flow
 	  	      conn.subscribe({uuid: device.uuid, type: 'octoblu:flow', topic: 'pulse'});
 	  	      // Update Online Status
 	        	updateOnlineStatus(device.uuid, device.online);
 	        });
 
-	        deferred.resolve();
-
 	        $scope.$apply();
+          deferred.resolve();
 	      });
 	      startListening(conn);
 	    });

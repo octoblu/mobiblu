@@ -10,6 +10,9 @@ angular.module('main.skynet')
 
         function isEnabled() {
           return new Promise(function(resolve, reject) {
+            if (!push) {
+              return reject("No Push Object");
+            }
             push.isPushEnabled(function(status) {
               console.log('Push Status: ' + JSON.stringify(status));
               if (status || status === 'OK') {
@@ -56,6 +59,9 @@ angular.module('main.skynet')
         function getPushID() {
           return new Promise(function(resolve, reject) {
             if (app.pushID) return resolve();
+            if (!push) {
+              return reject("No Push Object");
+            }
             push.getPushID(function(pushID) {
               console.log('Push ID: ' + pushID);
 
@@ -73,20 +79,25 @@ angular.module('main.skynet')
         }
 
         function enable() {
-          return new Promise(function(resolve) {
+          return new Promise(function(resolve, reject) {
+            if (!push) {
+              return reject("No Push Object");
+            }
             push.enablePush(resolve);
           });
         }
 
         function start() {
           if (started) return console.log('Starting Push Notifications Logic');
-
-
           console.log('Starting Push Flow');
 
           var typeBadge = push.notificationType.badge,
             typeSound = push.notificationType.sound,
             typeAlert = push.notificationType.alert;
+
+          if (!push) {
+            return;
+          }
 
           push.registerForNotificationTypes(typeBadge | typeSound | typeAlert);
 
@@ -104,8 +115,6 @@ angular.module('main.skynet')
         function onRegistration(event) {
           if (event.error) {
             // Not Registered
-            var msg = 'Urbanairship Registration Error';
-
             Activity.logActivity({
               type: 'push',
               error: event.error
