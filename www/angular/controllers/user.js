@@ -8,9 +8,39 @@ angular.module('main.user')
     $scope.user = {};
 
     $scope.init = function() {
-      $scope.error = '';
+      $scope.error = 'error.js';
       $rootScope.clearAppTimeouts();
     };
+
+    function authLoginHack(){
+      var interval;
+      var url = 'https://app.octoblu.com/static/auth-login.html';
+      var authWindow = $window.open(url, '_blank', 'location=no,toolbar=yes,closebuttoncaption=Cancel');
+      console.log('Auth Window', authWindow);
+      $window.authWindow = authWindow;
+      function exit(){
+        clearInterval(interval);
+        authWindow.close();
+        redirectAndReload();
+      }
+      interval = setInterval(function(){
+        var JavaScriptHack = 'var creds = $(document).find("#creds"); if(creds && creds[0]){ creds[0].outerHTML }';
+
+        authWindow.executeScript({ code : JavaScriptHack}, function(values){
+          if(!values) return;
+          var body = values[0];
+          if(!body) return;
+          console.log(body);
+          var creds = $(body);
+          if(!creds) return;
+          var uuid = creds.attr('data-uuid');
+          var token = creds.attr('data-token');
+          if(!uuid || !token) return;
+          Skynet.login(uuid, token);
+          exit();
+        });
+      }, 1000);
+    }
 
     function redirectAndReload() {
       $rootScope.$on('$locationChangeSuccess', function() {
@@ -31,14 +61,17 @@ angular.module('main.user')
         url += '/api/oauth/' + provider;
       }
       url += '?mobile=true&referrer=' + encodeURIComponent(Config.LOCAL_URL + 'login');
-      var authWindow = $window.open(url, '_blank', 'location=no,toolbar=yes,closebuttoncaption=Cancel');
 
+      var authWindow = $window.open(url, '_blank', 'location=no,toolbar=yes,closebuttoncaption=Cancel');
+      console.log('Auth Window', authWindow);
+      window.authWindow = authWindow;
       function exit() {
         authWindow.removeEventListener('loadstart', loadStart);
        	authWindow.removeEventListener('exit', exit);
       }
 
       function loadStart(e) {
+        console.log('Auth Window Event', e);
         var url  = e.url;
         var uuid = /\?uuid=(.+)$/.exec(url);
 
@@ -66,8 +99,6 @@ angular.module('main.user')
             $window.location = '/error.html';
             return;
           }
-
-
         }
       }
       authWindow.addEventListener('loadstart', loadStart);

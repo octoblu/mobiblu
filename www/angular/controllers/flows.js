@@ -45,7 +45,7 @@ angular.module('main.flows')
     function getFlowsStatus(){
     	var deferred = $q.defer();
     	Skynet.ready().then(function (conn) {
-	      conn.mydevices({}, function(result){
+	      conn.mydevices({ }, function(result){
 	      	myDevices = result.devices || [];
 	        _.each(myDevices, function(device){
             if(device.type !== 'octoblu:flow'){
@@ -108,10 +108,8 @@ angular.module('main.flows')
 
     $rootScope.loading = true;
 
-    getFlows();
-
     $scope.init = function() {
-      // Do something?
+      getFlows();
     };
 
     $scope.triggerButton = function(button) {

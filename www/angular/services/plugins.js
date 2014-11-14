@@ -8,7 +8,6 @@ angular.module('main.plugins')
 
     var loaded = false;
 
-
     function findPlugin(name) {
       return _.findIndex(plugins, {
         name: name
@@ -427,10 +426,7 @@ angular.module('main.plugins')
           deleted = true;
         });
 
-      if (deleted)
-        deferred.resolve();
-      else
-        deferred.reject();
+      deferred.resolve();
 
       return deferred.promise;
     };
